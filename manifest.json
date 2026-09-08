@@ -1,0 +1,11 @@
+{
+  "background_color": "#047857",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Dadda Farm",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Dadda Farm",
+  "start_url": "/dadda-farm/",
+  "theme_color": "#047857"
+}
