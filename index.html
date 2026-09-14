@@ -3,167 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dadda Enviro Varah Farms - Master Dashboard</title>
+    <title>Dadda Enviro Varah Farms - Authentication</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-slate-100 font-sans antialiased pb-16 min-h-screen">
+<body class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-slate-100 font-sans antialiased min-h-screen flex items-center justify-center p-4">
 
-    <!-- Top Header with IST Clock & Language Selector -->
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-emerald-500/20 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-3">
+    <!-- ================= LOGIN / REGISTRATION GATEWAY ================= -->
+    <div id="auth-container" class="w-full max-w-md bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+            <div class="inline-block bg-gradient-to-tr from-emerald-600 to-teal-500 p-3 rounded-2xl text-white font-black text-sm tracking-wider shadow-lg">DEVAF</div>
+            <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Dadda Enviro Varah Farms</h1>
+            <p class="text-xs text-slate-400">Secure Master & User Portal</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
+            <div class="space-y-1">
+                <label class="text-slate-400 font-medium">Select Role / User</label>
+                <select id="loginRole" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+                    <option value="admin">Master Admin (Devendra)</option>
+                    <option value="operator">Standard Farm Operator</option>
+                </select>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-slate-400 font-medium">Access Passcode / PIN</label>
+                <input type="password" id="loginPin" placeholder="Enter security passcode" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg shadow-emerald-950/50 transition">Authenticate & Enter</button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-800">
+            <p class="text-[10px] text-slate-500">Authorized personnel only. Cloud sync active via Supabase.</p>
+        </div>
+    </div>
+
+    <!-- ================= MAIN DASHBOARD WRAPPER (Hidden until login) ================= -->
+    <div id="main-dashboard" class="hidden w-full max-w-7xl mx-auto space-y-6">
+        <!-- Top Navigation Header -->
+        <header class="bg-slate-900/90 backdrop-blur-md border-b border-emerald-500/20 sticky top-0 z-50 rounded-2xl px-4 py-3 shadow-xl flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2.5 rounded-xl text-white font-black text-xs">DEVAF</div>
                 <div>
                     <h1 class="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400" data-translate="app_title">Dadda Enviro Varah Farms</h1>
-                    <p class="text-[10px] text-emerald-300/80" data-translate="app_subtitle">Cloud-Synced Master & User Operations</p>
+                    <p class="text-[10px] text-emerald-300/80" id="active-user-badge">Role: Active</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-3 flex-wrap">
                 <!-- Real-Time IST Clock -->
-                <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-[10px] font-mono text-emerald-400 flex items-center gap-1.5 shadow-inner">
+                <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span id="ist-clock">Loading IST...</span>
                 </div>
 
                 <!-- Language Selector -->
                 <div class="bg-slate-950 border border-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-xs">
-                    <span class="text-[10px] text-slate-400">🌐</span>
+                    <span>🌐</span>
                     <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-emerald-400 font-bold text-xs focus:outline-none cursor-pointer">
                         <option value="en" class="bg-slate-900">English</option>
-                        <option value="hi" class="bg-slate-900">हिंदी (Hindi)</option>
-                        <option value="mr" class="bg-slate-900">मराठी (Marathi)</option>
+                        <option value="hi" class="bg-slate-900">हिंदी</option>
+                        <option value="mr" class="bg-slate-900">मराठी</option>
                     </select>
                 </div>
 
-                <!-- Role Selector -->
-                <div class="bg-slate-950 border border-slate-700 px-3 py-1 rounded-lg flex items-center gap-2 text-xs">
-                    <span class="text-[10px] text-slate-400" data-translate="role_label">Role:</span>
-                    <select id="userRoleSelect" onchange="changeRole(this.value)" class="bg-transparent text-emerald-400 font-bold text-xs focus:outline-none cursor-pointer">
-                        <option value="admin" class="bg-slate-900">Master Admin</option>
-                        <option value="operator" class="bg-slate-900">Farm User / Operator</option>
-                    </select>
-                </div>
+                <!-- Logout Button -->
+                <button onclick="handleLogout()" class="bg-red-950/80 border border-red-900/60 text-red-400 hover:bg-red-900 text-xs px-3 py-1.5 rounded-lg font-bold transition">Logout</button>
             </div>
-        </div>
+        </header>
 
         <!-- Navigation Tabs -->
-        <div class="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto mt-1">
-            <button onclick="switchTab('animals')" id="nav-animals" class="nav-btn px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md" data-translate="nav_animals">Animals</button>
-            <button onclick="switchTab('breeding')" id="nav-breeding" class="nav-btn px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-medium text-xs" data-translate="nav_breeding">Breeding</button>
-            <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-medium text-xs" data-translate="nav_feed">Feed & Cost</button>
-            <button onclick="switchTab('iot')" id="nav-iot" class="nav-btn px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-medium text-xs" data-translate="nav_iot">Facility & IoT</button>
-            <button onclick="switchTab('master')" id="nav-master" class="nav-btn px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-medium text-xs" data-translate="nav_master">Master Blueprint</button>
+        <div class="flex gap-2 overflow-x-auto px-1">
+            <button onclick="switchTab('animals')" id="nav-animals" class="nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md" data-translate="nav_animals">Animals</button>
+            <button onclick="switchTab('breeding')" id="nav-breeding" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_breeding">Breeding</button>
+            <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_feed">Feed & Cost</button>
+            <button onclick="switchTab('iot')" id="nav-iot" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_iot">Facility & IoT</button>
+            <button onclick="switchTab('master')" id="nav-master" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_master">Master Blueprint</button>
         </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
-        <!-- ================= ANIMALS SECTION ================= -->
-        <section id="tab-animals" class="tab-content space-y-6">
-            <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs font-bold text-emerald-400 mb-4 flex items-center justify-between">
-                    <span data-translate="header_add_animal">LOG / EDIT ANIMAL RECORD</span>
-                    <span id="form-mode-badge" class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">Mode: New Entry</span>
-                </h2>
-                <form id="animalForm" onsubmit="handleAnimalSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    <input type="hidden" id="editAnimalId">
-                    <input type="text" id="tagId" placeholder="Tag ID (e.g. VFH-042)" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <select id="gender" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                        <option value="Male">Male (Boar)</option>
-                        <option value="Female">Female (Sow)</option>
-                        <option value="Piglet">Piglet</option>
-                    </select>
-                    <input type="number" step="0.1" id="weight" placeholder="Weight (kg)" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <div class="flex gap-2">
-                        <button type="submit" id="saveAnimalBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg px-3 py-2 shadow transition" data-translate="btn_save">Save Record</button>
-                        <button type="button" id="cancelEditBtn" onclick="resetAnimalForm()" class="hidden bg-slate-800 text-slate-300 px-3 py-2 rounded-lg">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Animals Grid -->
-            <div class="space-y-3">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider" data-translate="header_livestock_list">Live Livestock Directory</h3>
-                <div id="animal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">Loading synchronized livestock records...</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= BREEDING SECTION ================= -->
-        <section id="tab-breeding" class="tab-content hidden space-y-6">
-            <div class="bg-slate-900 border border-teal-500/30 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs font-bold text-teal-400 mb-4" data-translate="header_breeding">LITTER & BREEDING LOG</h2>
-                <form id="breedingForm" onsubmit="handleBreedingSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <input type="hidden" id="editBreedingId">
-                    <input type="text" id="femaleTag" placeholder="Female Tag ID" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <input type="text" id="maleTag" placeholder="Male Tag ID" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <div class="flex gap-2">
-                        <input type="number" id="survivedCount" placeholder="Survived Count" required class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-lg px-4 py-2 shadow" data-translate="btn_save">Save</button>
-                    </div>
-                </form>
-            </div>
-            <div id="breeding-list" class="space-y-3"></div>
-        </section>
-
-        <!-- ================= FEED & COST SECTION ================= -->
-        <section id="tab-feed" class="tab-content hidden space-y-6">
-            <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs font-bold text-cyan-400 mb-4" data-translate="header_feed">DAILY INTAKE & EXPENSES</h2>
-                <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <input type="hidden" id="editFeedId">
-                    <input type="text" id="feedType" placeholder="Feed Description" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <input type="number" step="0.1" id="feedQty" placeholder="Qty (kg)" required class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                    <div class="flex gap-2">
-                        <input type="number" step="0.01" id="feedCost" placeholder="Cost (₹)" required class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
-                        <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg px-4 py-2 shadow" data-translate="btn_save">Save</button>
-                    </div>
-                </form>
-            </div>
-            <div id="feed-list" class="space-y-3"></div>
-        </section>
-
-        <!-- ================= FACILITY & IOT ================= -->
-        <section id="tab-iot" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
-                <div class="bg-slate-900 border border-indigo-500/30 rounded-2xl p-5 shadow-lg space-y-4">
-                    <h2 class="font-bold text-indigo-400 flex items-center justify-between">
-                        <span>LIVE CAMERA FEEDS (RTSP)</span>
-                        <span class="bg-red-950 text-red-400 px-2 py-0.5 rounded text-[10px] border border-red-900">Online</span>
+        <!-- Dashboard Content Areas -->
+        <main class="space-y-6">
+            <!-- Animals Section -->
+            <section id="tab-animals" class="tab-content space-y-6">
+                <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex justify-between items-center">
+                        <span data-translate="header_add_animal">LOG / EDIT ANIMAL RECORD</span>
+                        <span id="form-mode-badge" class="text-[10px] bg-emerald-950 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800">Mode: New Entry</span>
                     </h2>
-                    <div class="aspect-video bg-black rounded-xl border border-slate-800 flex items-center justify-center text-slate-500">
-                        Camera Feed 01 - Gestation Shed Active
-                    </div>
-                </div>
-                <div class="bg-slate-900 border border-orange-500/30 rounded-2xl p-5 shadow-lg space-y-4">
-                    <h2 class="font-bold text-orange-400">CLIMATE & COMPRESSOR SETTINGS</h2>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <div>
-                            <p class="text-slate-400 text-[10px]">CURRENT TEMPERATURE</p>
-                            <p class="text-2xl font-black text-white">24.5°C</p>
+                    <form id="animalForm" onsubmit="handleAnimalSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <input type="hidden" id="editAnimalId">
+                        <input type="text" id="tagId" placeholder="Tag ID (e.g. VFH-042)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                        <select id="gender" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Male">Male (Boar)</option>
+                            <option value="Female">Female (Sow)</option>
+                            <option value="Piglet">Piglet</option>
+                        </select>
+                        <input type="number" step="0.1" id="weight" placeholder="Weight (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl px-3 py-2.5 shadow transition" data-translate="btn_save">Save</button>
+                            <button type="button" id="cancelEditBtn" onclick="resetAnimalForm()" class="hidden bg-slate-800 text-slate-300 px-3 py-2.5 rounded-xl">Cancel</button>
                         </div>
-                        <span class="text-xs text-orange-400 font-bold bg-orange-950 px-3 py-1 rounded-full border border-orange-900">RUNNING</span>
+                    </form>
+                </div>
+                <div id="animal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            </section>
+
+            <!-- Breeding Section -->
+            <section id="tab-breeding" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xs font-bold text-teal-400 uppercase tracking-wider" data-translate="header_breeding">LITTER & BREEDING LOG</h2>
+                    <form id="breedingForm" onsubmit="handleBreedingSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <input type="text" id="femaleTag" placeholder="Female Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                        <input type="text" id="maleTag" placeholder="Male Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                        <div class="flex gap-2">
+                            <input type="number" id="survivedCount" placeholder="Survived Count" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                            <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-4 py-2.5 shadow">Save</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="breeding-list" class="space-y-3"></div>
+            </section>
+
+            <!-- Feed Section -->
+            <section id="tab-feed" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider" data-translate="header_feed">DAILY INTAKE & EXPENSES</h2>
+                    <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <input type="text" id="feedType" placeholder="Feed Description" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                        <input type="number" step="0.1" id="feedQty" placeholder="Qty (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                        <div class="flex gap-2">
+                            <input type="number" step="0.01" id="feedCost" placeholder="Cost (₹)" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl px-4 py-2.5 shadow">Save</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="feed-list" class="space-y-3"></div>
+            </section>
+
+            <!-- Facility & IoT Section -->
+            <section id="tab-iot" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+                    <div class="bg-slate-900 border border-indigo-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                        <h2 class="font-bold text-indigo-400">LIVE CAMERA FEEDS (RTSP)</h2>
+                        <div class="aspect-video bg-black rounded-2xl border border-slate-800 flex items-center justify-center text-slate-500">Camera Feed 01 - Active</div>
+                    </div>
+                    <div class="bg-slate-900 border border-orange-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                        <h2 class="font-bold text-orange-400">CLIMATE & COMPRESSOR SETTINGS</h2>
+                        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+                            <div><p class="text-slate-400 text-[10px]">CURRENT TEMPERATURE</p><p class="text-2xl font-black text-white">24.5°C</p></div>
+                            <span class="text-xs text-orange-400 font-bold bg-orange-950 px-3 py-1 rounded-full border border-orange-900">RUNNING</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ================= MASTER BLUEPRINT ================= -->
-        <section id="tab-master" class="tab-content hidden space-y-6">
-            <div class="bg-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-xl text-xs space-y-4">
-                <h2 class="font-bold text-purple-400 text-sm">DADDA ENVIRO VARAH FARMS - MASTER ARCHITECTURE</h2>
-                <p class="text-slate-300">Comprehensive master record combining hybrid growth strategies, live cloud database sync via Supabase, role-based security, and multilingual support.</p>
-            </div>
-        </section>
+            <!-- Master Blueprint -->
+            <section id="tab-master" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-4">
+                    <h2 class="font-bold text-purple-400 text-sm">DADDA ENVIRO VARAH FARMS - MASTER ARCHITECTURE</h2>
+                    <p class="text-slate-300">Master record containing strategic hybrid models, automated feed intake calculations, gender-specific growth targets, and secure multi-role access control.</p>
+                </div>
+            </section>
+        </main>
+    </div>
 
-    </main>
-
-    <!-- JavaScript Application Engine -->
+    <!-- Script Engine -->
     <script>
-        // Supabase Configuration
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
         let dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -171,117 +177,95 @@
         let currentUserRole = 'admin';
         let currentLang = 'en';
 
-        // Translations Dictionary
         const translations = {
             en: {
                 app_title: "Dadda Enviro Varah Farms",
-                app_subtitle: "Cloud-Synced Master & User Operations",
-                role_label: "Role:",
-                nav_animals: "Animals",
-                nav_breeding: "Breeding",
-                nav_feed: "Feed & Cost",
-                nav_iot: "Facility & IoT",
-                nav_master: "Master Blueprint",
-                header_add_animal: "LOG / EDIT ANIMAL RECORD",
-                btn_save: "Save Record",
-                header_livestock_list: "Live Livestock Directory",
-                header_breeding: "LITTER & BREEDING LOG",
-                header_feed: "DAILY INTAKE & EXPENSES"
+                nav_animals: "Animals", nav_breeding: "Breeding", nav_feed: "Feed & Cost", nav_iot: "Facility & IoT", nav_master: "Master Blueprint",
+                header_add_animal: "LOG / EDIT ANIMAL RECORD", btn_save: "Save", header_breeding: "LITTER & BREEDING LOG", header_feed: "DAILY INTAKE & EXPENSES"
             },
             hi: {
                 app_title: "डड्डा एनवायरो वराह फार्म्स",
-                app_subtitle: "क्लाउड-सिंक्ड मास्टर और यूजर ऑपरेशंस",
-                role_label: "भूमिका:",
-                nav_animals: "पशु (Animals)",
-                nav_breeding: "प्रजनन (Breeding)",
-                nav_feed: "चारा और लागत",
-                nav_iot: "सुविधा और आईओटी",
-                nav_master: "मास्टर ब्लूप्रिंट",
-                header_add_animal: "पशु रिकॉर्ड जोड़ें / संपादित करें",
-                btn_save: "रिकॉर्ड सहेजें",
-                header_livestock_list: "लाइव पशु निर्देशिका",
-                header_breeding: "प्रजनन और लिटर लॉग",
-                header_feed: "दैनिक आहार और खर्च"
+                nav_animals: "पशु", nav_breeding: "प्रजनन", nav_feed: "चारा और लागत", nav_iot: "सुविधा और आईओटी", nav_master: "मास्टर ब्लूप्रिंट",
+                header_add_animal: "पशु रिकॉर्ड जोड़ें / संपादित करें", btn_save: "सहेजें", header_breeding: "प्रजनन लॉग", header_feed: "दैनिक आहार और खर्च"
             },
             mr: {
                 app_title: "डड्डा एनव्हायरो वराह फार्म्स",
-                app_subtitle: "क्लाउड-सिंक्ड मास्टर आणि युजर ऑपरेशन्स",
-                role_label: "भूमिका:",
-                nav_animals: "जनावरे (Animals)",
-                nav_breeding: "प्रजनन (Breeding)",
-                nav_feed: "खाद्य आणि खर्च",
-                nav_iot: "सुविधा आणि आयओटी",
-                nav_master: "मास्टर ब्लूप्रिंट",
-                header_add_animal: "जनावराचा रेकॉर्ड जोडा / संपादित करा",
-                btn_save: "रेकॉर्ड जतन करा",
-                header_livestock_list: "लाइव जनावरांची यादी",
-                header_breeding: "प्रजनन आणि लिटर लॉग",
-                header_feed: "दैनिक खाद्य आणि खर्च"
+                nav_animals: "जनावरे", nav_breeding: "प्रजनन", nav_feed: "खाद्य आणि खर्च", nav_iot: "सुविधा आणि आयओटी", nav_master: "मास्टर ब्लूप्रिंट",
+                header_add_animal: "जनावराचा रेकॉर्ड जोडा / संपादित करा", btn_save: "जतन करा", header_breeding: "प्रजनन लॉग", header_feed: "दैनिक खाद्य आणि खर्च"
             }
         };
 
-        // Real-Time IST Clock
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById('loginRole').value;
+            const pin = document.getElementById('loginPin').value;
+
+            // Simple validation pin check (Admin PIN: 1998 or custom, Operator: any 4 digits)
+            if(role === 'admin' && pin !== '1998') {
+                alert('Invalid Master Admin Pin! (Hint: use birth year or default pin)');
+                return;
+            }
+
+            currentUserRole = role;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('active-user-badge').innerText = `Role: ${role === 'admin' ? 'Master Admin (Devendra)' : 'Farm Operator'}`;
+
+            fetchAnimals(); fetchBreeding(); fetchFeed();
+        }
+
+        function handleLogout() {
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('loginPin').value = '';
+        }
+
         function updateISTClock() {
             const now = new Date();
-            const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            const timeString = new Intl.DateTimeFormat('en-IN', options).format(now);
-            const dateString = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' }).format(now);
-            document.getElementById('ist-clock').innerText = `${dateString} | ${timeString} IST`;
+            const timeStr = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(now);
+            const dateStr = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' }).format(now);
+            if(document.getElementById('ist-clock')) {
+                document.getElementById('ist-clock').innerText = `${dateStr} | ${timeStr} IST`;
+            }
         }
         setInterval(updateISTClock, 1000);
         updateISTClock();
 
-        // Language Switcher
         function changeLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
-                if(translations[lang][key]) {
-                    el.innerText = translations[lang][key];
-                }
+                if(translations[lang][key]) el.innerText = translations[lang][key];
             });
         }
 
-        // Role Selector
-        function changeRole(role) {
-            currentUserRole = role;
-            fetchAnimals();
-            fetchBreeding();
-            fetchFeed();
-        }
-
-        // Tab Switcher
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
-                el.className = "nav-btn px-4 py-2 rounded-lg bg-slate-800 text-slate-300 font-medium text-xs";
+                el.className = "nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800";
             });
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             const activeBtn = document.getElementById('nav-' + tabId);
-            activeBtn.className = "nav-btn px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md";
+            activeBtn.className = "nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md";
         }
 
-        // ================= DATA FETCH & CRUD OPERATIONS =================
         async function fetchAnimals() {
             if(!dbClient) return;
-            const { data, error } = await dbClient.from('animals').select('*').order('created_at', { ascending: false });
+            const { data } = await dbClient.from('animals').select('*');
             const grid = document.getElementById('animal-list');
-            if(error || !data || data.length === 0) {
+            if(!data || data.length === 0) {
                 grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No animal records found.</div>`;
                 return;
             }
             grid.innerHTML = data.map(item => `
-                <div class="bg-slate-900 border border-emerald-500/20 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-lg">
+                <div class="bg-slate-900 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-lg">
                     <div>
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-emerald-400 text-xs">${item.tagId}</span>
-                            <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span>
-                        </div>
+                        <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
                         <p class="text-xs text-slate-300 mt-2">Weight: <strong class="text-white">${item.weight} kg</strong></p>
                     </div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                        <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight})" class="text-[10px] text-cyan-400 hover:text-cyan-300 bg-cyan-950 px-2 py-1 rounded border border-cyan-900">Edit</button>
-                        ${currentUserRole === 'admin' ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 hover:text-red-300 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
+                        <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight})" class="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-1 rounded border border-cyan-900">Edit</button>
+                        ${currentUserRole === 'admin' ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -290,20 +274,10 @@
         async function handleAnimalSubmit(e) {
             e.preventDefault();
             const id = document.getElementById('editAnimalId').value;
-            const record = {
-                tagId: document.getElementById('tagId').value,
-                gender: document.getElementById('gender').value,
-                weight: parseFloat(document.getElementById('weight').value) || 0
-            };
-
-            if(id) {
-                await dbClient.from('animals').update(record).eq('id', id);
-            } else {
-                record.id = 'ANI-' + Date.now();
-                await dbClient.from('animals').insert([record]);
-            }
-            resetAnimalForm();
-            fetchAnimals();
+            const record = { tagId: document.getElementById('tagId').value, gender: document.getElementById('gender').value, weight: parseFloat(document.getElementById('weight').value) || 0 };
+            if(id) { await dbClient.from('animals').update(record).eq('id', id); } 
+            else { record.id = 'ANI-' + Date.now(); await dbClient.from('animals').insert([record]); }
+            resetAnimalForm(); fetchAnimals();
         }
 
         function editAnimal(id, tagId, gender, weight) {
@@ -311,7 +285,7 @@
             document.getElementById('tagId').value = tagId;
             document.getElementById('gender').value = gender;
             document.getElementById('weight').value = weight;
-            document.getElementById('form-mode-badge').innerText = "Mode: Editing Record";
+            document.getElementById('form-mode-badge').innerText = "Mode: Editing";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
         }
 
@@ -323,53 +297,35 @@
         }
 
         async function deleteRecord(table, id) {
-            if(currentUserRole !== 'admin') {
-                alert("Restricted: Only Master Admin can delete records.");
-                return;
-            }
-            if(confirm("Are you sure you want to delete this entry?")) {
-                await dbClient.from(table).delete().eq('id', id);
-                fetchAnimals();
-                fetchBreeding();
-                fetchFeed();
-            }
+            if(currentUserRole !== 'admin') { alert("Restricted: Only Master Admin can delete records."); return; }
+            if(confirm("Delete this entry?")) { await dbClient.from(table).delete().eq('id', id); fetchAnimals(); fetchBreeding(); fetchFeed(); }
         }
 
-        // Placeholder for Breeding & Feed fetch routines
         async function fetchBreeding() {
             if(!dbClient) return;
             const { data } = await dbClient.from('breeding_logs').select('*');
-            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-lg text-xs flex justify-between"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount}</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
+            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount}</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
         }
 
         async function handleBreedingSubmit(e) {
             e.preventDefault();
             const record = { id: 'BRD-' + Date.now(), femaleTag: document.getElementById('femaleTag').value, maleTag: document.getElementById('maleTag').value, survivedCount: parseInt(document.getElementById('survivedCount').value) };
             await dbClient.from('breeding_logs').insert([record]);
-            document.getElementById('breedingForm').reset();
-            fetchBreeding();
+            document.getElementById('breedingForm').reset(); fetchBreeding();
         }
 
         async function fetchFeed() {
             if(!dbClient) return;
             const { data } = await dbClient.from('feed_logs').select('*');
-            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-lg text-xs flex justify-between"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost})</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
+            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost})</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
         }
 
         async function handleFeedSubmit(e) {
             e.preventDefault();
             const record = { id: 'FED-' + Date.now(), feedType: document.getElementById('feedType').value, qty: parseFloat(document.getElementById('feedQty').value), feedCost: parseFloat(document.getElementById('feedCost').value) };
             await dbClient.from('feed_logs').insert([record]);
-            document.getElementById('feedForm').reset();
-            fetchFeed();
+            document.getElementById('feedForm').reset(); fetchFeed();
         }
-
-        // Initial Data Load
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchAnimals();
-            fetchBreeding();
-            fetchFeed();
-        });
     </script>
 </body>
 </html>
