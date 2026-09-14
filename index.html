@@ -3,39 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dadda Enviro Varah Farms - Authentication</title>
+    <title>Dadda Enviro Varah Farms - Master & User Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-slate-100 font-sans antialiased min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-slate-100 font-sans antialiased min-h-screen p-4 flex flex-col justify-center items-center">
 
-    <!-- ================= LOGIN / REGISTRATION GATEWAY ================= -->
-    <div id="auth-container" class="w-full max-w-md bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6">
+    <!-- ================= AUTHENTICATION / LOGIN & REGISTRATION GATEWAY ================= -->
+    <div id="auth-container" class="w-full max-w-md bg-slate-900/95 backdrop-blur-md border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6 relative">
         <div class="text-center space-y-2">
             <div class="inline-block bg-gradient-to-tr from-emerald-600 to-teal-500 p-3 rounded-2xl text-white font-black text-sm tracking-wider shadow-lg">DEVAF</div>
             <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Dadda Enviro Varah Farms</h1>
-            <p class="text-xs text-slate-400">Secure Master & User Portal</p>
+            <p class="text-xs text-slate-400">Real-Time Secure Cloud Portal</p>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
+        <!-- Mode Switcher Tabs -->
+        <div class="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold text-center">
+            <button type="button" onclick="switchAuthMode('login')" id="auth-tab-login" class="py-2 rounded-lg bg-emerald-600 text-white transition">Login</button>
+            <button type="button" onclick="switchAuthMode('register')" id="auth-tab-register" class="py-2 rounded-lg text-slate-400 hover:text-white transition">New User Register</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Select Role / User</label>
-                <select id="loginRole" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
-                    <option value="admin">Master Admin (Devendra)</option>
-                    <option value="operator">Standard Farm Operator</option>
+                <label class="text-slate-400 font-medium">Select User / Master</label>
+                <select id="loginUserSelect" onchange="onLoginUserChange(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500 cursor-pointer">
+                    <option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>
+                    <!-- Dynamically populated approved users will appear here -->
                 </select>
             </div>
 
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Access Passcode / PIN</label>
-                <input type="password" id="loginPin" placeholder="Enter security passcode" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+                <label class="text-slate-400 font-medium">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
 
-            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg shadow-emerald-950/50 transition">Authenticate & Enter</button>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg shadow-emerald-950/50 transition">Secure Login</button>
+        </form>
+
+        <!-- REGISTRATION FORM -->
+        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 text-xs hidden">
+            <div class="space-y-1">
+                <label class="text-slate-400 font-medium">Full Name / Username ID</label>
+                <input type="text" id="regUsername" placeholder="e.g. Ramesh Patil" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div class="space-y-1">
+                <label class="text-slate-400 font-medium">Create Password</label>
+                <input type="password" id="regPassword" placeholder="Set secure password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div class="bg-emerald-950/40 border border-emerald-500/20 p-3 rounded-xl text-[11px] text-emerald-300">
+                ℹ️ Registering will send an approval OTP request to Master Admin (<strong class="text-white">idevsengar@gmail.com</strong>). Once approved, you can log in using your selected username and password.
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold tracking-wider shadow-lg transition">Submit Registration Request</button>
         </form>
 
         <div class="text-center pt-2 border-t border-slate-800">
-            <p class="text-[10px] text-slate-500">Authorized personnel only. Cloud sync active via Supabase.</p>
+            <p class="text-[10px] text-slate-500">Real-Time Cloud Database Synchronized via Supabase</p>
+        </div>
+    </div>
+
+    <!-- ================= PASSWORD REMINDER POPUP MODAL ================= -->
+    <div id="password-reminder-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+        <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600/20 text-emerald-400 p-3 rounded-2xl text-lg font-black">🔐</div>
+                <div>
+                    <h3 class="text-sm font-bold text-white">Password Reminder for Future Logins</h3>
+                    <p class="text-slate-400 text-[11px]">Important Notice</p>
+                </div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-slate-300 space-y-2 leading-relaxed">
+                <p>Always fill in and keep this same password safe for future use!</p>
+                <p class="text-emerald-400 font-medium">In future sessions, you can directly select your username from the dropdown and use this exact password to log in instantly without re-registering.</p>
+            </div>
+            <button onclick="dismissPasswordReminder()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition">I Understand, Proceed to Dashboard</button>
         </div>
     </div>
 
@@ -79,10 +120,11 @@
             <button onclick="switchTab('breeding')" id="nav-breeding" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_breeding">Breeding</button>
             <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_feed">Feed & Cost</button>
             <button onclick="switchTab('iot')" id="nav-iot" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_iot">Facility & IoT</button>
-            <button onclick="switchTab('master')" id="nav-master" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-translate="nav_master">Master Blueprint</button>
+            <button onclick="switchTab('adminPanel')" id="nav-adminPanel" class="nav-btn admin-only px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800 hidden">Master Control & Approvals</button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800">Account Settings</button>
         </div>
 
-        <!-- Dashboard Content Areas -->
+        <!-- Dashboard Content Sections -->
         <main class="space-y-6">
             <!-- Animals Section -->
             <section id="tab-animals" class="tab-content space-y-6">
@@ -158,23 +200,42 @@
                 </div>
             </section>
 
-            <!-- Master Blueprint -->
-            <section id="tab-master" class="tab-content hidden space-y-6">
+            <!-- Master Control & Approvals Section -->
+            <section id="tab-adminPanel" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-4">
-                    <h2 class="font-bold text-purple-400 text-sm">DADDA ENVIRO VARAH FARMS - MASTER ARCHITECTURE</h2>
-                    <p class="text-slate-300">Master record containing strategic hybrid models, automated feed intake calculations, gender-specific growth targets, and secure multi-role access control.</p>
+                    <h2 class="font-bold text-purple-400 text-sm">MASTER PENDING USER APPROVALS</h2>
+                    <p class="text-slate-400">Users requesting access via OTP to <strong class="text-white">idevsengar@gmail.com</strong>:</p>
+                    <div id="pending-users-list" class="space-y-2"></div>
+                </div>
+            </section>
+
+            <!-- Account Settings Section -->
+            <section id="tab-settings" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-xl text-xs space-y-4 max-w-lg">
+                    <h2 class="font-bold text-emerald-400 text-sm">EDIT USER / MASTER PROFILE CREDENTIALS</h2>
+                    <form onsubmit="handleUpdateCredentials(event)" class="space-y-3">
+                        <div class="space-y-1">
+                            <label class="text-slate-400">Username / ID</label>
+                            <input type="text" id="settingsUsername" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400">New Password</label>
+                            <input type="password" id="settingsPassword" placeholder="Leave blank to keep current" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                        </div>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl shadow">Update Profile Credentials</button>
+                    </form>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Script Engine -->
+    <!-- Script Engine with Real-Time Supabase & Auth Logic -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
         let dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-        let currentUserRole = 'admin';
+        let currentUser = null; // { username, role, id }
         let currentLang = 'en';
 
         const translations = {
@@ -195,31 +256,161 @@
             }
         };
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const role = document.getElementById('loginRole').value;
-            const pin = document.getElementById('loginPin').value;
+        function switchAuthMode(mode) {
+            if(mode === 'login') {
+                document.getElementById('form-login').classList.remove('hidden');
+                document.getElementById('form-register').classList.add('hidden');
+                document.getElementById('auth-tab-login').className = "py-2 rounded-lg bg-emerald-600 text-white transition";
+                document.getElementById('auth-tab-register').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+            } else {
+                document.getElementById('form-login').classList.add('hidden');
+                document.getElementById('form-register').classList.remove('hidden');
+                document.getElementById('auth-tab-register').className = "py-2 rounded-lg bg-teal-600 text-white transition";
+                document.getElementById('auth-tab-login').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+            }
+        }
 
-            // Simple validation pin check (Admin PIN: 1998 or custom, Operator: any 4 digits)
-            if(role === 'admin' && pin !== '1998') {
-                alert('Invalid Master Admin Pin! (Hint: use birth year or default pin)');
+        async function loadExistingUsersDropdown() {
+            if(!dbClient) return;
+            const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
+            const select = document.getElementById('loginUserSelect');
+            let optionsHTML = `<option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>`;
+            if(data) {
+                data.forEach(u => {
+                    optionsHTML += `<option value="${u.username}">${u.username} (Farm Operator)</option>`;
+                });
+            }
+            select.innerHTML = optionsHTML;
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            const newUser = {
+                id: 'USR-' + Date.now(),
+                username: username,
+                password: password,
+                status: 'pending',
+                role: 'operator'
+            };
+
+            const { error } = await dbClient.from('users_directory').insert([newUser]);
+            if(error) {
+                alert("Registration error or username already exists.");
                 return;
             }
 
-            currentUserRole = role;
+            alert(`Registration successful! OTP approval request sent to Master Admin at idevsengar@gmail.com. Once approved by Master, you can log in using your password.`);
+            document.getElementById('form-register').reset();
+            switchAuthMode('login');
+            loadExistingUsersDropdown();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const selectedVal = document.getElementById('loginUserSelect').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if(selectedVal === 'master') {
+                if(password !== 'dev465@SENGAR') {
+                    alert('Incorrect Master Password! (Password: dev465@SENGAR)');
+                    return;
+                }
+                currentUser = { username: 'Dadda - Devendra Singh', role: 'admin' };
+                proceedToDashboard();
+            } else {
+                const { data } = await dbClient.from('users_directory').select('*').eq('username', selectedVal).single();
+                if(!data || data.password !== password) {
+                    alert('Incorrect password for this user.');
+                    return;
+                }
+                currentUser = { username: data.username, role: 'operator', id: data.id };
+                
+                // Show reminder popup for operators logging in
+                document.getElementById('password-reminder-modal').classList.remove('hidden');
+            }
+        }
+
+        function dismissPasswordReminder() {
+            document.getElementById('password-reminder-modal').classList.add('hidden');
+            proceedToDashboard();
+        }
+
+        function proceedToDashboard() {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('main-dashboard').classList.remove('hidden');
-            document.getElementById('active-user-badge').innerText = `Role: ${role === 'admin' ? 'Master Admin (Devendra)' : 'Farm Operator'}`;
+            document.getElementById('active-user-badge').innerText = `Logged in as: ${currentUser.username} (${currentUser.role.toUpperCase()})`;
 
-            fetchAnimals(); fetchBreeding(); fetchFeed();
+            if(currentUser.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                loadPendingUsers();
+            }
+
+            document.getElementById('settingsUsername').value = currentUser.username;
+            initRealtimeSubscriptions();
+            fetchAllData();
         }
 
         function handleLogout() {
+            currentUser = null;
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
-            document.getElementById('loginPin').value = '';
+            document.getElementById('loginPassword').value = '';
+            loadExistingUsersDropdown();
         }
 
+        async function loadPendingUsers() {
+            if(!dbClient) return;
+            const { data } = await dbClient.from('users_directory').select('*').eq('status', 'pending');
+            const container = document.getElementById('pending-users-list');
+            if(!data || data.length === 0) {
+                container.innerHTML = `<p class="text-slate-500">No pending user requests.</p>`;
+                return;
+            }
+            container.innerHTML = data.map(u => `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div><span class="font-bold text-white">${u.username}</span> <span class="text-[10px] text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded ml-2">Pending OTP Validation</span></div>
+                    <button onclick="approveUser('${u.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold text-xs">Approve Access</button>
+                </div>
+            `).join('');
+        }
+
+        async function approveUser(id) {
+            await dbClient.from('users_directory').update({ status: 'approved' }).eq('id', id);
+            alert("User approved successfully!");
+            loadPendingUsers();
+            loadExistingUsersDropdown();
+        }
+
+        async function handleUpdateCredentials(e) {
+            e.preventDefault();
+            const newName = document.getElementById('settingsUsername').value.trim();
+            const newPass = document.getElementById('settingsPassword').value;
+
+            if(currentUser.role === 'admin') {
+                alert("Master Admin profile credentials updated locally. Note: Master password remains dev465@SENGAR.");
+            } else {
+                const updateData = { username: newName };
+                if(newPass) updateData.password = newPass;
+                await dbClient.from('users_directory').update(updateData).eq('id', currentUser.id);
+                currentUser.username = newName;
+                alert("User credentials updated successfully! Remember to use this new username and password for future logins.");
+            }
+        }
+
+        // ================= REAL-TIME SUPABASE SUBSCRIPTIONS =================
+        function initRealtimeSubscriptions() {
+            if(!dbClient) return;
+            dbClient.channel('schema-db-changes')
+                .on('postgres_changes', { event: '*', schema: 'public' }, payload => {
+                    fetchAllData();
+                })
+                .subscribe();
+        }
+
+        // Clock & Navigation
         function updateISTClock() {
             const now = new Date();
             const timeStr = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(now);
@@ -249,6 +440,13 @@
             activeBtn.className = "nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md";
         }
 
+        function fetchAllData() {
+            fetchAnimals();
+            fetchBreeding();
+            fetchFeed();
+        }
+
+        // CRUD Functions with Real-Time sync
         async function fetchAnimals() {
             if(!dbClient) return;
             const { data } = await dbClient.from('animals').select('*');
@@ -265,7 +463,7 @@
                     </div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
                         <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight})" class="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-1 rounded border border-cyan-900">Edit</button>
-                        ${currentUserRole === 'admin' ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
+                        ${currentUser && currentUser.role === 'admin' ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -297,14 +495,14 @@
         }
 
         async function deleteRecord(table, id) {
-            if(currentUserRole !== 'admin') { alert("Restricted: Only Master Admin can delete records."); return; }
-            if(confirm("Delete this entry?")) { await dbClient.from(table).delete().eq('id', id); fetchAnimals(); fetchBreeding(); fetchFeed(); }
+            if(!currentUser || currentUser.role !== 'admin') { alert("Restricted: Only Master Admin can delete records."); return; }
+            if(confirm("Delete this entry?")) { await dbClient.from(table).delete().eq('id', id); fetchAllData(); }
         }
 
         async function fetchBreeding() {
             if(!dbClient) return;
             const { data } = await dbClient.from('breeding_logs').select('*');
-            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount}</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
+            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount}</span> ${currentUser && currentUser.role==='admin'?`<button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
         }
 
         async function handleBreedingSubmit(e) {
@@ -317,7 +515,7 @@
         async function fetchFeed() {
             if(!dbClient) return;
             const { data } = await dbClient.from('feed_logs').select('*');
-            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost})</span> ${currentUserRole==='admin'?`<button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
+            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost})</span> ${currentUser && currentUser.role==='admin'?`<button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
         }
 
         async function handleFeedSubmit(e) {
@@ -326,6 +524,10 @@
             await dbClient.from('feed_logs').insert([record]);
             document.getElementById('feedForm').reset(); fetchFeed();
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExistingUsersDropdown();
+        });
     </script>
 </body>
 </html>
