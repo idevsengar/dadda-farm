@@ -3,364 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dadda Enviro Varah Farms</title>
+    <title>Dadda Enviro Varah Farms - Management Dashboard</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        farm: {
+                            50: '#f4fbf7',
+                            100: '#e5f6ee',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-slate-100 min-h-screen font-sans antialiased pb-12">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
 
-    <div class="max-w-md mx-auto min-h-screen bg-slate-900/90 shadow-2xl flex flex-col border-x border-slate-700">
-        <!-- Modern Header -->
-        <header class="p-4 border-b border-slate-700 bg-slate-900/50 backdrop-blur sticky top-0 z-10 flex justify-between items-center">
-            <div>
-                <h1 class="text-base font-black tracking-tight text-emerald-400">Dadda Enviro Varah Farms</h1>
-                <p class="text-[10px] text-slate-400 font-medium">Master Livestock & Operations Dashboard</p>
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-600/20 border border-emerald-500/30 p-2 rounded-xl text-emerald-400 font-bold tracking-wider text-lg">
+                    DEVAF
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white">Dadda Enviro Varah Farms</h1>
+                    <p class="text-xs text-slate-400">Livestock Management & Operations Dashboard</p>
+                </div>
             </div>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                Cloud Sync Active
-            </span>
-        </header>
+            <!-- Tab Navigation -->
+            <nav class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-medium">
+                <button onclick="switchTab('animals')" id="nav-animals" class="px-4 py-2 rounded-lg transition-all bg-emerald-600 text-white shadow">Animals</button>
+                <button onclick="switchTab('breeding')" id="nav-breeding" class="px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white">Breeding</button>
+                <button onclick="switchTab('feed')" id="nav-feed" class="px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white">Feed & Cost</button>
+            </nav>
+        </div>
+    </header>
 
-        <!-- Navigation Tabs -->
-        <nav class="flex border-b border-slate-700 bg-slate-800/40 text-xs font-medium overflow-x-auto">
-            <button onclick="switchTab('animals')" id="tab-animals" class="flex-1 py-3 px-2 text-center border-b-2 border-emerald-500 text-emerald-400 transition-all whitespace-nowrap">Animals</button>
-            <button onclick="switchTab('breeding'); fetchBreedingLogs();" id="tab-breeding" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">Breeding</button>
-            <button onclick="switchTab('feed'); fetchFeedLogs();" id="tab-feed" class="flex-1 py-3 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap">Feed & Cost</button>
-        </nav>
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
-        <!-- Main Dynamic Panel -->
-        <main class="p-4 flex-1 space-y-4">
-            
-            <!-- Animals Section -->
-            <section id="panel-animals" class="space-y-4">
-                <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 shadow-lg space-y-3">
-                    <h2 class="text-sm font-bold text-emerald-300">Add Animal Record</h2>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="tagId" placeholder="Tag ID (e.g. VFH-042)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        <select id="gender" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                            <option value="">Select Gender</option>
-                            <option value="Female">Female (Mother)</option>
+        <!-- Supabase Configuration Status / Warning Banner -->
+        <div id="config-banner" class="bg-amber-950/40 border border-amber-800/50 p-4 rounded-xl text-xs sm:text-sm text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <span class="font-bold">Database Setup Note:</span> Make sure your Supabase URL and Anon Key are correctly inserted in the script below to sync data properly.
+            </div>
+            <button onclick="document.getElementById('config-banner').style.display='none'" class="text-amber-400 hover:text-white text-xs underline">Dismiss</button>
+        </div>
+
+        <!-- ================= ANIMALS TAB ================= -->
+        <section id="tab-animals" class="space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-base font-bold text-white">Livestock Inventory</h2>
+                    <p class="text-xs text-slate-400">Add and track individual animal records, weights, and lineage.</p>
+                </div>
+                <button onclick="openModal('animalModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Add New Animal
+                </button>
+            </div>
+
+            <!-- Animals Grid -->
+            <div id="animals-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Dynamic cards populated via JavaScript -->
+                <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-sm col-span-full">
+                    Loading livestock records...
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= BREEDING TAB ================= -->
+        <section id="tab-breeding" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-base font-bold text-white">Breeding & Litter Logs</h2>
+                    <p class="text-xs text-slate-400">Monitor litter performance, birth counts, and survival metrics.</p>
+                </div>
+                <button onclick="openModal('breedingModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Add Breeding Record
+                </button>
+            </div>
+
+            <!-- Breeding List Container -->
+            <div id="breeding-container" class="space-y-3">
+                <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-sm">
+                    Loading breeding logs...
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= FEED & COST TAB ================= -->
+        <section id="tab-feed" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <div>
+                    <h2 class="text-base font-bold text-white">Feed Consumption & Expenses</h2>
+                    <p class="text-xs text-slate-400">Track daily feed types, consumed quantities, and associated financial costs.</p>
+                </div>
+                <button onclick="openModal('feedModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Log Feed Entry
+                </button>
+            </div>
+
+            <!-- Feed List Container -->
+            <div id="feed-container" class="space-y-3">
+                <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-sm">
+                    Loading feed logs...
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            Dadda Enviro Varah Farms &bull; Mobile-Optimized Livestock Tracking Dashboard
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Animal Modal -->
+    <div id="animalModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white">Add New Animal Record</h3>
+                <button onclick="closeModal('animalModal')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+            </div>
+            <form id="animalForm" onsubmit="saveAnimal(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Tag ID / Number</label>
+                    <input type="text" id="animalTag" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Gender</label>
+                        <select id="animalGender" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <option value="Female">Female</option>
                             <option value="Male">Male</option>
                             <option value="Piglet">Piglet</option>
                         </select>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="breed" placeholder="Breed Type" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        <input type="text" id="age" placeholder="Age (e.g. 4 Months)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="weight" placeholder="Weight (KG)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        <input type="text" id="mother" placeholder="Mother Tag" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        <input type="text" id="father" placeholder="Father Tag" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                    </div>
-
-                    <input type="file" accept="image/*" capture="environment" id="cameraInput" onchange="compressAndStampImage(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white cursor-pointer">
-                    
-                    <div id="previewContainer" class="hidden relative inline-block">
-                        <img id="previewImg" class="w-24 h-24 object-cover rounded-xl border border-slate-700 shadow" alt="Preview">
-                    </div>
-                    <input type="hidden" id="base64ImageOutput">
-
-                    <button onclick="saveAnimalToCloud()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/30 transition-all">Save Animal Record</button>
-                </div>
-
-                <div class="space-y-2">
-                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Livestock Overview</h3>
-                    <div id="animalListContainer" class="space-y-2 max-h-[35vh] overflow-y-auto pr-1">
-                        <p class="text-xs text-slate-500 text-center py-4">Loading records...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Breeding Section -->
-            <section id="panel-breeding" class="hidden space-y-4">
-                <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 shadow-lg space-y-3">
-                    <h2 class="text-sm font-bold text-emerald-300">Log Breeding Record</h2>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="femaleId" placeholder="Female Tag (Mother)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        <input type="text" id="maleId" placeholder="Male Tag (Father)" class="p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                    </div>
-
                     <div>
-                        <label class="block text-[11px] text-slate-300 mb-1">Breeding / Delivery Date</label>
-                        <input type="date" id="breedDate" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-300 mb-1">Born Count</label>
-                            <input type="number" id="bornCount" placeholder="0" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-300 mb-1">Survived Count</label>
-                            <input type="number" id="survivedCount" placeholder="0" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        </div>
-                    </div>
-
-                    <button onclick="saveBreedingLog()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/30 transition-all">Save Breeding Log</button>
-                </div>
-
-                <div class="space-y-2">
-                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Breeding History</h3>
-                    <div id="breedingListContainer" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
-                        <p class="text-xs text-slate-500 text-center py-4">Loading breeding records...</p>
+                        <label class="block text-slate-400 mb-1">Breed / Line</label>
+                        <input type="text" id="animalBreed" placeholder="e.g. Hybrid / Duroc" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
-            </section>
-
-            <!-- Feed & Cost Section -->
-            <section id="panel-feed" class="hidden space-y-4">
-                <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 shadow-lg space-y-3">
-                    <h2 class="text-sm font-bold text-emerald-300">Log Feed Consumption & Cost</h2>
-                    
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] text-slate-300 mb-1">Feed Type / Category</label>
-                        <select id="feedType" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                            <option value="Mother Feed">Mother Feed</option>
-                            <option value="Child Feed">Child Feed</option>
-                            <option value="Male Feed">Male Feed</option>
-                            <option value="Hotel Waste">Hotel Waste</option>
-                        </select>
+                        <label class="block text-slate-400 mb-1">Age / DOB</label>
+                        <input type="text" id="animalAge" placeholder="e.g. 4 Months" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-300 mb-1">Quantity (KG)</label>
-                            <input type="number" id="feedQty" placeholder="0" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-300 mb-1">Total Cost (₹)</label>
-                            <input type="number" id="feedCost" placeholder="0.00" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                        </div>
-                    </div>
-
                     <div>
-                        <label class="block text-[11px] text-slate-300 mb-1">Date</label>
-                        <input type="date" id="feedDate" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:border-emerald-500 focus:outline-none">
-                    </div>
-
-                    <button onclick="saveFeedLog()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/30 transition-all">Save Feed Log</button>
-                </div>
-
-                <div class="space-y-2">
-                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Feed & Cost History</h3>
-                    <div id="feedListContainer" class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
-                        <p class="text-xs text-slate-500 text-center py-4">Loading feed records...</p>
+                        <label class="block text-slate-400 mb-1">Weight (kg)</label>
+                        <input type="number" step="0.1" id="animalWeight" placeholder="0.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
-            </section>
-
-        </main>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Mother Tag (Optional)</label>
+                        <input type="text" id="animalMother" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Father Tag (Optional)</label>
+                        <input type="text" id="animalFather" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Photo Upload (Optional)</label>
+                    <input type="file" id="animalPhoto" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-400 text-xs file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('animalModal')" class="px-4 py-2 rounded-xl border border-slate-800 text-slate-300 hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Save Animal</button>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <!-- Breeding Modal -->
+    <div id="breedingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white">Add Breeding / Litter Log</h3>
+                <button onclick="closeModal('breedingModal')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+            </div>
+            <form id="breedingForm" onsubmit="saveBreeding(event)" class="space-y-3 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Female Tag ID</label>
+                        <input type="text" id="breedFemale" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Male Tag ID</label>
+                        <input type="text" id="breedMale" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Farrowing / Breeding Date</label>
+                    <input type="date" id="breedDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Born Count</label>
+                        <input type="number" id="breedBorn" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Survived Count</label>
+                        <input type="number" id="breedSurvived" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('breedingModal')" class="px-4 py-2 rounded-xl border border-slate-800 text-slate-300 hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Save Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feed Modal -->
+    <div id="feedModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white">Log Feed & Expense Entry</h3>
+                <button onclick="closeModal('feedModal')" class="text-slate-400 hover:text-white text-lg">&times;</button>
+            </div>
+            <form id="feedForm" onsubmit="saveFeed(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Feed Type / Description</label>
+                    <input type="text" id="feedType" placeholder="e.g. Starter Feed / Grower Mash" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Quantity (kg / bags)</label>
+                        <input type="number" step="0.1" id="feedQty" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Total Cost (₹)</label>
+                        <input type="number" step="0.01" id="feedCost" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Date</label>
+                    <input type="date" id="feedDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('feedModal')" class="px-4 py-2 rounded-xl border border-slate-800 text-slate-300 hover:bg-slate-800">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic & Supabase Integration -->
     <script>
-        const SUPABASE_URL = "https://zfponxlavgxcofntbbyp.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ================= SUPABASE CONFIGURATION =================
+        // Replace with your actual Supabase Project URL and Anon Key
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
 
-        function switchTab(tab) {
-            ['animals', 'breeding', 'feed'].forEach(t => {
-                document.getElementById(`panel-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).className = "flex-1 py-3 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all whitespace-nowrap";
-            });
-            document.getElementById(`panel-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).className = "flex-1 py-3 px-2 text-center border-b-2 border-emerald-500 text-emerald-400 transition-all whitespace-nowrap";
-            
-            if(tab === 'animals') fetchAnimals();
-            if(tab === 'breeding') fetchBreedingLogs();
-            if(tab === 'feed') fetchFeedLogs();
+        let supabase = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE' && window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        function compressAndStampImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // Initialize App on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            if(document.getElementById('breedDate')) document.getElementById('breedDate').value = today;
+            if(document.getElementById('feedDate')) document.getElementById('feedDate').value = today;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    let dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-                    document.getElementById('previewImg').src = dataUrl;
-                    document.getElementById('previewContainer').classList.remove('hidden');
-                    document.getElementById('base64ImageOutput').value = dataUrl;
-                }
-                img.src = e.target.result;
+            if (supabase) {
+                fetchAnimals();
+                fetchBreedingLogs();
+                fetchFeedLogs();
+            } else {
+                document.getElementById('animals-grid').innerHTML = `
+                    <div class="bg-slate-900/50 border border-amber-900/50 rounded-2xl p-6 text-center text-amber-300 text-xs col-span-full">
+                        Supabase credentials not configured. Please update SUPABASE_URL and SUPABASE_ANON_KEY in the script section.
+                    </div>
+                `;
             }
-            reader.readAsDataURL(file);
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            ['animals', 'breeding', 'feed'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`nav-${t}`).className = "px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white";
+            });
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabName}`).className = "px-4 py-2 rounded-lg transition-all bg-emerald-600 text-white shadow";
         }
 
-        async function saveAnimalToCloud() {
-            const tagId = document.getElementById('tagId').value.trim();
-            const gender = document.getElementById('gender').value;
-            const breed = document.getElementById('breed').value.trim();
-            const age = document.getElementById('age').value.trim();
-            const weight = parseFloat(document.getElementById('weight').value) || null;
-            const mother = document.getElementById('mother').value.trim();
-            const father = document.getElementById('father').value.trim();
-            const image = document.getElementById('base64ImageOutput').value;
+        // Modal Controls
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
 
-            if(!tagId || !gender) { alert("Please fill out at least Tag ID and Gender."); return; }
+        // ================= GENERIC DELETE FUNCTION =================
+        async function deleteRecord(table, id) {
+            if(!confirm("Are you sure you want to delete this record?")) return;
+            if (!supabase) {
+                alert("Supabase client is not initialized.");
+                return;
+            }
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if(error) {
+                alert("Error deleting record: " + error.message);
+            } else {
+                if(table === 'animals') fetchAnimals();
+                if(table === 'breeding_logs') fetchBreedingLogs();
+                if(table === 'feed_logs') fetchFeedLogs();
+            }
+        }
 
-            const { error } = await supabase.from('animals').insert([{ 
-                id: 'anim_' + Date.now(), user_id: 'default_user', tagId, gender, breed, age, weight, mother, father, image 
-            }]);
+        // ================= ANIMALS MODULE =================
+        async function fetchAnimals() {
+            const { data, error } = await supabase.from('animals').select('*').order('created_at', { ascending: false });
+            const grid = document.getElementById('animals-grid');
+            if (error) {
+                grid.innerHTML = `<div class="text-red-400 text-xs col-span-full">Error loading animals: ${error.message}</div>`;
+                return;
+            }
+            if (!data || data.length === 0) {
+                grid.innerHTML = `<div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-xs col-span-full">No livestock records found. Add your first animal above.</div>`;
+                return;
+            }
 
-            if (error) { alert("Error: " + error.message); } 
-            else { 
-                alert("Animal saved successfully!"); 
-                document.getElementById('tagId').value = ''; 
-                document.getElementById('gender').value = ''; 
-                document.getElementById('breed').value = ''; 
-                document.getElementById('age').value = ''; 
-                document.getElementById('weight').value = ''; 
-                document.getElementById('mother').value = ''; 
-                document.getElementById('father').value = ''; 
-                document.getElementById('previewContainer').classList.add('hidden');
-                document.getElementById('base64ImageOutput').value = '';
+            grid.innerHTML = data.map(item => `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative shadow-md">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-900 px-2.5 py-1 rounded-lg">Tag: ${item.tagId || 'N/A'}</span>
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider">${item.gender || ''}</span>
+                        </div>
+                        <div class="mt-3 space-y-1 text-xs text-slate-300">
+                            <p><span class="text-slate-500">Breed:</span> ${item.breed || 'N/A'}</p>
+                            <p><span class="text-slate-500">Age/DOB:</span> ${item.age || 'N/A'}</p>
+                            <p><span class="text-slate-500">Weight:</span> ${item.weight ? item.weight + ' kg' : 'N/A'}</p>
+                            <p><span class="text-slate-500">Lineage:</span> M: ${item.mother || '-'} | F: ${item.father || '-'}</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-800/80 flex justify-between items-center">
+                        <span class="text-[10px] text-slate-500">${item.created_at ? new Date(item.created_at).toLocaleDateString() : ''}</span>
+                        <button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 hover:text-red-300 bg-red-950/40 px-2 py-1 rounded border border-red-900/50">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveAnimal(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('animalPhoto');
+            let imageUrl = '';
+            
+            // Optional image handling stub
+            const newAnimal = {
+                id: 'ANI-' + Date.now(),
+                tagId: document.getElementById('animalTag').value,
+                gender: document.getElementById('animalGender').value,
+                breed: document.getElementById('animalBreed').value,
+                age: document.getElementById('animalAge').value,
+                weight: parseFloat(document.getElementById('animalWeight').value) || 0,
+                mother: document.getElementById('animalMother').value,
+                father: document.getElementById('animalFather').value,
+                image: imageUrl
+            };
+
+            const { error } = await supabase.from('animals').insert([newAnimal]);
+            if (error) {
+                alert('Error saving animal: ' + error.message);
+            } else {
+                closeModal('animalModal');
+                document.getElementById('animalForm').reset();
                 fetchAnimals();
             }
         }
 
-        async function fetchAnimals() {
-            const container = document.getElementById('animalListContainer');
-            const { data, error } = await supabase.from('animals').select('*').order('id', { ascending: false });
-            if (error || !data || data.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">No animals found.</p>`;
+        // ================= BREEDING MODULE =================
+        async function fetchBreedingLogs() {
+            const { data, error } = await supabase.from('breeding_logs').select('*').order('date', { ascending: false });
+            const container = document.getElementById('breeding-container');
+            if (error) {
+                container.innerHTML = `<div class="text-red-400 text-xs">Error loading breeding logs: ${error.message}</div>`;
                 return;
             }
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-xs">No breeding logs recorded.</div>`;
+                return;
+            }
+
             container.innerHTML = data.map(item => `
-                <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex items-center gap-3">
-                    ${item.image ? `<img src="${item.image}" class="w-14 h-14 object-cover rounded-lg">` : `<div class="w-14 h-14 bg-slate-700 rounded-lg flex items-center justify-center text-[10px] text-slate-400">No Img</div>`}
-                    <div class="flex-1">
-                        <div class="flex justify-between items-center">
-                            <h4 class="text-xs font-bold text-emerald-400">Tag: ${item.tagId} (${item.gender || 'N/A'})</h4>
-                            <span class="text-[10px] text-slate-300 bg-slate-900 px-2 py-0.5 rounded">${item.weight ? item.weight + ' KG' : 'No Weight'}</span>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="space-y-1 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white">Female: ${item.femaleId}</span>
+                            <span class="text-slate-500">&times;</span>
+                            <span class="font-bold text-white">Male: ${item.maleId}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">${item.date}</span>
                         </div>
-                        <p class="text-[11px] text-slate-300">Breed: ${item.breed || 'N/A'} | Age: ${item.age || 'N/A'}</p>
-                        <p class="text-[10px] text-slate-400">Parents - M: ${item.mother || 'None'}, F: ${item.father || 'None'}</p>
+                        <p class="text-slate-400">Born: <strong class="text-white">${item.born}</strong> | Survived: <strong class="text-emerald-400">${item.survived}</strong> (${Math.round((item.survived/item.born)*100 || 0)}% Survival Rate)</p>
                     </div>
+                    <button onclick="deleteRecord('breeding_logs', '${item.id}')" class="text-[10px] text-red-400 hover:text-red-300 bg-red-950/40 px-2 py-1 rounded border border-red-900/50">Delete</button>
                 </div>
             `).join('');
         }
 
-        async function saveBreedingLog() {
-            const femaleId = document.getElementById('femaleId').value.trim();
-            const maleId = document.getElementById('maleId').value.trim();
-            const date = document.getElementById('breedDate').value;
-            const born = parseInt(document.getElementById('bornCount').value) || 0;
-            const survived = parseInt(document.getElementById('survivedCount').value) || 0;
+        async function saveBreeding(event) {
+            event.preventDefault();
+            const newLog = {
+                id: 'BRD-' + Date.now(),
+                femaleId: document.getElementById('breedFemale').value,
+                maleId: document.getElementById('breedMale').value,
+                date: document.getElementById('breedDate').value,
+                born: parseInt(document.getElementById('breedBorn').value) || 0,
+                survived: parseInt(document.getElementById('breedSurvived').value) || 0
+            };
 
-            if(!femaleId || !date) { alert("Please provide Female Tag ID and Date."); return; }
-
-            const { error } = await supabase.from('breeding_logs').insert([{
-                id: 'breed_' + Date.now(),
-                user_id: 'default_user',
-                femaleId,
-                maleId,
-                date,
-                born,
-                survived
-            }]);
-
-            if(error) { alert("Error saving breeding log: " + error.message); }
-            else {
-                alert("Breeding log saved successfully!");
-                document.getElementById('femaleId').value = '';
-                document.getElementById('maleId').value = '';
-                document.getElementById('breedDate').value = '';
-                document.getElementById('bornCount').value = '';
-                document.getElementById('survivedCount').value = '';
+            const { error } = await supabase.from('breeding_logs').insert([newLog]);
+            if (error) {
+                alert('Error saving breeding log: ' + error.message);
+            } else {
+                closeModal('breedingModal');
+                document.getElementById('breedingForm').reset();
                 fetchBreedingLogs();
             }
         }
 
-        async function fetchBreedingLogs() {
-            const container = document.getElementById('breedingListContainer');
-            const { data, error } = await supabase.from('breeding_logs').select('*').order('date', { ascending: false });
-            
-            if (error || !data || data.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">No breeding records found.</p>`;
+        // ================= FEED MODULE =================
+        async function fetchFeedLogs() {
+            const { data, error } = await supabase.from('feed_logs').select('*').order('date', { ascending: false });
+            const container = document.getElementById('feed-container');
+            if (error) {
+                container.innerHTML = `<div class="text-red-400 text-xs">Error loading feed logs: ${error.message}</div>`;
+                return;
+            }
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-500 text-xs">No feed logs recorded.</div>`;
                 return;
             }
 
             container.innerHTML = data.map(item => `
-                <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-1">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-emerald-400">Mother: ${item.femaleId} x Father: ${item.maleId || 'Unknown'}</span>
-                        <span class="text-[10px] text-slate-400">${item.date}</span>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="space-y-1 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white text-sm">${item.type}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">${item.date}</span>
+                        </div>
+                        <p class="text-slate-400">Quantity: <strong class="text-white">${item.qty} kg</strong> | Total Cost: <strong class="text-emerald-400">₹${item.cost}</strong></p>
                     </div>
-                    <div class="flex gap-4 text-[11px] text-slate-300 pt-1">
-                        <span>Born: <b>${item.born}</b></span>
-                        <span>Survived: <b class="text-emerald-300">${item.survived}</b></span>
-                    </div>
+                    <button onclick="deleteRecord('feed_logs', '${item.id}')" class="text-[10px] text-red-400 hover:text-red-300 bg-red-950/40 px-2 py-1 rounded border border-red-900/50">Delete</button>
                 </div>
             `).join('');
         }
 
-        async function saveFeedLog() {
-            const type = document.getElementById('feedType').value;
-            const qty = parseFloat(document.getElementById('feedQty').value) || 0;
-            const cost = parseFloat(document.getElementById('feedCost').value) || 0;
-            const date = document.getElementById('feedDate').value;
+        async function saveFeed(event) {
+            event.preventDefault();
+            const newFeed = {
+                id: 'FED-' + Date.now(),
+                type: document.getElementById('feedType').value,
+                qty: parseFloat(document.getElementById('feedQty').value) || 0,
+                cost: parseFloat(document.getElementById('feedCost').value) || 0,
+                date: document.getElementById('feedDate').value
+            };
 
-            if(!date) { alert("Please select a date."); return; }
-
-            const { error } = await supabase.from('feed_logs').insert([{
-                id: 'feed_' + Date.now(),
-                user_id: 'default_user',
-                type,
-                qty,
-                cost,
-                date
-            }]);
-
-            if(error) { alert("Error saving feed log: " + error.message); }
-            else {
-                alert("Feed log saved successfully!");
-                document.getElementById('feedQty').value = '';
-                document.getElementById('feedCost').value = '';
+            const { error } = await supabase.from('feed_logs').insert([newFeed]);
+            if (error) {
+                alert('Error saving feed entry: ' + error.message);
+            } else {
+                closeModal('feedModal');
+                document.getElementById('feedForm').reset();
                 fetchFeedLogs();
             }
         }
-
-        async function fetchFeedLogs() {
-            const container = document.getElementById('feedListContainer');
-            const { data, error } = await supabase.from('feed_logs').select('*').order('date', { ascending: false });
-            
-            if (error || !data || data.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">No feed logs recorded yet.</p>`;
-                return;
-            }
-
-            container.innerHTML = data.map(item => `
-                <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex justify-between items-center">
-                    <div>
-                        <h4 class="text-xs font-bold text-emerald-400">${item.type}</h4>
-                        <p class="text-[11px] text-slate-300">Quantity: ${item.qty} KG</p>
-                        <p class="text-[10px] text-slate-500">Date: ${item.date}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs font-bold text-emerald-300">₹${item.cost}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Initialize first load
-        fetchAnimals();
     </script>
 </body>
 </html>
