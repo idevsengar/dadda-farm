@@ -158,6 +158,21 @@
                         </div>
                     </form>
                 </div>
+                
+                <!-- Active Herd Filter Bar -->
+                <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl flex-wrap gap-2 text-xs">
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider">Active Herd Management</span>
+                    <div class="flex items-center gap-2">
+                        <label class="text-slate-400 font-medium">Filter Gender:</label>
+                        <select id="genderFilter" onchange="fetchAnimals()" class="bg-slate-950 text-emerald-400 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 focus:outline-none cursor-pointer">
+                            <option value="ALL">All Genders</option>
+                            <option value="Male">Male (Boar)</option>
+                            <option value="Female">Female (Sow)</option>
+                            <option value="Piglet">Piglet (Child)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div id="animal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             </section>
             <!-- Sold / Dead / Transferred Archive Section -->
@@ -206,7 +221,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Row Layout for Buttons -->
+    <!-- Script Engine with Gender Filter -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -458,19 +473,28 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH ORGANIZED ROW BUTTONS ---
+        // --- ACTIVE ANIMALS WITH GENDER FILTER ---
         async function fetchAnimals() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
-            if(currentUser.role === 'operator') query = query.eq('owner', currentUser.username);
-            else if(currentUser.role === 'admin') {
+            
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
+
+            // Apply Gender Filter
+            const selectedGender = document.getElementById('genderFilter')?.value;
+            if(selectedGender && selectedGender !== 'ALL') {
+                query = query.eq('gender', selectedGender);
+            }
+
             const { data } = await query;
             const grid = document.getElementById('animal-list');
             if(!data || data.length === 0) {
-                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found.</div>`;
+                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found for this filter.</div>`;
                 return;
             }
             grid.innerHTML = data.map(item => {
@@ -485,13 +509,11 @@
                         <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">Farm: ${item.owner || 'Master'}</span></div>
                     </div>
                     <div class="space-y-1.5 pt-2 border-t border-slate-800">
-                        <!-- Row 1: Sold, Dead, Transfer -->
                         <div class="flex gap-1">
                             <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 font-bold">Sold</button>
                             <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 font-bold">Dead</button>
                             <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-teal-300 bg-teal-950/80 py-1 rounded border border-teal-800 font-bold">Transfer</button>
                         </div>
-                        <!-- Row 2: Edit, Delete -->
                         <div class="flex gap-1">
                             <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">Edit</button>
                             <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-red-400 bg-red-950 py-1 rounded border border-red-900 font-bold">Delete</button>
@@ -608,7 +630,7 @@
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] gap-2">
                         <button onclick="updateAnimalStatus('${item.id}', 'active')" class="text-emerald-400 bg-emerald-950 px-2 py-1 rounded border border-emerald-800 hover:bg-emerald-900 font-bold">Restore</button>
-                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900 hover:bg-red-900 font-bold">Delete</button>
+                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900 font-bold">Delete</button>
                     </div>
                 </div>`;
             }).join('');
