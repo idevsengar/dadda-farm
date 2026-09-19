@@ -206,7 +206,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Edit Option & Image Compressor -->
+    <!-- Script Engine with Row Layout for Buttons -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -458,7 +458,7 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH EDIT OPTION ---
+        // --- ACTIVE ANIMALS WITH ORGANIZED ROW BUTTONS ---
         async function fetchAnimals() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
@@ -485,15 +485,16 @@
                         <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">Farm: ${item.owner || 'Master'}</span></div>
                     </div>
                     <div class="space-y-1.5 pt-2 border-t border-slate-800">
-                        <!-- Edit & Lifecycle Actions -->
+                        <!-- Row 1: Sold, Dead, Transfer -->
                         <div class="flex gap-1">
-                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">Edit</button>
                             <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 font-bold">Sold</button>
                             <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 font-bold">Dead</button>
-                        </div>
-                        <div class="flex gap-1">
                             <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-teal-300 bg-teal-950/80 py-1 rounded border border-teal-800 font-bold">Transfer</button>
-                            <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-slate-400 hover:text-red-400 bg-slate-950 py-1 rounded border border-slate-800 font-bold">Delete</button>
+                        </div>
+                        <!-- Row 2: Edit, Delete -->
+                        <div class="flex gap-1">
+                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">Edit</button>
+                            <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-red-400 bg-red-950 py-1 rounded border border-red-900 font-bold">Delete</button>
                         </div>
                     </div>
                 </div>`;
