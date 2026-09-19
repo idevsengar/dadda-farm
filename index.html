@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-950 text-slate-100 font-sans antialiased min-h-screen p-4 flex flex-col justify-center items-center">
-
     <!-- ================= AUTHENTICATION / LOGIN & REGISTRATION GATEWAY ================= -->
     <div id="auth-container" class="w-full max-w-md bg-slate-900/95 backdrop-blur-md border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6 relative">
         <div class="text-center space-y-2">
@@ -16,13 +15,11 @@
             <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Dadda Enviro Varah Farms</h1>
             <p class="text-xs text-slate-400">Real-Time Secure Cloud Portal</p>
         </div>
-
         <!-- Mode Switcher Tabs -->
         <div class="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold text-center">
             <button type="button" onclick="switchAuthMode('login')" id="auth-tab-login" class="py-2 rounded-lg bg-emerald-600 text-white transition">Login</button>
             <button type="button" onclick="switchAuthMode('register')" id="auth-tab-register" class="py-2 rounded-lg text-slate-400 hover:text-white transition">New User Register</button>
         </div>
-
         <!-- LOGIN FORM -->
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
             <div class="space-y-1">
@@ -32,15 +29,12 @@
                     <!-- Dynamically populated approved users will appear here -->
                 </select>
             </div>
-
             <div class="space-y-1">
                 <label class="text-slate-400 font-medium">Password</label>
                 <input type="password" id="loginPassword" placeholder="Enter your password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
-
             <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg shadow-emerald-950/50 transition">Secure Login</button>
         </form>
-
         <!-- REGISTRATION FORM -->
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 text-xs hidden">
             <div class="space-y-1">
@@ -52,16 +46,14 @@
                 <input type="password" id="regPassword" placeholder="Set secure password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
             <div class="bg-emerald-950/40 border border-emerald-500/20 p-3 rounded-xl text-[11px] text-emerald-300">
-                ℹ️ Registering will send an approval OTP request to Master Admin (<strong class="text-white">idevsengar@gmail.com</strong>). Once approved, you can log in using your selected username and password.
+                ℹ️ Registering will send an approval request to Master Admin (<strong class="text-white">idevsengar@gmail.com</strong>). Once approved, you can log in using your selected username and password.
             </div>
             <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold tracking-wider shadow-lg transition">Submit Registration Request</button>
         </form>
-
         <div class="text-center pt-2 border-t border-slate-800">
             <p class="text-[10px] text-slate-500">Real-Time Cloud Database Synchronized via Supabase</p>
         </div>
     </div>
-
     <!-- ================= PASSWORD REMINDER POPUP MODAL ================= -->
     <div id="password-reminder-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-xs">
@@ -73,13 +65,12 @@
                 </div>
             </div>
             <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-slate-300 space-y-2 leading-relaxed">
-                <p>Always fill in and keep this same password safe for future use!</p>
-                <p class="text-emerald-400 font-medium">In future sessions, you can directly select your username from the dropdown and use this exact password to log in instantly without re-registering.</p>
+                <p>Always keep your password safe for future use!</p>
+                <p class="text-emerald-400 font-medium">In future sessions, you can directly select your username from the dropdown and use this exact password to log in instantly.</p>
             </div>
             <button onclick="dismissPasswordReminder()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition">I Understand, Proceed to Dashboard</button>
         </div>
     </div>
-
     <!-- ================= MAIN DASHBOARD WRAPPER (Hidden until login) ================= -->
     <div id="main-dashboard" class="hidden w-full max-w-7xl mx-auto space-y-6">
         <!-- Top Navigation Header -->
@@ -93,12 +84,18 @@
             </div>
             
             <div class="flex items-center gap-3 flex-wrap">
+                <!-- Master Farm Owner Filter Dropdown (Visible only to Admin) -->
+                <div id="master-filter-wrapper" class="hidden items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-1 rounded-lg text-xs">
+                    <span class="text-slate-400 font-medium">Filter Farm:</span>
+                    <select id="masterOwnerFilter" onchange="fetchAllData()" class="bg-transparent text-emerald-400 font-bold focus:outline-none cursor-pointer">
+                        <option value="ALL">🌐 All Farms (Master View)</option>
+                    </select>
+                </div>
                 <!-- Real-Time IST Clock -->
                 <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span id="ist-clock">Loading IST...</span>
                 </div>
-
                 <!-- Language Selector -->
                 <div class="bg-slate-950 border border-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5 text-xs">
                     <span>🌐</span>
@@ -108,12 +105,10 @@
                         <option value="mr" class="bg-slate-900">मराठी</option>
                     </select>
                 </div>
-
                 <!-- Logout Button -->
                 <button onclick="handleLogout()" class="bg-red-950/80 border border-red-900/60 text-red-400 hover:bg-red-900 text-xs px-3 py-1.5 rounded-lg font-bold transition">Logout</button>
             </div>
         </header>
-
         <!-- Navigation Tabs -->
         <div class="flex gap-2 overflow-x-auto px-1">
             <button onclick="switchTab('animals')" id="nav-animals" class="nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md" data-translate="nav_animals">Animals</button>
@@ -123,7 +118,6 @@
             <button onclick="switchTab('adminPanel')" id="nav-adminPanel" class="nav-btn admin-only px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800 hidden">Master Control & Approvals</button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800">Account Settings</button>
         </div>
-
         <!-- Dashboard Content Sections -->
         <main class="space-y-6">
             <!-- Animals Section -->
@@ -150,7 +144,6 @@
                 </div>
                 <div id="animal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             </section>
-
             <!-- Breeding Section -->
             <section id="tab-breeding" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-xl space-y-4">
@@ -166,7 +159,6 @@
                 </div>
                 <div id="breeding-list" class="space-y-3"></div>
             </section>
-
             <!-- Feed Section -->
             <section id="tab-feed" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
@@ -182,7 +174,6 @@
                 </div>
                 <div id="feed-list" class="space-y-3"></div>
             </section>
-
             <!-- Facility & IoT Section -->
             <section id="tab-iot" class="tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
@@ -199,16 +190,14 @@
                     </div>
                 </div>
             </section>
-
             <!-- Master Control & Approvals Section -->
             <section id="tab-adminPanel" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-4">
                     <h2 class="font-bold text-purple-400 text-sm">MASTER PENDING USER APPROVALS</h2>
-                    <p class="text-slate-400">Users requesting access via OTP to <strong class="text-white">idevsengar@gmail.com</strong>:</p>
+                    <p class="text-slate-400">Users requesting access:</p>
                     <div id="pending-users-list" class="space-y-2"></div>
                 </div>
             </section>
-
             <!-- Account Settings Section -->
             <section id="tab-settings" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-xl text-xs space-y-4 max-w-lg">
@@ -228,16 +217,13 @@
             </section>
         </main>
     </div>
-
-    <!-- Script Engine with Real-Time Supabase & Auth Logic -->
+    <!-- Script Engine with Multi-Tenant Owner Isolation -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
         let dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
         let currentUser = null; // { username, role, id }
         let currentLang = 'en';
-
         const translations = {
             en: {
                 app_title: "Dadda Enviro Varah Farms",
@@ -255,7 +241,6 @@
                 header_add_animal: "जनावराचा रेकॉर्ड जोडा / संपादित करा", btn_save: "जतन करा", header_breeding: "प्रजनन लॉग", header_feed: "दैनिक खाद्य आणि खर्च"
             }
         };
-
         function switchAuthMode(mode) {
             if(mode === 'login') {
                 document.getElementById('form-login').classList.remove('hidden');
@@ -269,25 +254,26 @@
                 document.getElementById('auth-tab-login').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
             }
         }
-
         async function loadExistingUsersDropdown() {
             if(!dbClient) return;
             const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
             const select = document.getElementById('loginUserSelect');
             let optionsHTML = `<option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>`;
+            let filterDropdownHTML = `<option value="ALL">🌐 All Farms (Master View)</option>`;
             if(data) {
                 data.forEach(u => {
-                    optionsHTML += `<option value="${u.username}">${u.username} (Farm Operator)</option>`;
+                    optionsHTML += `<option value="${u.username}">${u.username} (Farm Owner)</option>`;
+                    filterDropdownHTML += `<option value="${u.username}">${u.username}</option>`;
                 });
             }
             select.innerHTML = optionsHTML;
+            const filterEl = document.getElementById('masterOwnerFilter');
+            if(filterEl) filterEl.innerHTML = filterDropdownHTML;
         }
-
         async function handleRegister(e) {
             e.preventDefault();
             const username = document.getElementById('regUsername').value.trim();
             const password = document.getElementById('regPassword').value;
-
             const newUser = {
                 id: 'USR-' + Date.now(),
                 username: username,
@@ -295,30 +281,26 @@
                 status: 'pending',
                 role: 'operator'
             };
-
             const { error } = await dbClient.from('users_directory').insert([newUser]);
             if(error) {
                 alert("Registration error or username already exists.");
                 return;
             }
-
-            alert(`Registration successful! OTP approval request sent to Master Admin at idevsengar@gmail.com. Once approved by Master, you can log in using your password.`);
+            alert(`Registration successful! Approval request sent to Master Admin at idevsengar@gmail.com. Once approved, you can log in.`);
             document.getElementById('form-register').reset();
             switchAuthMode('login');
             loadExistingUsersDropdown();
         }
-
         async function handleLogin(e) {
             e.preventDefault();
             const selectedVal = document.getElementById('loginUserSelect').value;
             const password = document.getElementById('loginPassword').value;
-
             if(selectedVal === 'master') {
                 if(password !== 'dev465@SENGAR') {
                     alert('Incorrect Master Password! (Password: dev465@SENGAR)');
                     return;
                 }
-                currentUser = { username: 'Dadda - Devendra Singh', role: 'admin' };
+                currentUser = { username: 'Master', role: 'admin' };
                 proceedToDashboard();
             } else {
                 const { data } = await dbClient.from('users_directory').select('*').eq('username', selectedVal).single();
@@ -327,32 +309,29 @@
                     return;
                 }
                 currentUser = { username: data.username, role: 'operator', id: data.id };
-                
-                // Show reminder popup for operators logging in
                 document.getElementById('password-reminder-modal').classList.remove('hidden');
             }
         }
-
         function dismissPasswordReminder() {
             document.getElementById('password-reminder-modal').classList.add('hidden');
             proceedToDashboard();
         }
-
         function proceedToDashboard() {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('main-dashboard').classList.remove('hidden');
             document.getElementById('active-user-badge').innerText = `Logged in as: ${currentUser.username} (${currentUser.role.toUpperCase()})`;
-
             if(currentUser.role === 'admin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                document.getElementById('master-filter-wrapper').classList.remove('hidden');
+                document.getElementById('master-filter-wrapper').classList.add('flex');
                 loadPendingUsers();
+            } else {
+                document.getElementById('master-filter-wrapper').classList.add('hidden');
             }
-
             document.getElementById('settingsUsername').value = currentUser.username;
             initRealtimeSubscriptions();
             fetchAllData();
         }
-
         function handleLogout() {
             currentUser = null;
             document.getElementById('main-dashboard').classList.add('hidden');
@@ -360,7 +339,6 @@
             document.getElementById('loginPassword').value = '';
             loadExistingUsersDropdown();
         }
-
         async function loadPendingUsers() {
             if(!dbClient) return;
             const { data } = await dbClient.from('users_directory').select('*').eq('status', 'pending');
@@ -371,35 +349,31 @@
             }
             container.innerHTML = data.map(u => `
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                    <div><span class="font-bold text-white">${u.username}</span> <span class="text-[10px] text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded ml-2">Pending OTP Validation</span></div>
+                    <div><span class="font-bold text-white">${u.username}</span> <span class="text-[10px] text-yellow-400 bg-yellow-950 px-2 py-0.5 rounded ml-2">Pending Approval</span></div>
                     <button onclick="approveUser('${u.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold text-xs">Approve Access</button>
                 </div>
             `).join('');
         }
-
         async function approveUser(id) {
             await dbClient.from('users_directory').update({ status: 'approved' }).eq('id', id);
             alert("User approved successfully!");
             loadPendingUsers();
             loadExistingUsersDropdown();
         }
-
         async function handleUpdateCredentials(e) {
             e.preventDefault();
             const newName = document.getElementById('settingsUsername').value.trim();
             const newPass = document.getElementById('settingsPassword').value;
-
             if(currentUser.role === 'admin') {
-                alert("Master Admin profile credentials updated locally. Note: Master password remains dev465@SENGAR.");
+                alert("Master Admin profile credentials updated locally.");
             } else {
                 const updateData = { username: newName };
                 if(newPass) updateData.password = newPass;
                 await dbClient.from('users_directory').update(updateData).eq('id', currentUser.id);
                 currentUser.username = newName;
-                alert("User credentials updated successfully! Remember to use this new username and password for future logins.");
+                alert("User credentials updated successfully!");
             }
         }
-
         // ================= REAL-TIME SUPABASE SUBSCRIPTIONS =================
         function initRealtimeSubscriptions() {
             if(!dbClient) return;
@@ -409,7 +383,6 @@
                 })
                 .subscribe();
         }
-
         // Clock & Navigation
         function updateISTClock() {
             const now = new Date();
@@ -421,7 +394,6 @@
         }
         setInterval(updateISTClock, 1000);
         updateISTClock();
-
         function changeLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-translate]').forEach(el => {
@@ -429,7 +401,6 @@
                 if(translations[lang][key]) el.innerText = translations[lang][key];
             });
         }
-
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
@@ -439,17 +410,24 @@
             const activeBtn = document.getElementById('nav-' + tabId);
             activeBtn.className = "nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md";
         }
-
         function fetchAllData() {
             fetchAnimals();
             fetchBreeding();
             fetchFeed();
         }
-
-        // CRUD Functions with Real-Time sync
+        // CRUD Functions with Owner Isolation
         async function fetchAnimals() {
             if(!dbClient) return;
-            const { data } = await dbClient.from('animals').select('*');
+            let query = dbClient.from('animals').select('*');
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
+                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
+                if(selectedOwner && selectedOwner !== 'ALL') {
+                    query = query.eq('owner', selectedOwner);
+                }
+            }
+            const { data } = await query;
             const grid = document.getElementById('animal-list');
             if(!data || data.length === 0) {
                 grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No animal records found.</div>`;
@@ -460,24 +438,28 @@
                     <div>
                         <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
                         <p class="text-xs text-slate-300 mt-2">Weight: <strong class="text-white">${item.weight} kg</strong></p>
+                        <p class="text-[10px] text-slate-500 mt-1">Farm Owner: ${item.owner || 'Master'}</p>
                     </div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                        <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight})" class="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-1 rounded border border-cyan-900">Edit</button>
-                        ${currentUser && currentUser.role === 'admin' ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
+                        ${currentUser && (currentUser.role === 'admin' || currentUser.username === item.owner) ? `<button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}',${item.weight})" class="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-1 rounded border border-cyan-900">Edit</button>` : ''}
+                        ${currentUser && (currentUser.role === 'admin' || currentUser.username === item.owner) ? `<button onclick="deleteRecord('animals', '${item.id}')" class="text-[10px] text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>` : ''}
                     </div>
                 </div>
             `).join('');
         }
-
         async function handleAnimalSubmit(e) {
             e.preventDefault();
             const id = document.getElementById('editAnimalId').value;
-            const record = { tagId: document.getElementById('tagId').value, gender: document.getElementById('gender').value, weight: parseFloat(document.getElementById('weight').value) || 0 };
+            const record = { 
+                tagId: document.getElementById('tagId').value, 
+                gender: document.getElementById('gender').value, 
+                weight: parseFloat(document.getElementById('weight').value) || 0,
+                owner: currentUser.role === 'admin' ? ('Master') : currentUser.username
+            };
             if(id) { await dbClient.from('animals').update(record).eq('id', id); } 
             else { record.id = 'ANI-' + Date.now(); await dbClient.from('animals').insert([record]); }
             resetAnimalForm(); fetchAnimals();
         }
-
         function editAnimal(id, tagId, gender, weight) {
             document.getElementById('editAnimalId').value = id;
             document.getElementById('tagId').value = tagId;
@@ -486,45 +468,67 @@
             document.getElementById('form-mode-badge').innerText = "Mode: Editing";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
         }
-
         function resetAnimalForm() {
             document.getElementById('animalForm').reset();
             document.getElementById('editAnimalId').value = '';
             document.getElementById('form-mode-badge').innerText = "Mode: New Entry";
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
-
         async function deleteRecord(table, id) {
-            if(!currentUser || currentUser.role !== 'admin') { alert("Restricted: Only Master Admin can delete records."); return; }
             if(confirm("Delete this entry?")) { await dbClient.from(table).delete().eq('id', id); fetchAllData(); }
         }
-
         async function fetchBreeding() {
             if(!dbClient) return;
-            const { data } = await dbClient.from('breeding_logs').select('*');
-            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount}</span> ${currentUser && currentUser.role==='admin'?`<button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
+            let query = dbClient.from('breeding_logs').select('*');
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
+                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
+                if(selectedOwner && selectedOwner !== 'ALL') {
+                    query = query.eq('owner', selectedOwner);
+                }
+            }
+            const { data } = await query;
+            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Survived: ${i.survivedCount} <span class="text-[10px] text-slate-500">(Owner: ${i.owner || 'Master'})</span></span> <button onclick="deleteRecord('breeding_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button></div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
         }
-
         async function handleBreedingSubmit(e) {
             e.preventDefault();
-            const record = { id: 'BRD-' + Date.now(), femaleTag: document.getElementById('femaleTag').value, maleTag: document.getElementById('maleTag').value, survivedCount: parseInt(document.getElementById('survivedCount').value) };
+            const record = { 
+                id: 'BRD-' + Date.now(), 
+                femaleTag: document.getElementById('femaleTag').value, 
+                maleTag: document.getElementById('maleTag').value, 
+                survivedCount: parseInt(document.getElementById('survivedCount').value),
+                owner: currentUser.role === 'admin' ? ('Master') : currentUser.username
+            };
             await dbClient.from('breeding_logs').insert([record]);
             document.getElementById('breedingForm').reset(); fetchBreeding();
         }
-
         async function fetchFeed() {
             if(!dbClient) return;
-            const { data } = await dbClient.from('feed_logs').select('*');
-            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost})</span> ${currentUser && currentUser.role==='admin'?`<button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
+            let query = dbClient.from('feed_logs').select('*');
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
+                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
+                if(selectedOwner && selectedOwner !== 'ALL') {
+                    query = query.eq('owner', selectedOwner);
+                }
+            }
+            const { data } = await query;
+            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Owner: ${i.owner || 'Master'})</span></span> <button onclick="deleteRecord('feed_logs', '${i.id}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900">Delete</button></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
         }
-
         async function handleFeedSubmit(e) {
             e.preventDefault();
-            const record = { id: 'FED-' + Date.now(), feedType: document.getElementById('feedType').value, qty: parseFloat(document.getElementById('feedQty').value), feedCost: parseFloat(document.getElementById('feedCost').value) };
+            const record = { 
+                id: 'FED-' + Date.now(), 
+                feedType: document.getElementById('feedType').value, 
+                qty: parseFloat(document.getElementById('feedQty').value), 
+                feedCost: parseFloat(document.getElementById('feedCost').value),
+                owner: currentUser.role === 'admin' ? ('Master') : currentUser.username
+            };
             await dbClient.from('feed_logs').insert([record]);
             document.getElementById('feedForm').reset(); fetchFeed();
         }
-
         window.addEventListener('DOMContentLoaded', () => {
             loadExistingUsersDropdown();
         });
