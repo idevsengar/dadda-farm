@@ -172,6 +172,29 @@
                     </form>
                 </div>
                 
+                <!-- Active Herd Count Summary Table -->
+                <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg space-y-3">
+                    <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider" data-i18n="activeCountTableTitle">📊 Active Herd Summary Counts</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countTotal">Total Active</p>
+                            <p id="count-active-total" class="text-base font-black text-emerald-400 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countMale">Male (Boar)</p>
+                            <p id="count-active-male" class="text-base font-black text-cyan-400 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countFemale">Female (Sow)</p>
+                            <p id="count-active-female" class="text-base font-black text-rose-400 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countPiglet">Piglet (Child)</p>
+                            <p id="count-active-piglet" class="text-base font-black text-amber-400 mt-1">0</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Active Herd Filter & Bulk Delete Bar -->
                 <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl flex-wrap gap-2 text-xs">
                     <span class="font-bold text-emerald-400 uppercase tracking-wider" data-i18n="activeHerdMgmt">Active Herd Management</span>
@@ -191,6 +214,29 @@
             </section>
             <!-- Sold / Dead / Transferred Archive Section -->
             <section id="tab-archives" class="tab-content hidden space-y-6">
+                <!-- Archive Count Summary Table -->
+                <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 shadow-lg space-y-3">
+                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider" data-i18n="archiveCountTableTitle">📊 Archive Summary Counts</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countTotalArchive">Total Archived</p>
+                            <p id="count-archive-total" class="text-base font-black text-amber-400 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countSold">Sold</p>
+                            <p id="count-archive-sold" class="text-base font-black text-amber-300 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countDead">Dead</p>
+                            <p id="count-archive-dead" class="text-base font-black text-red-400 mt-1">0</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                            <p class="text-slate-400 font-medium" data-i18n="countTransferred">Transferred</p>
+                            <p id="count-archive-transferred" class="text-base font-black text-teal-400 mt-1">0</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <div class="flex justify-between items-center flex-wrap gap-2">
                         <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider" data-i18n="archivesHeader">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
@@ -255,7 +301,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Granular Category & User Deletion Support -->
+    <!-- Script Engine with Count Summary Tables -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -320,6 +366,16 @@
                 feedHeader: "DAILY INTAKE & EXPENSES",
                 approvalsHeader: "MASTER PENDING USER APPROVALS",
                 manageUsersHeader: "MANAGE & DELETE USERS (WIPES ALL USER DATA)",
+                activeCountTableTitle: "📊 Active Herd Summary Counts",
+                archiveCountTableTitle: "📊 Archive Summary Counts",
+                countTotal: "Total Active",
+                countMale: "Male (Boar)",
+                countFemale: "Female (Sow)",
+                countPiglet: "Piglet (Child)",
+                countTotalArchive: "Total Archived",
+                countSold: "Sold",
+                countDead: "Dead",
+                countTransferred: "Transferred",
                 saveBtn: "Save",
                 soldBtn: "Sold",
                 deadBtn: "Dead",
@@ -385,6 +441,16 @@
                 feedHeader: "दैनिक चारा और खर्च",
                 approvalsHeader: "लंबित यूजर अनुरोध",
                 manageUsersHeader: "यूजर हटाვें (सभी डेटा हमेशा के लिए डिलीट होगा)",
+                activeCountTableTitle: "📊 सक्रिय पशु संख्या तालिका",
+                archiveCountTableTitle: "📊 इतिहास (आर्काइव) संख्या तालिका",
+                countTotal: "कुल सक्रिय",
+                countMale: "नर (Boar)",
+                countFemale: "मादा (Sow)",
+                countPiglet: "पिल्ला / बच्चा",
+                countTotalArchive: "कुल आर्काइव",
+                countSold: "बिका हुआ",
+                countDead: "मृत",
+                countTransferred: "ट्रांसफर",
                 saveBtn: "सेव करें",
                 soldBtn: "बिका",
                 deadBtn: "मृत",
@@ -450,6 +516,16 @@
                 feedHeader: "दैनिक चारा आणि खर्च",
                 approvalsHeader: "प्रलंबित युजर विनंत्या",
                 manageUsersHeader: "युजर डिलीट करा (सर्व डेटा कायमचा नष्ट होईल)",
+                activeCountTableTitle: "📊 सक्रिय जनावरे संख्या तक्ता",
+                archiveCountTableTitle: "📊 इतिहास संख्या तक्ता",
+                countTotal: "एकूण सक्रिय",
+                countMale: "नर (Boar)",
+                countFemale: "मादी (Sow)",
+                countPiglet: "पिल्लू",
+                countTotalArchive: "एकूण आर्काइव्ह",
+                countSold: "विकलेले",
+                countDead: "मृत",
+                countTransferred: "ट्रान्सफर",
                 saveBtn: "सेव्ह",
                 soldBtn: "विकले",
                 deadBtn: "मृत",
@@ -678,7 +754,6 @@
             }
         }
 
-        // --- BULK DELETE CATEGORY WISE (Active, Sold, Dead, Transferred) ---
         async function bulkDeleteCategory(statusType) {
             let targetOwner = currentUser.role === 'operator' ? currentUser.username : (document.getElementById('masterOwnerFilter')?.value || 'ALL');
             let confirmMsg = `⚠️ Delete all "${statusType.toUpperCase()}" records`;
@@ -820,7 +895,7 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH GENDER FILTER ---
+        // --- ACTIVE ANIMALS WITH GENDER FILTER & COUNT TABLE ---
         async function fetchAnimals() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
@@ -832,6 +907,28 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
 
+            // Fetch all active for counts regardless of gender dropdown filter
+            let countQuery = dbClient.from('animals').select('*').eq('status', 'active');
+            if(currentUser.role === 'operator') {
+                countQuery = countQuery.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
+                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
+                if(selectedOwner && selectedOwner !== 'ALL') countQuery = countQuery.eq('owner', selectedOwner);
+            }
+            const { data: allActiveData } = await countQuery;
+
+            // Compute active counts
+            let actTotal = allActiveData ? allActiveData.length : 0;
+            let actMale = allActiveData ? allActiveData.filter(i => i.gender === 'Male').length : 0;
+            let actFemale = allActiveData ? allActiveData.filter(i => i.gender === 'Female').length : 0;
+            let actPiglet = allActiveData ? allActiveData.filter(i => i.gender === 'Piglet').length : 0;
+
+            document.getElementById('count-active-total').innerText = actTotal;
+            document.getElementById('count-active-male').innerText = actMale;
+            document.getElementById('count-active-female').innerText = actFemale;
+            document.getElementById('count-active-piglet').innerText = actPiglet;
+
+            // Apply Gender Filter for display grid
             const selectedGender = document.getElementById('genderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
                 query = query.eq('gender', selectedGender);
@@ -949,7 +1046,7 @@
             }
         }
 
-        // --- ARCHIVES VIEW WITH GENDER FILTER ---
+        // --- ARCHIVES VIEW WITH GENDER FILTER & COUNT TABLE ---
         async function fetchArchives() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
@@ -960,6 +1057,26 @@
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
+
+            // Fetch all archives for summary counts
+            let countQuery = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
+            if(currentUser.role === 'operator') {
+                countQuery = countQuery.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
+                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
+                if(selectedOwner && selectedOwner !== 'ALL') countQuery = countQuery.eq('owner', selectedOwner);
+            }
+            const { data: allArchiveData } = await countQuery;
+
+            let arcTotal = allArchiveData ? allArchiveData.length : 0;
+            let arcSold = allArchiveData ? allArchiveData.filter(i => i.status === 'sold').length : 0;
+            let arcDead = allArchiveData ? allArchiveData.filter(i => i.status === 'dead').length : 0;
+            let arcTransferred = allArchiveData ? allArchiveData.filter(i => i.status === 'transferred').length : 0;
+
+            document.getElementById('count-archive-total').innerText = arcTotal;
+            document.getElementById('count-archive-sold').innerText = arcSold;
+            document.getElementById('count-archive-dead').innerText = arcDead;
+            document.getElementById('count-archive-transferred').innerText = arcTransferred;
 
             const selectedGender = document.getElementById('archiveGenderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
