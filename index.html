@@ -172,10 +172,10 @@
                     </form>
                 </div>
                 
-                <!-- Active Herd Filter Bar -->
+                <!-- Active Herd Filter & Bulk Delete Bar -->
                 <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl flex-wrap gap-2 text-xs">
                     <span class="font-bold text-emerald-400 uppercase tracking-wider" data-i18n="activeHerdMgmt">Active Herd Management</span>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <label class="text-slate-400 font-medium" data-i18n="filterGenderLabel">Filter Gender:</label>
                         <select id="genderFilter" onchange="fetchAnimals()" class="bg-slate-950 text-emerald-400 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 focus:outline-none cursor-pointer">
                             <option value="ALL" data-i18n="allGendersOption">All Genders</option>
@@ -183,6 +183,7 @@
                             <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
                             <option value="Piglet" data-i18n="genderPiglet">Piglet (Child)</option>
                         </select>
+                        <button onclick="bulkDeleteCategory('active')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold transition" data-i18n="deleteAllActiveBtn">🗑️ Delete All Active</button>
                     </div>
                 </div>
 
@@ -193,7 +194,7 @@
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <div class="flex justify-between items-center flex-wrap gap-2">
                         <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider" data-i18n="archivesHeader">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
-                        <div class="flex items-center gap-2 text-xs">
+                        <div class="flex items-center gap-2 text-xs flex-wrap">
                             <label class="text-slate-400 font-medium" data-i18n="filterGenderLabel">Filter Gender:</label>
                             <select id="archiveGenderFilter" onchange="fetchArchives()" class="bg-slate-950 text-amber-400 font-bold px-3 py-1.5 rounded-xl border border-amber-500/40 focus:outline-none cursor-pointer">
                                 <option value="ALL" data-i18n="allGendersOption">All Genders</option>
@@ -201,6 +202,9 @@
                                 <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
                                 <option value="Piglet" data-i18n="genderPiglet">Piglet (Child)</option>
                             </select>
+                            <button onclick="bulkDeleteCategory('sold')" class="bg-amber-950 text-amber-300 hover:bg-amber-900 px-2.5 py-1.5 rounded-xl border border-amber-800 font-bold transition" data-i18n="deleteSoldBtn">🗑️ Del Sold</button>
+                            <button onclick="bulkDeleteCategory('dead')" class="bg-red-950 text-red-300 hover:bg-red-900 px-2.5 py-1.5 rounded-xl border border-red-800 font-bold transition" data-i18n="deleteDeadBtn">🗑️ Del Dead</button>
+                            <button onclick="bulkDeleteCategory('transferred')" class="bg-teal-950 text-teal-300 hover:bg-teal-900 px-2.5 py-1.5 rounded-xl border border-teal-800 font-bold transition" data-i18n="deleteTransferredBtn">🗑️ Del Transferred</button>
                         </div>
                     </div>
                     <div id="archives-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2"></div>
@@ -236,16 +240,22 @@
                 </div>
                 <div id="feed-list" class="space-y-3"></div>
             </section>
-            <!-- Master Control Section -->
+            <!-- Master Control Section (Approvals & User Data Deletion) -->
             <section id="tab-adminPanel" class="tab-content hidden space-y-6">
-                <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-4">
-                    <h2 class="font-bold text-purple-400 text-sm" data-i18n="approvalsHeader">MASTER PENDING USER APPROVALS</h2>
-                    <div id="pending-users-list" class="space-y-2"></div>
+                <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-6">
+                    <div class="space-y-3">
+                        <h2 class="font-bold text-purple-400 text-sm" data-i18n="approvalsHeader">MASTER PENDING USER APPROVALS</h2>
+                        <div id="pending-users-list" class="space-y-2"></div>
+                    </div>
+                    <div class="space-y-3 pt-4 border-t border-slate-800">
+                        <h2 class="font-bold text-rose-400 text-sm" data-i18n="manageUsersHeader">MANAGE & DELETE USERS (WIPES ALL USER DATA)</h2>
+                        <div id="approved-users-list" class="space-y-2"></div>
+                    </div>
                 </div>
             </section>
         </main>
     </div>
-    <!-- Script Engine with Multi-Language Support (English, Hindi, Marathi - Daily Common Words) -->
+    <!-- Script Engine with Granular Category & User Deletion Support -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -255,7 +265,7 @@
         let mediaStream = null;
         let currentLang = 'en';
 
-        // --- TRANSLATION DICTIONARY (Daily Common Words for Hindi & Marathi) ---
+        // --- TRANSLATION DICTIONARY ---
         const translations = {
             en: {
                 appTitle: "Dadda Enviro Varah Farms",
@@ -301,10 +311,15 @@
                 activeHerdMgmt: "Active Herd Management",
                 filterGenderLabel: "Filter Gender:",
                 allGendersOption: "All Genders",
+                deleteAllActiveBtn: "🗑️ Delete All Active",
+                deleteSoldBtn: "🗑️ Del Sold",
+                deleteDeadBtn: "🗑️ Del Dead",
+                deleteTransferredBtn: "🗑️ Del Transferred",
                 archivesHeader: "ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)",
                 breedingHeader: "LITTER & BREEDING LOG",
                 feedHeader: "DAILY INTAKE & EXPENSES",
                 approvalsHeader: "MASTER PENDING USER APPROVALS",
+                manageUsersHeader: "MANAGE & DELETE USERS (WIPES ALL USER DATA)",
                 saveBtn: "Save",
                 soldBtn: "Sold",
                 deadBtn: "Dead",
@@ -361,10 +376,15 @@
                 activeHerdMgmt: "सक्रिय पशु प्रबंधन",
                 filterGenderLabel: "लिंग फ़िल्टर:",
                 allGendersOption: "सभी लिंग",
+                deleteAllActiveBtn: "🗑️ सभी सक्रिय हटाएं",
+                deleteSoldBtn: "🗑️ बिका हटाएं",
+                deleteDeadBtn: "🗑️ मृत हटाएं",
+                deleteTransferredBtn: "🗑️ ट्रांसफर हटाएं",
                 archivesHeader: "पशु इतिहास (बिका हुआ / मरा हुआ / ट्रांसफर)",
                 breedingHeader: "ब्रीडिंग और बच्चा रिकॉर्ड",
                 feedHeader: "दैनिक चारा और खर्च",
                 approvalsHeader: "लंबित यूजर अनुरोध",
+                manageUsersHeader: "यूजर हटाვें (सभी डेटा हमेशा के लिए डिलीट होगा)",
                 saveBtn: "सेव करें",
                 soldBtn: "बिका",
                 deadBtn: "मृत",
@@ -421,10 +441,15 @@
                 activeHerdMgmt: "सक्रिय जनावरे व्यवस्थापन",
                 filterGenderLabel: "लिंग फिल्टर:",
                 allGendersOption: "सर्व लिंग",
+                deleteAllActiveBtn: "🗑️ सर्व सक्रिय काढा",
+                deleteSoldBtn: "🗑️ विकलेले काढा",
+                deleteDeadBtn: "🗑️ मृत काढा",
+                deleteTransferredBtn: "🗑️ ट्रान्सफर काढा",
                 archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
                 breedingHeader: "प्रजनन आणि पिल्लू नोंद",
                 feedHeader: "दैनिक चारा आणि खर्च",
                 approvalsHeader: "प्रलंबित युजर विनंत्या",
+                manageUsersHeader: "युजर डिलीट करा (सर्व डेटा कायमचा नष्ट होईल)",
                 saveBtn: "सेव्ह",
                 soldBtn: "विकले",
                 deadBtn: "मृत",
@@ -447,7 +472,6 @@
                     el.innerText = translations[lang][key];
                 }
             });
-            // Update placeholders dynamically
             if(lang === 'hi') {
                 document.getElementById('tagId').placeholder = "टैग आईडी (जैसे VFH-042)";
                 document.getElementById('weight').placeholder = "वजन (किलो)";
@@ -551,6 +575,7 @@
                 document.getElementById('master-filter-wrapper').classList.remove('hidden');
                 document.getElementById('master-filter-wrapper').classList.add('flex');
                 loadPendingUsers();
+                loadApprovedUsersForDeletion();
                 onMasterFilterChange();
             } else {
                 document.getElementById('master-filter-wrapper').classList.add('hidden');
@@ -618,7 +643,63 @@
             await dbClient.from('users_directory').update({ status: 'approved' }).eq('id', id);
             alert("User approved successfully!");
             loadPendingUsers();
+            loadApprovedUsersForDeletion();
             loadExistingUsersDropdown();
+        }
+
+        async function loadApprovedUsersForDeletion() {
+            if(!dbClient) return;
+            const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
+            const container = document.getElementById('approved-users-list');
+            if(!data || data.length === 0) { 
+                container.innerHTML = `<p class="text-slate-500">No active farm operators registered yet.</p>`; 
+                return; 
+            }
+            container.innerHTML = data.map(u => `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span class="font-bold text-emerald-400">🏡 Farm Operator: ${u.username}</span>
+                    <button onclick="deleteUserAndAllData('${u.username}', '${u.id}')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-lg border border-red-800 font-bold text-xs transition">Delete User & All Records</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteUserAndAllData(username, userId) {
+            if(confirm(`⚠️ WARNING: Permanently delete user "${username}" AND wipe all their animal records, breeding logs, and feed logs?`)) {
+                await dbClient.from('users_directory').delete().eq('id', userId);
+                await dbClient.from('animals').delete().eq('owner', username);
+                await dbClient.from('breeding_logs').delete().eq('owner', username);
+                await dbClient.from('feed_logs').delete().eq('owner', username);
+
+                alert(`User "${username}" and all associated records deleted.`);
+                loadApprovedUsersForDeletion();
+                loadExistingUsersDropdown();
+                onMasterFilterChange();
+                fetchAllData();
+            }
+        }
+
+        // --- BULK DELETE CATEGORY WISE (Active, Sold, Dead, Transferred) ---
+        async function bulkDeleteCategory(statusType) {
+            let targetOwner = currentUser.role === 'operator' ? currentUser.username : (document.getElementById('masterOwnerFilter')?.value || 'ALL');
+            let confirmMsg = `⚠️ Delete all "${statusType.toUpperCase()}" records`;
+            if (targetOwner !== 'ALL') {
+                confirmMsg += ` for farm "${targetOwner}"?`;
+            } else {
+                confirmMsg += ` across ALL farms?`;
+            }
+
+            if(confirm(confirmMsg)) {
+                let query = dbClient.from('animals').delete().eq('status', statusType);
+                if (currentUser.role === 'operator') {
+                    query = query.eq('owner', currentUser.username);
+                } else if (targetOwner !== 'ALL') {
+                    query = query.eq('owner', targetOwner);
+                }
+                const { error } = await query;
+                if(error) { alert("Error deleting records."); return; }
+                alert(`Successfully deleted all ${statusType} records.`);
+                fetchAllData();
+            }
         }
 
         // --- IMAGE COMPRESSOR UTILITY ---
@@ -667,7 +748,6 @@
             }
         }
 
-        // --- LIVE CAMERA MODAL HANDLING ---
         async function openCameraModal() {
             document.getElementById('camera-modal').classList.remove('hidden');
             try {
