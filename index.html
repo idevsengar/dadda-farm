@@ -12,42 +12,42 @@
     <div id="auth-container" class="w-full max-w-md bg-slate-900/95 backdrop-blur-md border border-emerald-500/30 rounded-3xl p-8 shadow-2xl space-y-6 relative">
         <div class="text-center space-y-2">
             <div class="inline-block bg-gradient-to-tr from-emerald-600 to-teal-500 p-3 rounded-2xl text-white font-black text-sm tracking-wider shadow-lg">DEVAF</div>
-            <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Dadda Enviro Varah Farms</h1>
-            <p class="text-xs text-slate-400">Real-Time Secure Cloud Portal</p>
+            <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400" data-i18n="appTitle">Dadda Enviro Varah Farms</h1>
+            <p class="text-xs text-slate-400" data-i18n="appSubtitle">Real-Time Secure Cloud Portal</p>
         </div>
         <!-- Mode Switcher Tabs -->
         <div class="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold text-center">
-            <button type="button" onclick="switchAuthMode('login')" id="auth-tab-login" class="py-2 rounded-lg bg-emerald-600 text-white transition">Login</button>
-            <button type="button" onclick="switchAuthMode('register')" id="auth-tab-register" class="py-2 rounded-lg text-slate-400 hover:text-white transition">New User Register</button>
+            <button type="button" onclick="switchAuthMode('login')" id="auth-tab-login" class="py-2 rounded-lg bg-emerald-600 text-white transition" data-i18n="loginTab">Login</button>
+            <button type="button" onclick="switchAuthMode('register')" id="auth-tab-register" class="py-2 rounded-lg text-slate-400 hover:text-white transition" data-i18n="registerTab">New User Register</button>
         </div>
         <!-- LOGIN FORM -->
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Select User / Master</label>
+                <label class="text-slate-400 font-medium" data-i18n="selectUserLabel">Select User / Master</label>
                 <select id="loginUserSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500 cursor-pointer">
-                    <option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>
+                    <option value="master" data-i18n="masterAdminOption">👑 Master Admin (Dadda - Devendra Singh)</option>
                 </select>
             </div>
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Password</label>
+                <label class="text-slate-400 font-medium" data-i18n="passwordLabel">Password</label>
                 <input type="password" id="loginPassword" placeholder="Enter your password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
-            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg transition">Secure Login</button>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg transition" data-i18n="secureLoginBtn">Secure Login</button>
         </form>
         <!-- REGISTRATION FORM -->
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 text-xs hidden">
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Full Name / Username ID</label>
+                <label class="text-slate-400 font-medium" data-i18n="fullNameLabel">Full Name / Username ID</label>
                 <input type="text" id="regUsername" placeholder="e.g. Ramesh Patil" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
             <div class="space-y-1">
-                <label class="text-slate-400 font-medium">Create Password</label>
+                <label class="text-slate-400 font-medium" data-i18n="createPasswordLabel">Create Password</label>
                 <input type="password" id="regPassword" placeholder="Set secure password" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
-            <div class="bg-emerald-950/40 border border-emerald-500/20 p-3 rounded-xl text-[11px] text-emerald-300">
+            <div class="bg-emerald-950/40 border border-emerald-500/20 p-3 rounded-xl text-[11px] text-emerald-300" data-i18n="regNotice">
                 ℹ️ Registration request sent to Master Admin (<strong class="text-white">idevsengar@gmail.com</strong>).
             </div>
-            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold tracking-wider shadow-lg transition">Submit Registration Request</button>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold tracking-wider shadow-lg transition" data-i18n="submitRegBtn">Submit Registration Request</button>
         </form>
     </div>
     <!-- ================= PASSWORD REMINDER MODAL ================= -->
@@ -56,26 +56,26 @@
             <div class="flex items-center gap-3">
                 <div class="bg-emerald-600/20 text-emerald-400 p-3 rounded-2xl text-lg font-black">🔐</div>
                 <div>
-                    <h3 class="text-sm font-bold text-white">Password Reminder for Future Logins</h3>
+                    <h3 class="text-sm font-bold text-white" data-i18n="pwdReminderTitle">Password Reminder for Future Logins</h3>
                 </div>
             </div>
             <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-slate-300 space-y-2">
-                <p class="text-emerald-400 font-medium">Keep your password safe for future sessions.</p>
+                <p class="text-emerald-400 font-medium" data-i18n="pwdReminderDesc">Keep your password safe for future sessions.</p>
             </div>
-            <button onclick="dismissPasswordReminder()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition">Proceed to Dashboard</button>
+            <button onclick="dismissPasswordReminder()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition" data-i18n="proceedBtn">Proceed to Dashboard</button>
         </div>
     </div>
     <!-- ================= LIVE CAMERA MODAL ================= -->
     <div id="camera-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex flex-col justify-center items-center p-4 space-y-4">
         <div class="relative max-w-lg w-full bg-slate-900 border border-emerald-500/40 rounded-3xl p-4 space-y-3 text-center">
-            <h3 class="text-sm font-bold text-emerald-400">Capture Live Animal Photo</h3>
+            <h3 class="text-sm font-bold text-emerald-400" data-i18n="capturePhotoTitle">Capture Live Animal Photo</h3>
             <div class="aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 relative flex items-center justify-center">
                 <video id="camera-stream" autoplay playsinline class="w-full h-full object-cover"></video>
                 <canvas id="camera-canvas" class="hidden"></canvas>
             </div>
             <div class="flex gap-2">
-                <button onclick="takeSnapshot()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow">Capture Photo</button>
-                <button onclick="closeCameraModal()" class="py-2.5 px-4 bg-slate-800 text-slate-300 rounded-xl text-xs">Cancel</button>
+                <button onclick="takeSnapshot()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow" data-i18n="captureBtn">Capture Photo</button>
+                <button onclick="closeCameraModal()" class="py-2.5 px-4 bg-slate-800 text-slate-300 rounded-xl text-xs" data-i18n="cancelBtn">Cancel</button>
             </div>
         </div>
     </div>
@@ -86,15 +86,24 @@
             <div class="flex items-center gap-3">
                 <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-2.5 rounded-xl text-white font-black text-xs">DEVAF</div>
                 <div>
-                    <h1 class="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Dadda Enviro Varah Farms</h1>
+                    <h1 class="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400" data-i18n="appTitle">Dadda Enviro Varah Farms</h1>
                     <p class="text-[10px] text-emerald-300/80" id="active-user-badge">Role: Active</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
+                <!-- Language Selector Dropdown -->
+                <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-xl text-xs shadow-inner">
+                    <span class="text-slate-400 font-medium" data-i18n="langLabel">Language:</span>
+                    <select id="languageSelect" onchange="changeLanguage(this.value)" class="bg-slate-900 text-cyan-400 font-bold px-2 py-1 rounded-lg border border-cyan-500/40 focus:outline-none cursor-pointer">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                    </select>
+                </div>
                 <div id="master-filter-wrapper" class="hidden items-center gap-2 bg-slate-950 border border-slate-700 px-3 py-1.5 rounded-xl text-xs shadow-inner">
-                    <span class="text-slate-400 font-medium">Active Farm View:</span>
+                    <span class="text-slate-400 font-medium" data-i18n="farmViewLabel">Active Farm View:</span>
                     <select id="masterOwnerFilter" onchange="onMasterFilterChange()" class="bg-slate-900 text-emerald-400 font-bold px-2.5 py-1 rounded-lg border border-emerald-500/40 focus:outline-none cursor-pointer">
-                        <option value="ALL">🌐 All Farms (Master View)</option>
+                        <option value="ALL" data-i18n="allFarmsOption">🌐 All Farms (Master View)</option>
                     </select>
                 </div>
                 <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
@@ -102,19 +111,19 @@
                     <span id="ist-clock">Loading IST...</span>
                 </div>
                 <!-- Master Reset All Filters Button -->
-                <button onclick="resetAllFilters()" class="bg-rose-950/80 border border-rose-900/60 text-rose-300 hover:bg-rose-900 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+                <button onclick="resetAllFilters()" class="bg-rose-950/80 border border-rose-900/60 text-rose-300 hover:bg-rose-900 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1" data-i18n="resetFiltersBtn">
                     🔄 Reset Filters
                 </button>
-                <button onclick="handleLogout()" class="bg-red-950/80 border border-red-900/60 text-red-400 hover:bg-red-900 text-xs px-3 py-1.5 rounded-lg font-bold transition">Logout</button>
+                <button onclick="handleLogout()" class="bg-red-950/80 border border-red-900/60 text-red-400 hover:bg-red-900 text-xs px-3 py-1.5 rounded-lg font-bold transition" data-i18n="logoutBtn">Logout</button>
             </div>
         </header>
         <!-- Navigation Tabs -->
         <div class="flex gap-2 overflow-x-auto px-1">
-            <button onclick="switchTab('animals')" id="nav-animals" class="nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md">Active Herd</button>
-            <button onclick="switchTab('archives')" id="nav-archives" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800">Sold / Dead / Transferred</button>
-            <button onclick="switchTab('breeding')" id="nav-breeding" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800">Breeding</button>
-            <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800">Feed & Cost</button>
-            <button onclick="switchTab('adminPanel')" id="nav-adminPanel" class="nav-btn admin-only px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800 hidden">Master Approvals</button>
+            <button onclick="switchTab('animals')" id="nav-animals" class="nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md" data-i18n="tabActiveHerd">Active Herd</button>
+            <button onclick="switchTab('archives')" id="nav-archives" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-i18n="tabArchives">Sold / Dead / Transferred</button>
+            <button onclick="switchTab('breeding')" id="nav-breeding" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-i18n="tabBreeding">Breeding</button>
+            <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800" data-i18n="tabFeed">Feed & Cost</button>
+            <button onclick="switchTab('adminPanel')" id="nav-adminPanel" class="nav-btn admin-only px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800 hidden" data-i18n="tabApprovals">Master Approvals</button>
         </div>
         <!-- Dashboard Content Sections -->
         <main class="space-y-6">
@@ -122,10 +131,10 @@
             <section id="tab-animals" class="tab-content space-y-6">
                 <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex justify-between items-center">
-                        <span>REGISTER / EDIT ACTIVE ANIMAL RECORD</span>
+                        <span data-i18n="registerAnimalHeader">REGISTER / EDIT ACTIVE ANIMAL RECORD</span>
                         <div class="flex items-center gap-2">
                             <span id="target-owner-banner" class="text-[10px] bg-emerald-950 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-800 font-medium">Target Farm: Master</span>
-                            <span id="form-mode-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700">Mode: New Entry</span>
+                            <span id="form-mode-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700" data-i18n="modeNewEntry">Mode: New Entry</span>
                         </div>
                     </h2>
                     <form id="animalForm" onsubmit="handleAnimalSubmit(event)" class="space-y-4 text-xs">
@@ -133,9 +142,9 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <input type="text" id="tagId" placeholder="Unique Tag ID (e.g. VFH-042)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                             <select id="gender" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
-                                <option value="Male">Male (Boar)</option>
-                                <option value="Female">Female (Sow)</option>
-                                <option value="Piglet">Piglet</option>
+                                <option value="Male" data-i18n="genderMale">Male (Boar)</option>
+                                <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
+                                <option value="Piglet" data-i18n="genderPiglet">Piglet</option>
                             </select>
                             <input type="number" step="0.1" id="weight" placeholder="Weight (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                         </div>
@@ -144,35 +153,35 @@
                             <div class="flex items-center gap-3 w-full sm:w-auto">
                                 <img id="image-preview" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-700 hidden" alt="Preview">
                                 <div>
-                                    <label class="text-slate-400 font-medium block">Animal Identification Photo</label>
-                                    <span id="image-status" class="text-[10px] text-slate-500">No image chosen (Auto-compressed)</span>
+                                    <label class="text-slate-400 font-medium block" data-i18n="photoLabel">Animal Identification Photo</label>
+                                    <span id="image-status" class="text-[10px] text-slate-500" data-i18n="noImageText">No image chosen (Auto-compressed)</span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 w-full sm:w-auto">
-                                <label class="flex-1 sm:flex-none text-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer transition">
+                                <label class="flex-1 sm:flex-none text-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-bold cursor-pointer transition" data-i18n="uploadFileBtn">
                                     📁 Upload File
                                     <input type="file" id="imageFileSelect" accept="image/*" onchange="handleImageSelection(this)" class="hidden">
                                 </label>
-                                <button type="button" onclick="openCameraModal()" class="flex-1 sm:flex-none px-3 py-2 bg-teal-950 text-teal-300 border border-teal-800 hover:bg-teal-900 rounded-xl font-bold transition">📷 Live Camera</button>
+                                <button type="button" onclick="openCameraModal()" class="flex-1 sm:flex-none px-3 py-2 bg-teal-950 text-teal-300 border border-teal-800 hover:bg-teal-900 rounded-xl font-bold transition" data-i18n="liveCameraBtn">📷 Live Camera</button>
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button type="submit" id="saveAnimalBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl px-3 py-2.5 shadow transition">Save Active Animal</button>
-                            <button type="button" id="cancelEditBtn" onclick="resetAnimalForm()" class="hidden bg-slate-800 text-slate-300 px-3 py-2.5 rounded-xl">Cancel</button>
+                            <button type="submit" id="saveAnimalBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl px-3 py-2.5 shadow transition" data-i18n="saveAnimalBtn">Save Active Animal</button>
+                            <button type="button" id="cancelEditBtn" onclick="resetAnimalForm()" class="hidden bg-slate-800 text-slate-300 px-3 py-2.5 rounded-xl" data-i18n="cancelBtn">Cancel</button>
                         </div>
                     </form>
                 </div>
                 
                 <!-- Active Herd Filter Bar -->
                 <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl flex-wrap gap-2 text-xs">
-                    <span class="font-bold text-emerald-400 uppercase tracking-wider">Active Herd Management</span>
+                    <span class="font-bold text-emerald-400 uppercase tracking-wider" data-i18n="activeHerdMgmt">Active Herd Management</span>
                     <div class="flex items-center gap-2">
-                        <label class="text-slate-400 font-medium">Filter Gender:</label>
+                        <label class="text-slate-400 font-medium" data-i18n="filterGenderLabel">Filter Gender:</label>
                         <select id="genderFilter" onchange="fetchAnimals()" class="bg-slate-950 text-emerald-400 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/40 focus:outline-none cursor-pointer">
-                            <option value="ALL">All Genders</option>
-                            <option value="Male">Male (Boar)</option>
-                            <option value="Female">Female (Sow)</option>
-                            <option value="Piglet">Piglet (Child)</option>
+                            <option value="ALL" data-i18n="allGendersOption">All Genders</option>
+                            <option value="Male" data-i18n="genderMale">Male (Boar)</option>
+                            <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
+                            <option value="Piglet" data-i18n="genderPiglet">Piglet (Child)</option>
                         </select>
                     </div>
                 </div>
@@ -183,14 +192,14 @@
             <section id="tab-archives" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <div class="flex justify-between items-center flex-wrap gap-2">
-                        <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
+                        <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider" data-i18n="archivesHeader">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
                         <div class="flex items-center gap-2 text-xs">
-                            <label class="text-slate-400 font-medium">Filter Gender:</label>
+                            <label class="text-slate-400 font-medium" data-i18n="filterGenderLabel">Filter Gender:</label>
                             <select id="archiveGenderFilter" onchange="fetchArchives()" class="bg-slate-950 text-amber-400 font-bold px-3 py-1.5 rounded-xl border border-amber-500/40 focus:outline-none cursor-pointer">
-                                <option value="ALL">All Genders</option>
-                                <option value="Male">Male (Boar)</option>
-                                <option value="Female">Female (Sow)</option>
-                                <option value="Piglet">Piglet (Child)</option>
+                                <option value="ALL" data-i18n="allGendersOption">All Genders</option>
+                                <option value="Male" data-i18n="genderMale">Male (Boar)</option>
+                                <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
+                                <option value="Piglet" data-i18n="genderPiglet">Piglet (Child)</option>
                             </select>
                         </div>
                     </div>
@@ -200,13 +209,13 @@
             <!-- Breeding Section -->
             <section id="tab-breeding" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-xl space-y-4">
-                    <h2 class="text-xs font-bold text-teal-400 uppercase tracking-wider">LITTER & BREEDING LOG</h2>
+                    <h2 class="text-xs font-bold text-teal-400 uppercase tracking-wider" data-i18n="breedingHeader">LITTER & BREEDING LOG</h2>
                     <form id="breedingForm" onsubmit="handleBreedingSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <input type="text" id="femaleTag" placeholder="Female Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
                         <input type="text" id="maleTag" placeholder="Male Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
                         <div class="flex gap-2">
                             <input type="number" id="survivedCount" placeholder="Survived Count" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                            <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-4 py-2.5 shadow">Save</button>
+                            <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-4 py-2.5 shadow" data-i18n="saveBtn">Save</button>
                         </div>
                     </form>
                 </div>
@@ -215,13 +224,13 @@
             <!-- Feed Section -->
             <section id="tab-feed" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
-                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider">DAILY INTAKE & EXPENSES</h2>
+                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider" data-i18n="feedHeader">DAILY INTAKE & EXPENSES</h2>
                     <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <input type="text" id="feedType" placeholder="Feed Description" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
                         <input type="number" step="0.1" id="feedQty" placeholder="Qty (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
                         <div class="flex gap-2">
                             <input type="number" step="0.01" id="feedCost" placeholder="Cost (₹)" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl px-4 py-2.5 shadow">Save</button>
+                            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl px-4 py-2.5 shadow" data-i18n="saveBtn">Save</button>
                         </div>
                     </form>
                 </div>
@@ -230,13 +239,13 @@
             <!-- Master Control Section -->
             <section id="tab-adminPanel" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl text-xs space-y-4">
-                    <h2 class="font-bold text-purple-400 text-sm">MASTER PENDING USER APPROVALS</h2>
+                    <h2 class="font-bold text-purple-400 text-sm" data-i18n="approvalsHeader">MASTER PENDING USER APPROVALS</h2>
                     <div id="pending-users-list" class="space-y-2"></div>
                 </div>
             </section>
         </main>
     </div>
-    <!-- Script Engine with Reset All Filters Option -->
+    <!-- Script Engine with Multi-Language Support (English, Hindi, Marathi - Daily Common Words) -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -244,6 +253,231 @@
         let currentUser = null; 
         let compressedImageBase64 = "";
         let mediaStream = null;
+        let currentLang = 'en';
+
+        // --- TRANSLATION DICTIONARY (Daily Common Words for Hindi & Marathi) ---
+        const translations = {
+            en: {
+                appTitle: "Dadda Enviro Varah Farms",
+                appSubtitle: "Real-Time Secure Cloud Portal",
+                loginTab: "Login",
+                registerTab: "New User Register",
+                selectUserLabel: "Select User / Master",
+                masterAdminOption: "👑 Master Admin (Dadda - Devendra Singh)",
+                passwordLabel: "Password",
+                secureLoginBtn: "Secure Login",
+                fullNameLabel: "Full Name / Username ID",
+                createPasswordLabel: "Create Password",
+                regNotice: "ℹ️ Registration request sent to Master Admin (idevsengar@gmail.com).",
+                submitRegBtn: "Submit Registration Request",
+                pwdReminderTitle: "Password Reminder for Future Logins",
+                pwdReminderDesc: "Keep your password safe for future sessions.",
+                proceedBtn: "Proceed to Dashboard",
+                capturePhotoTitle: "Capture Live Animal Photo",
+                captureBtn: "Capture Photo",
+                cancelBtn: "Cancel",
+                langLabel: "Language:",
+                farmViewLabel: "Active Farm View:",
+                allFarmsOption: "🌐 All Farms (Master View)",
+                resetFiltersBtn: "🔄 Reset Filters",
+                logoutBtn: "Logout",
+                tabActiveHerd: "Active Herd",
+                tabArchives: "Sold / Dead / Transferred",
+                tabBreeding: "Breeding",
+                tabFeed: "Feed & Cost",
+                tabApprovals: "Master Approvals",
+                registerAnimalHeader: "REGISTER / EDIT ACTIVE ANIMAL RECORD",
+                modeNewEntry: "Mode: New Entry",
+                modeEditing: "Mode: Editing",
+                genderMale: "Male (Boar)",
+                genderFemale: "Female (Sow)",
+                genderPiglet: "Piglet",
+                photoLabel: "Animal Identification Photo",
+                noImageText: "No image chosen (Auto-compressed)",
+                uploadFileBtn: "📁 Upload File",
+                liveCameraBtn: "📷 Live Camera",
+                saveAnimalBtn: "Save Active Animal",
+                updateAnimalBtn: "Update Active Animal",
+                activeHerdMgmt: "Active Herd Management",
+                filterGenderLabel: "Filter Gender:",
+                allGendersOption: "All Genders",
+                archivesHeader: "ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)",
+                breedingHeader: "LITTER & BREEDING LOG",
+                feedHeader: "DAILY INTAKE & EXPENSES",
+                approvalsHeader: "MASTER PENDING USER APPROVALS",
+                saveBtn: "Save",
+                soldBtn: "Sold",
+                deadBtn: "Dead",
+                transferBtn: "Transfer",
+                editBtn: "Edit",
+                deleteBtn: "Delete",
+                restoreBtn: "Restore",
+                noPhoto: "No Photo Provided",
+                weightText: "Weight",
+                farmText: "Farm",
+                genderText: "Gender"
+            },
+            hi: {
+                appTitle: "दद्दा एनवायरो वाराह फार्म्स",
+                appSubtitle: "रियल-टाइम सुरक्षित क्लाउड पोर्टल",
+                loginTab: "लॉगिन (Login)",
+                registerTab: "नया यूजर रजिस्टर करें",
+                selectUserLabel: "यूजर या मास्टर चुनें",
+                masterAdminOption: "👑 मास्टर एडमिन (दद्दा - देवेंद्र सिंह)",
+                passwordLabel: "पासवर्ड",
+                secureLoginBtn: "सुरक्षित लॉगिन करें",
+                fullNameLabel: "पूरा नाम / यूजरनेम आईडी",
+                createPasswordLabel: "नया पासवर्ड बनाएं",
+                regNotice: "ℹ️ रजिस्ट्रेशन का अनुरोध मास्टर एडमिन को भेज दिया गया है।",
+                submitRegBtn: "रजिस्ट्रेशन अनुरोध भेजें",
+                pwdReminderTitle: "भविष्य के लॉगिन के लिए पासवर्ड याद रखें",
+                pwdReminderDesc: "कृपया अपना पासवर्ड सुरक्षित रखें।",
+                proceedBtn: "डैशबोर्ड पर आगे बढ़ें",
+                capturePhotoTitle: "जानवर की लाइव फोटो खींचें",
+                captureBtn: "फोटो खींचें",
+                cancelBtn: "रद्द करें",
+                langLabel: "भाषा:",
+                farmViewLabel: "फार्म दृश्य:",
+                allFarmsOption: "🌐 सभी फार्म (मास्टर व्यू)",
+                resetFiltersBtn: "🔄 फ़िल्टर हटाएं",
+                logoutBtn: "लॉग आउट",
+                tabActiveHerd: "सक्रिय पशु (Active Herd)",
+                tabArchives: "विक्रेत / मृत / स्थानांतरित",
+                tabBreeding: "प्रजनन (Breeding)",
+                tabFeed: "चारा और खर्च (Feed & Cost)",
+                tabApprovals: "मास्टर स्वीकृतियां",
+                registerAnimalHeader: "पशु का रिकॉर्ड जोड़ें / सुधारें",
+                modeNewEntry: "मोड: नई एंट्री",
+                modeEditing: "मोड: संपादन (Editing)",
+                genderMale: "नर (Boar)",
+                genderFemale: "मादा (Sow)",
+                genderPiglet: "पिल्ला / बच्चा (Piglet)",
+                photoLabel: "पशु की पहचान फोटो",
+                noImageText: "कोई फोटो नहीं चुनी गई",
+                uploadFileBtn: "📁 फाइल चुनें",
+                liveCameraBtn: "📷 लाइव कैमरा",
+                saveAnimalBtn: "पशु सेव करें",
+                updateAnimalBtn: "पशु अपडेट करें",
+                activeHerdMgmt: "सक्रिय पशु प्रबंधन",
+                filterGenderLabel: "लिंग फ़िल्टर:",
+                allGendersOption: "सभी लिंग",
+                archivesHeader: "पशु इतिहास (बिका हुआ / मरा हुआ / ट्रांसफर)",
+                breedingHeader: "ब्रीडिंग और बच्चा रिकॉर्ड",
+                feedHeader: "दैनिक चारा और खर्च",
+                approvalsHeader: "लंबित यूजर अनुरोध",
+                saveBtn: "सेव करें",
+                soldBtn: "बिका",
+                deadBtn: "मृत",
+                transferBtn: "ट्रांसफर",
+                editBtn: "सुधारें",
+                deleteBtn: "हटाएं",
+                restoreBtn: "वापस लाएं",
+                noPhoto: "फोटो उपलब्ध नहीं",
+                weightText: "वजन",
+                farmText: "फार्म",
+                genderText: "लिंग"
+            },
+            mr: {
+                appTitle: "दद्दा एनवायरो वाराह फार्म्स",
+                appSubtitle: "रिअल-टाइम सुरक्षित क्लाउड पोर्टल",
+                loginTab: "लॉगिन (Login)",
+                registerTab: "नवीन युजर नोंदणी",
+                selectUserLabel: "युजर किंवा मास्टर निवडा",
+                masterAdminOption: "👑 मास्टर एडमिन (दद्दा - देवेंद्र सिंह)",
+                passwordLabel: "पासवर्ड",
+                secureLoginBtn: "सुरक्षित लॉगिन करा",
+                fullNameLabel: "पूर्ण नाव / युजरनेम आयडी",
+                createPasswordLabel: "पासवर्ड तयार करा",
+                regNotice: "ℹ️ नोंदणी विनंती मास्टर एडमिनकडे पाठवण्यात आली आहे.",
+                submitRegBtn: "नोंदणी विनंती पाठवा",
+                pwdReminderTitle: "भविष्यातील लॉगिनसाठी पासवर्ड लक्षात ठेवा",
+                pwdReminderDesc: "कृपया तुमचा पासवर्ड सुरक्षित ठेवा.",
+                proceedBtn: "डॅशबोर्डवर जा",
+                capturePhotoTitle: "जनावराचा लाईव्ह फोटो काढा",
+                captureBtn: "फोटो काढा",
+                cancelBtn: "रद्द करा",
+                langLabel: "भाषा:",
+                farmViewLabel: "फार्म दृश्य:",
+                allFarmsOption: "🌐 सर्व फार्म (मास्टर व्ह्यू)",
+                resetFiltersBtn: "🔄 सर्व फिल्टर काढा",
+                logoutBtn: "लॉग आउट",
+                tabActiveHerd: "सक्रिय जनावरे",
+                tabArchives: "विक्री / मृत्यू / स्थलांतरित",
+                tabBreeding: "प्रजनन (Breeding)",
+                tabFeed: "चारा आणि खर्च (Feed & Cost)",
+                tabApprovals: "मास्टर मंजुर्या",
+                registerAnimalHeader: "जनावराची नोंद करा / बदला",
+                modeNewEntry: "मोड: नवीन नोंद",
+                modeEditing: "मोड: बदल (Editing)",
+                genderMale: "नर (Boar)",
+                genderFemale: "मादी (Sow)",
+                genderPiglet: "पिल्लू (Piglet)",
+                photoLabel: "जनावराचा ओळख फोटो",
+                noImageText: "फोटो निवडलेला नाही",
+                uploadFileBtn: "📁 फाईल निवडा",
+                liveCameraBtn: "📷 लाईव्ह कॅमेरा",
+                saveAnimalBtn: "जनावर सेव्ह करा",
+                updateAnimalBtn: "जनावर अपडेट करा",
+                activeHerdMgmt: "सक्रिय जनावरे व्यवस्थापन",
+                filterGenderLabel: "लिंग फिल्टर:",
+                allGendersOption: "सर्व लिंग",
+                archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
+                breedingHeader: "प्रजनन आणि पिल्लू नोंद",
+                feedHeader: "दैनिक चारा आणि खर्च",
+                approvalsHeader: "प्रलंबित युजर विनंत्या",
+                saveBtn: "सेव्ह",
+                soldBtn: "विकले",
+                deadBtn: "मृत",
+                transferBtn: "ट्रान्सफर",
+                editBtn: "बदला",
+                deleteBtn: "काढून टाका",
+                restoreBtn: "पुन्हा आणा",
+                noPhoto: "फोटो उपलब्ध नाही",
+                weightText: "वजन",
+                farmText: "फार्म",
+                genderText: "लिंग"
+            }
+        };
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+            // Update placeholders dynamically
+            if(lang === 'hi') {
+                document.getElementById('tagId').placeholder = "टैग आईडी (जैसे VFH-042)";
+                document.getElementById('weight').placeholder = "वजन (किलो)";
+                document.getElementById('femaleTag').placeholder = "मादा टैग आईडी";
+                document.getElementById('maleTag').placeholder = "नर टैग आईडी";
+                document.getElementById('survivedCount').placeholder = "जीवित बच्चों की संख्या";
+                document.getElementById('feedType').placeholder = "चारे का विवरण";
+                document.getElementById('feedQty').placeholder = "मात्रा (किलो)";
+                document.getElementById('feedCost').placeholder = "लागत (₹)";
+            } else if(lang === 'mr') {
+                document.getElementById('tagId').placeholder = "टॅग आयडी (उदा. VFH-042)";
+                document.getElementById('weight').placeholder = "वजन (किलो)";
+                document.getElementById('femaleTag').placeholder = "मादी टॅग आयडी";
+                document.getElementById('maleTag').placeholder = "नर टॅग आयडी";
+                document.getElementById('survivedCount').placeholder = "जिवंत पिल्लांची संख्या";
+                document.getElementById('feedType').placeholder = "चाऱ्याचे विवरण";
+                document.getElementById('feedQty').placeholder = "प्रमाण (किलो)";
+                document.getElementById('feedCost').placeholder = "खर्च (₹)";
+            } else {
+                document.getElementById('tagId').placeholder = "Unique Tag ID (e.g. VFH-042)";
+                document.getElementById('weight').placeholder = "Weight (kg)";
+                document.getElementById('femaleTag').placeholder = "Female Tag ID";
+                document.getElementById('maleTag').placeholder = "Male Tag ID";
+                document.getElementById('survivedCount').placeholder = "Survived Count";
+                document.getElementById('feedType').placeholder = "Feed Description";
+                document.getElementById('feedQty').placeholder = "Qty (kg)";
+                document.getElementById('feedCost').placeholder = "Cost (₹)";
+            }
+            fetchAllData();
+        }
 
         const colorPalette = [
             { bg: 'bg-cyan-950', border: 'border-cyan-500', text: 'text-cyan-400' },
@@ -262,8 +496,9 @@
             if(!dbClient) return;
             const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
             const select = document.getElementById('loginUserSelect');
-            let optionsHTML = `<option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>`;
-            let filterDropdownHTML = `<option value="ALL">🌐 All Farms (Master View)</option>`;
+            const t = translations[currentLang];
+            let optionsHTML = `<option value="master">${t.masterAdminOption}</option>`;
+            let filterDropdownHTML = `<option value="ALL">${t.allFarmsOption}</option>`;
             if(data) {
                 data.forEach(u => {
                     optionsHTML += `<option value="${u.username}">${u.username} (Farm Owner)</option>`;
@@ -343,18 +578,15 @@
         }
 
         function resetAllFilters() {
-            // Reset Master Farm Owner Filter if admin
             const masterFilter = document.getElementById('masterOwnerFilter');
             if (masterFilter) {
                 masterFilter.value = 'ALL';
                 onMasterFilterChange();
             }
-            // Reset Active Herd Gender Filter
             const genderFilter = document.getElementById('genderFilter');
             if (genderFilter) {
                 genderFilter.value = 'ALL';
             }
-            // Reset Archive Gender Filter
             const archiveGenderFilter = document.getElementById('archiveGenderFilter');
             if (archiveGenderFilter) {
                 archiveGenderFilter.value = 'ALL';
@@ -430,7 +662,7 @@
                 const preview = document.getElementById('image-preview');
                 preview.src = compressedImageBase64;
                 preview.classList.remove('hidden');
-                document.getElementById('image-status').innerText = "Image compressed & ready!";
+                document.getElementById('image-status').innerText = translations[currentLang].noImageText;
                 document.getElementById('image-status').className = "text-[10px] text-emerald-400 font-bold";
             }
         }
@@ -468,7 +700,7 @@
                 const preview = document.getElementById('image-preview');
                 preview.src = compressedImageBase64;
                 preview.classList.remove('hidden');
-                document.getElementById('image-status').innerText = "Live photo captured & compressed!";
+                document.getElementById('image-status').innerText = translations[currentLang].noImageText;
                 document.getElementById('image-status').className = "text-[10px] text-emerald-400 font-bold";
                 closeCameraModal();
             }, 'image/jpeg', 0.7);
@@ -527,30 +759,31 @@
 
             const { data } = await query;
             const grid = document.getElementById('animal-list');
+            const t = translations[currentLang];
             if(!data || data.length === 0) {
-                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found for this filter.</div>`;
+                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found.</div>`;
                 return;
             }
             grid.innerHTML = data.map(item => {
                 const badge = getOwnerColor(item.owner || 'Master');
-                const imageTag = item.image ? `<img src="${item.image}" class="w-full h-32 object-cover rounded-xl border border-slate-800 mb-2" alt="Animal Photo">` : `<div class="w-full h-20 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center text-slate-600 text-[10px] mb-2">No Photo Provided</div>`;
+                const imageTag = item.image ? `<img src="${item.image}" class="w-full h-32 object-cover rounded-xl border border-slate-800 mb-2" alt="Animal Photo">` : `<div class="w-full h-20 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center text-slate-600 text-[10px] mb-2">${t.noPhoto}</div>`;
                 return `
                 <div class="bg-slate-900 border ${badge.border}/40 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-lg">
                     <div>
                         ${imageTag}
                         <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">Tag: ${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
-                        <p class="text-xs text-slate-300 mt-2">Weight: <strong class="text-white">${item.weight} kg</strong></p>
-                        <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">Farm: ${item.owner || 'Master'}</span></div>
+                        <p class="text-xs text-slate-300 mt-2">${t.weightText}: <strong class="text-white">${item.weight} kg</strong></p>
+                        <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">${t.farmText}: ${item.owner || 'Master'}</span></div>
                     </div>
                     <div class="space-y-1.5 pt-2 border-t border-slate-800">
                         <div class="flex gap-1">
-                            <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 font-bold">Sold</button>
-                            <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 font-bold">Dead</button>
-                            <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-teal-300 bg-teal-950/80 py-1 rounded border border-teal-800 font-bold">Transfer</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 font-bold">${t.soldBtn}</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 font-bold">${t.deadBtn}</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-teal-300 bg-teal-950/80 py-1 rounded border border-teal-800 font-bold">${t.transferBtn}</button>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">Edit</button>
-                            <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-red-400 bg-red-950 py-1 rounded border border-red-900 font-bold">Delete</button>
+                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">${t.editBtn}</button>
+                            <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-red-400 bg-red-950 py-1 rounded border border-red-900 font-bold">${t.deleteBtn}</button>
                         </div>
                     </div>
                 </div>`;
@@ -572,11 +805,11 @@
             } else {
                 compressedImageBase64 = "";
                 document.getElementById('image-preview').classList.add('hidden');
-                document.getElementById('image-status').innerText = "No image chosen";
+                document.getElementById('image-status').innerText = translations[currentLang].noImageText;
             }
 
-            document.getElementById('form-mode-badge').innerText = "Mode: Editing";
-            document.getElementById('saveAnimalBtn').innerText = "Update Active Animal";
+            document.getElementById('form-mode-badge').innerText = translations[currentLang].modeEditing;
+            document.getElementById('saveAnimalBtn').innerText = translations[currentLang].updateAnimalBtn;
             document.getElementById('cancelEditBtn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -595,7 +828,7 @@
                     .eq('status', 'active');
                 
                 if(existing && existing.length > 0) {
-                    alert(`Error: Active Tag ID "${tagIdInput}" already exists in farm account "${targetOwner}"! Please use a unique Tag ID.`);
+                    alert(`Error: Active Tag ID "${tagIdInput}" already exists in farm account "${targetOwner}"!`);
                     return;
                 }
             }
@@ -655,8 +888,9 @@
 
             const { data } = await query;
             const container = document.getElementById('archives-list');
+            const t = translations[currentLang];
             if(!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found for this filter.</div>`;
+                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found.</div>`;
                 return;
             }
             container.innerHTML = data.map(item => {
@@ -667,12 +901,12 @@
                     <div>
                         ${imageTag}
                         <div class="flex justify-between items-center"><span class="font-bold text-white text-xs">Tag: ${item.tagId}</span><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${statusColor}">${item.status}</span></div>
-                        <p class="text-xs text-slate-400 mt-2">Gender: ${item.gender} | Weight: ${item.weight} kg</p>
-                        <p class="text-[10px] text-slate-500 mt-1">Farm Owner: ${item.owner}</p>
+                        <p class="text-xs text-slate-400 mt-2">${t.genderText}: ${item.gender} | ${t.weightText}: ${item.weight} kg</p>
+                        <p class="text-[10px] text-slate-500 mt-1">${t.farmText}: ${item.owner}</p>
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] gap-2">
-                        <button onclick="updateAnimalStatus('${item.id}', 'active')" class="text-emerald-400 bg-emerald-950 px-2 py-1 rounded border border-emerald-800 hover:bg-emerald-900 font-bold">Restore</button>
-                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900 font-bold">Delete</button>
+                        <button onclick="updateAnimalStatus('${item.id}', 'active')" class="text-emerald-400 bg-emerald-950 px-2 py-1 rounded border border-emerald-800 hover:bg-emerald-900 font-bold">${t.restoreBtn}</button>
+                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900 font-bold">${t.deleteBtn}</button>
                     </div>
                 </div>`;
             }).join('');
@@ -683,11 +917,11 @@
             document.getElementById('editAnimalId').value = '';
             document.getElementById('image-preview').classList.add('hidden');
             document.getElementById('image-preview').src = '';
-            document.getElementById('image-status').innerText = "No image chosen (Auto-compressed)";
+            document.getElementById('image-status').innerText = translations[currentLang].noImageText;
             document.getElementById('image-status').className = "text-[10px] text-slate-500";
             compressedImageBase64 = "";
-            document.getElementById('form-mode-badge').innerText = "Mode: New Entry";
-            document.getElementById('saveAnimalBtn').innerText = "Save Active Animal";
+            document.getElementById('form-mode-badge').innerText = translations[currentLang].modeNewEntry;
+            document.getElementById('saveAnimalBtn').innerText = translations[currentLang].saveAnimalBtn;
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
