@@ -131,7 +131,7 @@
             <section id="tab-archives" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
-                    <p class="text-slate-400 text-xs">All records are permanently preserved here for lifetime auditing and bookkeeping (No deletion).</p>
+                    <p class="text-slate-400 text-xs">Records are preserved here for auditing, with an option to permanently delete when you want to free up space.</p>
                     <div id="archives-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2"></div>
                 </div>
             </section>
@@ -264,7 +264,7 @@
         function handleLogout() {
             currentUser = null;
             document.getElementById('main-dashboard').classList.add('hidden');
-            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('auth-container').classList.add('flex');
             document.getElementById('loginPassword').value = '';
             loadExistingUsersDropdown();
         }
@@ -339,7 +339,7 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS (No Delete, Unique Tag Check) ---
+        // --- ACTIVE ANIMALS (Lifecycle buttons + Optional Delete) ---
         async function fetchAnimals() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
@@ -361,15 +361,16 @@
                     <div>
                         <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">Tag: ${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
                         <p class="text-xs text-slate-300 mt-2">Weight: <strong class="text-white">${item.weight} kg</strong></p>
-                        <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">Farm: ${item.owner || 'Master'}</span></div>
+                        <div class="mt-2 flex justify-between items-center"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">Farm: ${item.owner || 'Master'}</span></div>
                     </div>
-                    <!-- Lifecycle Status Actions (No Delete) -->
+                    <!-- Lifecycle Actions & Optional Delete -->
                     <div class="space-y-1.5 pt-2 border-t border-slate-800">
                         <div class="flex gap-1">
-                            <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 hover:bg-amber-900 font-bold">Sold</button>
-                            <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 hover:bg-red-900 font-bold">Dead</button>
-                            <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 hover:bg-cyan-900 font-bold">Transfer</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'sold')" class="flex-1 text-[9px] text-amber-300 bg-amber-950/80 py-1 rounded border border-amber-800 font-bold">Sold</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'dead')" class="flex-1 text-[9px] text-red-300 bg-red-950/80 py-1 rounded border border-red-800 font-bold">Dead</button>
+                            <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">Transfer</button>
                         </div>
+                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="w-full text-[9px] text-slate-400 hover:text-red-400 bg-slate-950 py-1 rounded border border-slate-800 transition">Delete Entry</button>
                     </div>
                 </div>`;
             }).join('');
@@ -414,7 +415,14 @@
             }
         }
 
-        // --- ARCHIVES VIEW (SOLD, DEAD, TRANSFERRED) ---
+        async function permanentDeleteAnimal(id, tagId) {
+            if(confirm(`⚠️ Permanently delete animal record "${tagId}"? This will free up data space.`)) {
+                await dbClient.from('animals').delete().eq('id', id);
+                fetchAllData();
+            }
+        }
+
+        // --- ARCHIVES VIEW (SOLD, DEAD, TRANSFERRED with Delete option) ---
         async function fetchArchives() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
@@ -438,9 +446,9 @@
                         <p class="text-xs text-slate-400 mt-2">Gender: ${item.gender} | Weight: ${item.weight} kg</p>
                         <p class="text-[10px] text-slate-500 mt-1">Farm Owner: ${item.owner}</p>
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px]">
-                        <span class="text-slate-500">Preserved Record</span>
-                        <button onclick="updateAnimalStatus('${item.id}', 'active')" class="text-emerald-400 bg-emerald-950 px-2 py-1 rounded border border-emerald-800 hover:bg-emerald-900 font-bold">Restore to Active</button>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] gap-2">
+                        <button onclick="updateAnimalStatus('${item.id}', 'active')" class="text-emerald-400 bg-emerald-950 px-2 py-1 rounded border border-emerald-800 hover:bg-emerald-900 font-bold">Restore</button>
+                        <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="text-red-400 bg-red-950 px-2 py-1 rounded border border-red-900 hover:bg-red-900 font-bold">Delete Permanently</button>
                     </div>
                 </div>`;
             }).join('');
