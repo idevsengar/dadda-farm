@@ -178,7 +178,18 @@
             <!-- Sold / Dead / Transferred Archive Section -->
             <section id="tab-archives" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
-                    <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
+                        <div class="flex items-center gap-2 text-xs">
+                            <label class="text-slate-400 font-medium">Filter Gender:</label>
+                            <select id="archiveGenderFilter" onchange="fetchArchives()" class="bg-slate-950 text-amber-400 font-bold px-3 py-1.5 rounded-xl border border-amber-500/40 focus:outline-none cursor-pointer">
+                                <option value="ALL">All Genders</option>
+                                <option value="Male">Male (Boar)</option>
+                                <option value="Female">Female (Sow)</option>
+                                <option value="Piglet">Piglet (Child)</option>
+                            </select>
+                        </div>
+                    </div>
                     <div id="archives-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2"></div>
                 </div>
             </section>
@@ -221,7 +232,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Gender Filter -->
+    <!-- Script Engine with Gender Filter in Both Windows -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -485,7 +496,6 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
 
-            // Apply Gender Filter
             const selectedGender = document.getElementById('genderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
                 query = query.eq('gender', selectedGender);
@@ -602,19 +612,27 @@
             }
         }
 
-        // --- ARCHIVES VIEW ---
+        // --- ARCHIVES VIEW WITH GENDER FILTER ---
         async function fetchArchives() {
             if(!dbClient) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
-            if(currentUser.role === 'operator') query = query.eq('owner', currentUser.username);
-            else if(currentUser.role === 'admin') {
+            
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
+
+            const selectedGender = document.getElementById('archiveGenderFilter')?.value;
+            if(selectedGender && selectedGender !== 'ALL') {
+                query = query.eq('gender', selectedGender);
+            }
+
             const { data } = await query;
             const container = document.getElementById('archives-list');
             if(!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found.</div>`;
+                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found for this filter.</div>`;
                 return;
             }
             container.innerHTML = data.map(item => {
