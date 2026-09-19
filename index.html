@@ -101,6 +101,10 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span id="ist-clock">Loading IST...</span>
                 </div>
+                <!-- Master Reset All Filters Button -->
+                <button onclick="resetAllFilters()" class="bg-rose-950/80 border border-rose-900/60 text-rose-300 hover:bg-rose-900 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+                    🔄 Reset Filters
+                </button>
                 <button onclick="handleLogout()" class="bg-red-950/80 border border-red-900/60 text-red-400 hover:bg-red-900 text-xs px-3 py-1.5 rounded-lg font-bold transition">Logout</button>
             </div>
         </header>
@@ -232,7 +236,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Gender Filter in Both Windows -->
+    <!-- Script Engine with Reset All Filters Option -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -335,6 +339,26 @@
             const styling = getOwnerColor(val);
             filterEl.className = `bg-slate-900 font-bold px-2.5 py-1 rounded-lg border ${styling.border} ${styling.text} focus:outline-none cursor-pointer`;
             updateTargetOwnerBanner(val === 'ALL' ? 'Master' : val);
+            fetchAllData();
+        }
+
+        function resetAllFilters() {
+            // Reset Master Farm Owner Filter if admin
+            const masterFilter = document.getElementById('masterOwnerFilter');
+            if (masterFilter) {
+                masterFilter.value = 'ALL';
+                onMasterFilterChange();
+            }
+            // Reset Active Herd Gender Filter
+            const genderFilter = document.getElementById('genderFilter');
+            if (genderFilter) {
+                genderFilter.value = 'ALL';
+            }
+            // Reset Archive Gender Filter
+            const archiveGenderFilter = document.getElementById('archiveGenderFilter');
+            if (archiveGenderFilter) {
+                archiveGenderFilter.value = 'ALL';
+            }
             fetchAllData();
         }
 
