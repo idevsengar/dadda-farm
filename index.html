@@ -332,6 +332,7 @@
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
+        
         let dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
         let currentUser = null; 
         let compressedImageBase64 = "";
@@ -688,7 +689,7 @@
         }
 
         function proceedToDashboard() {
-            // FIX: Force reset all filter dropdowns upon fresh login
+            // Force reset all filter dropdowns upon fresh login
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
             const agFilter = document.getElementById('archiveGenderFilter');
@@ -715,7 +716,12 @@
         }
 
         function handleLogout() {
-            // FIX: Fully wipe user state, cache, forms, and lists
+            // FIX: Fully teardown Supabase realtime channels and wipe client instance to prevent caching stale data
+            if (dbClient) {
+                dbClient.removeAllChannels();
+            }
+            dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
             currentUser = null;
             compressedImageBase64 = "";
             
@@ -728,6 +734,16 @@
             document.getElementById('breedingForm').reset();
             document.getElementById('feedForm').reset();
             resetAnimalForm();
+
+            // Reset summary count boxes to 0 instantly
+            document.getElementById('count-active-total').innerText = '0';
+            document.getElementById('count-active-male').innerText = '0';
+            document.getElementById('count-active-female').innerText = '0';
+            document.getElementById('count-active-piglet').innerText = '0';
+            document.getElementById('count-archive-total').innerText = '0';
+            document.getElementById('count-archive-sold').innerText = '0';
+            document.getElementById('count-archive-dead').innerText = '0';
+            document.getElementById('count-archive-transferred').innerText = '0';
 
             // Reset all filter selections
             const gFilter = document.getElementById('genderFilter');
@@ -995,7 +1011,6 @@
             const { data } = await query;
             let filteredData = data || [];
             
-            // AGGRESSIVE HARDENED ISOLATION CHECK
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
