@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Enhanced Breeding Window & Tag Registration -->
+    <!-- Script Engine with Fixed Dropdown Values (Strict Tag ID binding) -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -971,7 +971,7 @@
             document.getElementById('count-active-female').innerText = actFemale;
             document.getElementById('count-active-piglet').innerText = actPiglet;
 
-            // Populate Breeding dropdowns
+            // Populate Breeding dropdowns with strictly clean tagId values
             populateBreedingDropdowns(allActiveData || []);
 
             const selectedGender = document.getElementById('genderFilter')?.value;
@@ -1236,11 +1236,12 @@
                 owner: targetOwner
             };
 
-            // Save breeding log
             const { error } = await dbClient.from('breeding_logs').insert([breedingRecord]);
-            if(error) { alert("Error saving breeding record."); return; }
+            if(error) { 
+                alert("Error saving breeding record: " + error.message); 
+                return; 
+            }
 
-            // If offspring tag IDs are provided, automatically register them as active piglets in the herd
             if(offspringTagIds) {
                 const tagList = offspringTagIds.split(',').map(t => t.trim()).filter(t => t.length > 0);
                 for(let tag of tagList) {
@@ -1248,7 +1249,7 @@
                         id: 'ANI-' + Date.now() + '-' + Math.floor(Math.random()*1000),
                         tagId: tag,
                         gender: 'Piglet',
-                        weight: 1.5, // Default initial weight for newborn piglet
+                        weight: 1.5,
                         owner: targetOwner,
                         status: 'active'
                     };
