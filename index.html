@@ -574,7 +574,7 @@
                 survivedCountLabel: "जिवंत पिल्लांची संख्या",
                 newTagIdsLabel: "पिल्लांचे नवीन टॅग आयडी (स्वल्पविराम देऊन)",
                 saveBreedingBtn: "प्रजनन सेव्ह करा आणि पिल्लांचे टॅग जोडा",
-                saveBtn: "सेव्ह",
+                saveBtn: "सेव",
                 soldBtn: "विकले",
                 deadBtn: "मृत",
                 transferBtn: "ट्रान्सफर",
@@ -688,6 +688,14 @@
         }
 
         function proceedToDashboard() {
+            // FIX: Force reset all filter dropdowns upon fresh login
+            const gFilter = document.getElementById('genderFilter');
+            if(gFilter) gFilter.value = 'ALL';
+            const agFilter = document.getElementById('archiveGenderFilter');
+            if(agFilter) agFilter.value = 'ALL';
+            const mFilter = document.getElementById('masterOwnerFilter');
+            if(mFilter) mFilter.value = 'ALL';
+
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('main-dashboard').classList.remove('hidden');
             document.getElementById('active-user-badge').innerText = `Logged in as: ${currentUser.username} (${currentUser.role.toUpperCase()})`;
@@ -707,7 +715,7 @@
         }
 
         function handleLogout() {
-            // FIX: Fully wipe user state, cache, forms, and lists to prevent showing previous user data
+            // FIX: Fully wipe user state, cache, forms, and lists
             currentUser = null;
             compressedImageBase64 = "";
             
@@ -720,6 +728,12 @@
             document.getElementById('breedingForm').reset();
             document.getElementById('feedForm').reset();
             resetAnimalForm();
+
+            // Reset all filter selections
+            const gFilter = document.getElementById('genderFilter');
+            if(gFilter) gFilter.value = 'ALL';
+            const agFilter = document.getElementById('archiveGenderFilter');
+            if(agFilter) agFilter.value = 'ALL';
 
             // Hide admin sections
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
@@ -948,7 +962,7 @@
         }
 
         function fetchAllData() {
-            if (!currentUser) return; // Prevent fetching if logged out
+            if (!currentUser) return;
             fetchAnimals();
             fetchArchives();
             fetchBreeding();
