@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Corrected Breeding Value Binding & Schema Mapping -->
+    <!-- Script Engine with Lowercase Column Mappings -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -1205,9 +1205,9 @@
             container.innerHTML = data.map(i => `
                 <div class="bg-slate-900 p-4 rounded-2xl text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-800 gap-3 shadow">
                     <div class="space-y-1">
-                        <p class="font-bold text-teal-400 text-sm">Sow (Female): ${i.femaleTag} &nbsp;|&nbsp; Boar (Male): ${i.maleTag}</p>
-                        <p class="text-slate-300">Breeding Date: <strong class="text-white">${i.breedingDate || 'N/A'}</strong> | Birth Date: <strong class="text-white">${i.birthDate || 'N/A'}</strong></p>
-                        <p class="text-slate-400">Survived Count: <strong class="text-emerald-400">${i.survivedCount}</strong> | Offspring Tags: <strong class="text-cyan-400">${i.offspringTagIds || 'None'}</strong></p>
+                        <p class="font-bold text-teal-400 text-sm">Sow (Female): ${i.femaletag} &nbsp;|&nbsp; Boar (Male): ${i.maletag}</p>
+                        <p class="text-slate-300">Breeding Date: <strong class="text-white">${i.breedingdate || 'N/A'}</strong> | Birth Date: <strong class="text-white">${i.birthdate || 'N/A'}</strong></p>
+                        <p class="text-slate-400">Survived Count: <strong class="text-emerald-400">${i.survivedcount}</strong> | Offspring Tags: <strong class="text-cyan-400">${i.offspringtagids || 'None'}</strong></p>
                         <p class="text-[10px] text-slate-500">Farm Owner: ${i.owner || 'Master'}</p>
                     </div>
                     <button onclick="deleteBreedingLog('${i.id}')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold transition">Delete Log</button>
@@ -1227,12 +1227,12 @@
 
             const breedingRecord = {
                 id: 'BRD-' + Date.now(),
-                femaleTag,
-                maleTag,
-                breedingDate,
-                birthDate,
-                survivedCount,
-                offspringTagIds,
+                femaletag: femaleTag,
+                maletag: maleTag,
+                breedingdate: breedingDate,
+                birthdate: birthDate,
+                survivedcount: survivedCount,
+                offspringtagids: offspringTagIds,
                 owner: targetOwner
             };
 
