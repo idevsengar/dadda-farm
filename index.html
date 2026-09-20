@@ -707,10 +707,30 @@
         }
 
         function handleLogout() {
+            // FIX: Fully wipe user state, cache, forms, and lists to prevent showing previous user data
             currentUser = null;
+            compressedImageBase64 = "";
+            
+            // Clear UI lists & reset forms
+            document.getElementById('animal-list').innerHTML = '';
+            document.getElementById('archives-list').innerHTML = '';
+            document.getElementById('breeding-list').innerHTML = '';
+            document.getElementById('feed-list').innerHTML = '';
+            document.getElementById('animalForm').reset();
+            document.getElementById('breedingForm').reset();
+            document.getElementById('feedForm').reset();
+            resetAnimalForm();
+
+            // Hide admin sections
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+            document.getElementById('master-filter-wrapper').classList.add('hidden');
+
+            // Return to auth container
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('loginPassword').value = '';
+            
+            // Reload user dropdown
             loadExistingUsersDropdown();
         }
 
@@ -928,6 +948,7 @@
         }
 
         function fetchAllData() {
+            if (!currentUser) return; // Prevent fetching if logged out
             fetchAnimals();
             fetchArchives();
             fetchBreeding();
