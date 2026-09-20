@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Lowercase Column Mappings -->
+    <!-- Script Engine with Strict Operator Account Isolation -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -940,25 +940,23 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH GENDER FILTER & COUNT TABLE ---
+        // --- ACTIVE ANIMALS WITH STRICT ACCOUNT ISOLATION ---
         async function fetchAnimals() {
-            if(!dbClient) return;
+            if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
+            let countQuery = dbClient.from('animals').select('*').eq('status', 'active');
             
             if(currentUser.role === 'operator') {
                 query = query.eq('owner', currentUser.username);
-            } else if(currentUser.role === 'admin') {
-                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
-            }
-
-            let countQuery = dbClient.from('animals').select('*').eq('status', 'active');
-            if(currentUser.role === 'operator') {
                 countQuery = countQuery.eq('owner', currentUser.username);
             } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') countQuery = countQuery.eq('owner', selectedOwner);
+                if(selectedOwner && selectedOwner !== 'ALL') {
+                    query = query.eq('owner', selectedOwner);
+                    countQuery = countQuery.eq('owner', selectedOwner);
+                }
             }
+
             const { data: allActiveData } = await countQuery;
 
             let actTotal = allActiveData ? allActiveData.length : 0;
@@ -1112,25 +1110,23 @@
             }
         }
 
-        // --- ARCHIVES VIEW WITH GENDER FILTER & COUNT TABLE ---
+        // --- ARCHIVES VIEW WITH STRICT ACCOUNT ISOLATION ---
         async function fetchArchives() {
-            if(!dbClient) return;
+            if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
+            let countQuery = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
             
             if(currentUser.role === 'operator') {
                 query = query.eq('owner', currentUser.username);
-            } else if(currentUser.role === 'admin') {
-                const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
-            }
-
-            let countQuery = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
-            if(currentUser.role === 'operator') {
                 countQuery = countQuery.eq('owner', currentUser.username);
             } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') countQuery = countQuery.eq('owner', selectedOwner);
+                if(selectedOwner && selectedOwner !== 'ALL') {
+                    query = query.eq('owner', selectedOwner);
+                    countQuery = countQuery.eq('owner', selectedOwner);
+                }
             }
+
             const { data: allArchiveData } = await countQuery;
 
             let arcTotal = allArchiveData ? allArchiveData.length : 0;
@@ -1187,12 +1183,13 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
-        // --- BREEDING WINDOW LOGIC ---
+        // --- BREEDING WINDOW LOGIC WITH STRICT ACCOUNT ISOLATION ---
         async function fetchBreeding() {
-            if(!dbClient) return;
+            if(!dbClient || !currentUser) return;
             let query = dbClient.from('breeding_logs').select('*');
-            if(currentUser.role === 'operator') query = query.eq('owner', currentUser.username);
-            else if(currentUser.role === 'admin') {
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
@@ -1269,11 +1266,13 @@
             }
         }
 
+        // --- FEED LOGS WITH STRICT ACCOUNT ISOLATION ---
         async function fetchFeed() {
-            if(!dbClient) return;
+            if(!dbClient || !currentUser) return;
             let query = dbClient.from('feed_logs').select('*');
-            if(currentUser.role === 'operator') query = query.eq('owner', currentUser.username);
-            else if(currentUser.role === 'admin') {
+            if(currentUser.role === 'operator') {
+                query = query.eq('owner', currentUser.username);
+            } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
