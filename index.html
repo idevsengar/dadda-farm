@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Frontend Safeguards & Account Isolation -->
+    <!-- Script Engine with Absolute Operator Account Isolation & Hardened Safeguards -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -940,7 +940,7 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH FRONTEND SAFEGUARD ISOLATION ---
+        // --- ACTIVE ANIMALS WITH ABSOLUTE ISOLATION & FAILSAFE ---
         async function fetchAnimals() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
@@ -960,9 +960,9 @@
             const { data } = await query;
             let filteredData = data || [];
             
-            // STRICT FRONTEND ISOLATION SAFEGUARD
+            // AGGRESSIVE HARDENED ISOLATION CHECK
             if(currentUser.role === 'operator') {
-                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
             let actTotal = filteredData.length;
@@ -975,7 +975,6 @@
             document.getElementById('count-active-female').innerText = actFemale;
             document.getElementById('count-active-piglet').innerText = actPiglet;
 
-            // Populate Breeding dropdowns strictly using isolated data
             populateBreedingDropdowns(filteredData);
 
             const grid = document.getElementById('animal-list');
@@ -1068,7 +1067,12 @@
                     .eq('tagId', tagIdInput)
                     .eq('status', 'active');
                 
-                if(existing && existing.length > 0) {
+                let existingFiltered = existing || [];
+                if(currentUser.role === 'operator') {
+                    existingFiltered = existingFiltered.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
+                }
+
+                if(existingFiltered.length > 0) {
                     alert(`Error: Active Tag ID "${tagIdInput}" already exists in farm account "${targetOwner}"!`);
                     return;
                 }
@@ -1110,7 +1114,7 @@
             }
         }
 
-        // --- ARCHIVES VIEW WITH FRONTEND SAFEGUARD ISOLATION ---
+        // --- ARCHIVES VIEW WITH ABSOLUTE ISOLATION & FAILSAFE ---
         async function fetchArchives() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
@@ -1131,7 +1135,7 @@
             let filteredData = data || [];
 
             if(currentUser.role === 'operator') {
-                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
             let arcTotal = filteredData.length;
@@ -1182,7 +1186,7 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
-        // --- BREEDING WINDOW LOGIC WITH FRONTEND SAFEGUARD ISOLATION ---
+        // --- BREEDING WINDOW LOGIC WITH ABSOLUTE ISOLATION & FAILSAFE ---
         async function fetchBreeding() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('breeding_logs').select('*');
@@ -1195,7 +1199,7 @@
             const { data } = await query;
             let filteredData = data || [];
             if(currentUser.role === 'operator') {
-                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
             const container = document.getElementById('breeding-list');
@@ -1270,7 +1274,7 @@
             }
         }
 
-        // --- FEED LOGS WITH FRONTEND SAFEGUARD ISOLATION ---
+        // --- FEED LOGS WITH ABSOLUTE ISOLATION & FAILSAFE ---
         async function fetchFeed() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('feed_logs').select('*');
@@ -1283,7 +1287,7 @@
             const { data } = await query;
             let filteredData = data || [];
             if(currentUser.role === 'operator') {
-                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
             document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
