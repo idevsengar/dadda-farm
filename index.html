@@ -146,8 +146,9 @@
                                 <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
                                 <option value="Piglet" data-i18n="genderPiglet">Piglet</option>
                             </select>
-                            <input type="number" step="0.1" id="weight" placeholder="Weight (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
-                            <!-- Non-mandatory shed input field -->
+                            <!-- Weight is now non-mandatory -->
+                            <input type="number" step="0.1" id="weight" placeholder="Weight (kg) - Optional" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Shed is non-mandatory -->
                             <input type="text" id="shedNumber" placeholder="Shed No. (e.g. Shed 1)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <!-- Image Upload & Camera Capture Options -->
@@ -618,7 +619,7 @@
             });
             if(lang === 'hi') {
                 document.getElementById('tagId').placeholder = "टैग आईडी (जैसे VFH-042)";
-                document.getElementById('weight').placeholder = "वजन (किलो)";
+                document.getElementById('weight').placeholder = "वजन (किलो) - वैकल्पिक";
                 document.getElementById('shedNumber').placeholder = "शेड नं (जैसे Shed 1)";
                 document.getElementById('survivedCount').placeholder = "जैसे 8";
                 document.getElementById('offspringTagIds').placeholder = "जैसे VFH-P1, VFH-P2";
@@ -627,7 +628,7 @@
                 document.getElementById('feedCost').placeholder = "लागत (₹)";
             } else if(lang === 'mr') {
                 document.getElementById('tagId').placeholder = "टॅग आयडी (उदा. VFH-042)";
-                document.getElementById('weight').placeholder = "वजन (किलो)";
+                document.getElementById('weight').placeholder = "वजन (किलो) - पर्यायी";
                 document.getElementById('shedNumber').placeholder = "शेड क्र. (उदा. Shed 1)";
                 document.getElementById('survivedCount').placeholder = "उदा. 8";
                 document.getElementById('offspringTagIds').placeholder = "उदा. VFH-P1, VFH-P2";
@@ -636,7 +637,7 @@
                 document.getElementById('feedCost').placeholder = "खर्च (₹)";
             } else {
                 document.getElementById('tagId').placeholder = "Unique Tag ID (e.g. VFH-042)";
-                document.getElementById('weight').placeholder = "Weight (kg)";
+                document.getElementById('weight').placeholder = "Weight (kg) - Optional";
                 document.getElementById('shedNumber').placeholder = "Shed No. (e.g. Shed 1)";
                 document.getElementById('survivedCount').placeholder = "e.g. 8";
                 document.getElementById('offspringTagIds').placeholder = "e.g. VFH-P1, VFH-P2";
@@ -1019,7 +1020,7 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH SHED SUPPORT ---
+        // --- ACTIVE ANIMALS WITH SHED & OPTIONAL WEIGHT SUPPORT ---
         async function fetchAnimals() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
@@ -1079,7 +1080,7 @@
                         ${imageTag}
                         <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">Tag: ${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
                         <div class="flex justify-between items-center mt-2 text-xs text-slate-300">
-                            <span>${t.weightText}: <strong class="text-white">${item.weight} kg</strong></span>
+                            <span>${t.weightText}: <strong class="text-white">${item.weight || 0} kg</strong></span>
                             <span class="bg-teal-950 text-teal-300 border border-teal-800 px-2 py-0.5 rounded text-[10px] font-bold">🏠 ${item.shed || 'Unassigned'}</span>
                         </div>
                         <div class="mt-2"><span class="text-[10px] ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full border ${badge.border} font-medium">${t.farmText}: ${item.owner || 'Master'}</span></div>
@@ -1091,7 +1092,7 @@
                             <button onclick="updateAnimalStatus('${item.id}', 'transferred')" class="flex-1 text-[9px] text-teal-300 bg-teal-950/80 py-1 rounded border border-teal-800 font-bold">${t.transferBtn}</button>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight}, '${item.shed || ''}', '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">${t.editBtn}</button>
+                            <button onclick="editAnimal('${item.id}', '${item.tagId}', '${item.gender}', ${item.weight || 0}, '${item.shed || ''}', '${item.image || ''}')" class="flex-1 text-[9px] text-cyan-300 bg-cyan-950/80 py-1 rounded border border-cyan-800 font-bold">${t.editBtn}</button>
                             <button onclick="permanentDeleteAnimal('${item.id}', '${item.tagId}')" class="flex-1 text-[9px] text-red-400 bg-red-950 py-1 rounded border border-red-900 font-bold">${t.deleteBtn}</button>
                         </div>
                     </div>
@@ -1141,7 +1142,7 @@
             document.getElementById('editAnimalId').value = id;
             document.getElementById('tagId').value = tagId;
             document.getElementById('gender').value = gender;
-            document.getElementById('weight').value = weight;
+            document.getElementById('weight').value = (weight !== undefined && weight !== null && !isNaN(weight)) ? weight : '';
             document.getElementById('shedNumber').value = shed || '';
             
             if (imageUrl) {
@@ -1166,6 +1167,7 @@
             e.preventDefault();
             const id = document.getElementById('editAnimalId').value;
             const tagIdInput = document.getElementById('tagId').value.trim();
+            const weightInput = document.getElementById('weight').value;
             const shedInput = document.getElementById('shedNumber').value.trim();
             const targetOwner = getTargetRecordOwner();
 
@@ -1190,7 +1192,7 @@
             const record = { 
                 tagId: tagIdInput, 
                 gender: document.getElementById('gender').value, 
-                weight: parseFloat(document.getElementById('weight').value) || 0,
+                weight: weightInput !== "" ? parseFloat(weightInput) : 0,
                 shed: shedInput,
                 owner: targetOwner,
                 status: 'active'
@@ -1272,7 +1274,7 @@
                     <div>
                         ${imageTag}
                         <div class="flex justify-between items-center"><span class="font-bold text-white text-xs">Tag: ${item.tagId}</span><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${statusColor}">${item.status}</span></div>
-                        <p class="text-xs text-slate-400 mt-2">${t.genderText}: ${item.gender} | ${t.weightText}: ${item.weight} kg</p>
+                        <p class="text-xs text-slate-400 mt-2">${t.genderText}: ${item.gender} | ${t.weightText}: ${item.weight || 0} kg</p>
                         <p class="text-[10px] text-teal-400 mt-1">🏠 Shed: ${item.shed || 'N/A'} | Farm: ${item.owner}</p>
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] gap-2">
