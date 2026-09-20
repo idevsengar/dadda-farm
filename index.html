@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Fixed Dropdown Values (Strict Tag ID binding) -->
+    <!-- Script Engine with Corrected Breeding Value Binding & Schema Mapping -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -971,7 +971,7 @@
             document.getElementById('count-active-female').innerText = actFemale;
             document.getElementById('count-active-piglet').innerText = actPiglet;
 
-            // Populate Breeding dropdowns with strictly clean tagId values
+            // Populate Breeding dropdowns strictly using tagId as value
             populateBreedingDropdowns(allActiveData || []);
 
             const selectedGender = document.getElementById('genderFilter')?.value;
