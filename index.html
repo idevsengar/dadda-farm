@@ -328,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Strict Operator Account Isolation -->
+    <!-- Script Engine with Frontend Safeguards & Account Isolation -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -940,37 +940,17 @@
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
 
-        // --- ACTIVE ANIMALS WITH STRICT ACCOUNT ISOLATION ---
+        // --- ACTIVE ANIMALS WITH FRONTEND SAFEGUARD ISOLATION ---
         async function fetchAnimals() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').eq('status', 'active');
-            let countQuery = dbClient.from('animals').select('*').eq('status', 'active');
             
             if(currentUser.role === 'operator') {
                 query = query.eq('owner', currentUser.username);
-                countQuery = countQuery.eq('owner', currentUser.username);
             } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') {
-                    query = query.eq('owner', selectedOwner);
-                    countQuery = countQuery.eq('owner', selectedOwner);
-                }
+                if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
-
-            const { data: allActiveData } = await countQuery;
-
-            let actTotal = allActiveData ? allActiveData.length : 0;
-            let actMale = allActiveData ? allActiveData.filter(i => i.gender === 'Male').length : 0;
-            let actFemale = allActiveData ? allActiveData.filter(i => i.gender === 'Female').length : 0;
-            let actPiglet = allActiveData ? allActiveData.filter(i => i.gender === 'Piglet').length : 0;
-
-            document.getElementById('count-active-total').innerText = actTotal;
-            document.getElementById('count-active-male').innerText = actMale;
-            document.getElementById('count-active-female').innerText = actFemale;
-            document.getElementById('count-active-piglet').innerText = actPiglet;
-
-            // Populate Breeding dropdowns strictly using tagId as value
-            populateBreedingDropdowns(allActiveData || []);
 
             const selectedGender = document.getElementById('genderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
@@ -978,13 +958,33 @@
             }
 
             const { data } = await query;
+            let filteredData = data || [];
+            
+            // STRICT FRONTEND ISOLATION SAFEGUARD
+            if(currentUser.role === 'operator') {
+                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+            }
+
+            let actTotal = filteredData.length;
+            let actMale = filteredData.filter(i => i.gender === 'Male').length;
+            let actFemale = filteredData.filter(i => i.gender === 'Female').length;
+            let actPiglet = filteredData.filter(i => i.gender === 'Piglet').length;
+
+            document.getElementById('count-active-total').innerText = actTotal;
+            document.getElementById('count-active-male').innerText = actMale;
+            document.getElementById('count-active-female').innerText = actFemale;
+            document.getElementById('count-active-piglet').innerText = actPiglet;
+
+            // Populate Breeding dropdowns strictly using isolated data
+            populateBreedingDropdowns(filteredData);
+
             const grid = document.getElementById('animal-list');
             const t = translations[currentLang];
-            if(!data || data.length === 0) {
-                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found.</div>`;
+            if(filteredData.length === 0) {
+                grid.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No active animal records found for your account.</div>`;
                 return;
             }
-            grid.innerHTML = data.map(item => {
+            grid.innerHTML = filteredData.map(item => {
                 const badge = getOwnerColor(item.owner || 'Master');
                 const imageTag = item.image ? `<img src="${item.image}" class="w-full h-32 object-cover rounded-xl border border-slate-800 mb-2" alt="Animal Photo">` : `<div class="w-full h-20 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center text-slate-600 text-[10px] mb-2">${t.noPhoto}</div>`;
                 return `
@@ -1110,34 +1110,17 @@
             }
         }
 
-        // --- ARCHIVES VIEW WITH STRICT ACCOUNT ISOLATION ---
+        // --- ARCHIVES VIEW WITH FRONTEND SAFEGUARD ISOLATION ---
         async function fetchArchives() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
-            let countQuery = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
             
             if(currentUser.role === 'operator') {
                 query = query.eq('owner', currentUser.username);
-                countQuery = countQuery.eq('owner', currentUser.username);
             } else if(currentUser.role === 'admin') {
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
-                if(selectedOwner && selectedOwner !== 'ALL') {
-                    query = query.eq('owner', selectedOwner);
-                    countQuery = countQuery.eq('owner', selectedOwner);
-                }
+                if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
-
-            const { data: allArchiveData } = await countQuery;
-
-            let arcTotal = allArchiveData ? allArchiveData.length : 0;
-            let arcSold = allArchiveData ? allArchiveData.filter(i => i.status === 'sold').length : 0;
-            let arcDead = allArchiveData ? allArchiveData.filter(i => i.status === 'dead').length : 0;
-            let arcTransferred = allArchiveData ? allArchiveData.filter(i => i.status === 'transferred').length : 0;
-
-            document.getElementById('count-archive-total').innerText = arcTotal;
-            document.getElementById('count-archive-sold').innerText = arcSold;
-            document.getElementById('count-archive-dead').innerText = arcDead;
-            document.getElementById('count-archive-transferred').innerText = arcTransferred;
 
             const selectedGender = document.getElementById('archiveGenderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
@@ -1145,13 +1128,29 @@
             }
 
             const { data } = await query;
+            let filteredData = data || [];
+
+            if(currentUser.role === 'operator') {
+                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+            }
+
+            let arcTotal = filteredData.length;
+            let arcSold = filteredData.filter(i => i.status === 'sold').length;
+            let arcDead = filteredData.filter(i => i.status === 'dead').length;
+            let arcTransferred = filteredData.filter(i => i.status === 'transferred').length;
+
+            document.getElementById('count-archive-total').innerText = arcTotal;
+            document.getElementById('count-archive-sold').innerText = arcSold;
+            document.getElementById('count-archive-dead').innerText = arcDead;
+            document.getElementById('count-archive-transferred').innerText = arcTransferred;
+
             const container = document.getElementById('archives-list');
             const t = translations[currentLang];
-            if(!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found.</div>`;
+            if(filteredData.length === 0) {
+                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 col-span-full text-center">No archived records found for your account.</div>`;
                 return;
             }
-            container.innerHTML = data.map(item => {
+            container.innerHTML = filteredData.map(item => {
                 let statusColor = item.status === 'sold' ? 'text-amber-400 bg-amber-950 border-amber-800' : (item.status === 'dead' ? 'text-red-400 bg-red-950 border-red-800' : 'text-cyan-400 bg-cyan-950 border-cyan-800');
                 const imageTag = item.image ? `<img src="${item.image}" class="w-full h-28 object-cover rounded-xl border border-slate-800 mb-2" alt="Animal Photo">` : '';
                 return `
@@ -1183,7 +1182,7 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
-        // --- BREEDING WINDOW LOGIC WITH STRICT ACCOUNT ISOLATION ---
+        // --- BREEDING WINDOW LOGIC WITH FRONTEND SAFEGUARD ISOLATION ---
         async function fetchBreeding() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('breeding_logs').select('*');
@@ -1194,12 +1193,17 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
             const { data } = await query;
+            let filteredData = data || [];
+            if(currentUser.role === 'operator') {
+                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+            }
+
             const container = document.getElementById('breeding-list');
-            if(!data || data.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No breeding records found.</div>`;
+            if(filteredData.length === 0) {
+                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No breeding records found for your account.</div>`;
                 return;
             }
-            container.innerHTML = data.map(i => `
+            container.innerHTML = filteredData.map(i => `
                 <div class="bg-slate-900 p-4 rounded-2xl text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-800 gap-3 shadow">
                     <div class="space-y-1">
                         <p class="font-bold text-teal-400 text-sm">Sow (Female): ${i.femaletag} &nbsp;|&nbsp; Boar (Male): ${i.maletag}</p>
@@ -1266,7 +1270,7 @@
             }
         }
 
-        // --- FEED LOGS WITH STRICT ACCOUNT ISOLATION ---
+        // --- FEED LOGS WITH FRONTEND SAFEGUARD ISOLATION ---
         async function fetchFeed() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('feed_logs').select('*');
@@ -1277,7 +1281,12 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
             const { data } = await query;
-            document.getElementById('feed-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs.</div>';
+            let filteredData = data || [];
+            if(currentUser.role === 'operator') {
+                filteredData = filteredData.filter(i => i.owner === currentUser.username);
+            }
+
+            document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
         }
 
         async function handleFeedSubmit(e) {
