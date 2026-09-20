@@ -260,13 +260,40 @@
             <section id="tab-breeding" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <h2 class="text-xs font-bold text-teal-400 uppercase tracking-wider" data-i18n="breedingHeader">LITTER & BREEDING LOG</h2>
-                    <form id="breedingForm" onsubmit="handleBreedingSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                        <input type="text" id="femaleTag" placeholder="Female Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                        <input type="text" id="maleTag" placeholder="Male Tag ID" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                        <div class="flex gap-2">
-                            <input type="number" id="survivedCount" placeholder="Survived Count" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                            <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl px-4 py-2.5 shadow" data-i18n="saveBtn">Save</button>
+                    <form id="breedingForm" onsubmit="handleBreedingSubmit(event)" class="space-y-4 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium" data-i18n="selectFemaleLabel">Select Female (Sow)</label>
+                                <select id="breedingFemaleSelect" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-teal-500 cursor-pointer">
+                                    <option value="">-- Choose Female Tag --</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium" data-i18n="selectMaleLabel">Select Male (Boar)</label>
+                                <select id="breedingMaleSelect" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-teal-500 cursor-pointer">
+                                    <option value="">-- Choose Male Tag --</option>
+                                </select>
+                            </div>
                         </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium" data-i18n="breedingDateLabel">Breeding Date</label>
+                                <input type="date" id="breedingDate" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-teal-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium" data-i18n="birthDateLabel">Piglet Birth Date</label>
+                                <input type="date" id="birthDate" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-teal-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium" data-i18n="survivedCountLabel">Survived Count</label>
+                                <input type="number" id="survivedCount" placeholder="e.g. 8" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-teal-500">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 font-medium" data-i18n="newTagIdsLabel">New Tag IDs for Offspring (Comma separated or range)</label>
+                            <input type="text" id="offspringTagIds" placeholder="e.g. VFH-P1, VFH-P2, VFH-P3" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-teal-500">
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-lg transition" data-i18n="saveBreedingBtn">Save Breeding & Register Offspring Tags</button>
                     </form>
                 </div>
                 <div id="breeding-list" class="space-y-3"></div>
@@ -301,7 +328,7 @@
             </section>
         </main>
     </div>
-    <!-- Script Engine with Count Summary Tables -->
+    <!-- Script Engine with Enhanced Breeding Window & Tag Registration -->
     <script>
         const SUPABASE_URL = 'https://zfponxlavgxcofntbbyp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcG9ueGxhdmd4Y29mbnRiYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjgwNjcsImV4cCI6MjEwNDkwNDA2N30.IwALgywYSfHCsj0VaCbsc93sM1ps5svYP6GX7Wpvjz8';
@@ -376,6 +403,13 @@
                 countSold: "Sold",
                 countDead: "Dead",
                 countTransferred: "Transferred",
+                selectFemaleLabel: "Select Female (Sow)",
+                selectMaleLabel: "Select Male (Boar)",
+                breedingDateLabel: "Breeding Date",
+                birthDateLabel: "Piglet Birth Date",
+                survivedCountLabel: "Survived Count",
+                newTagIdsLabel: "New Tag IDs for Offspring (Comma separated or range)",
+                saveBreedingBtn: "Save Breeding & Register Offspring Tags",
                 saveBtn: "Save",
                 soldBtn: "Sold",
                 deadBtn: "Dead",
@@ -451,6 +485,13 @@
                 countSold: "बिका हुआ",
                 countDead: "मृत",
                 countTransferred: "ट्रांसफर",
+                selectFemaleLabel: "मादा (Sow) चुनें",
+                selectMaleLabel: "नर (Boar) चुनें",
+                breedingDateLabel: "ब्रीडिंग तारीख",
+                birthDateLabel: "बच्चों के जन्म की तारीख",
+                survivedCountLabel: "जीवित बच्चों की संख्या",
+                newTagIdsLabel: "बच्चों के लिए नए टैग आईडी (कॉमा से अलग करें)",
+                saveBreedingBtn: "ब्रीडिंग सेव करें और बच्चों के टैग रजिस्टर करें",
                 saveBtn: "सेव करें",
                 soldBtn: "बिका",
                 deadBtn: "मृत",
@@ -526,6 +567,13 @@
                 countSold: "विकलेले",
                 countDead: "मृत",
                 countTransferred: "ट्रान्सफर",
+                selectFemaleLabel: "मादी (Sow) निवडा",
+                selectMaleLabel: "नर (Boar) निवडा",
+                breedingDateLabel: "प्रजनन तारीख",
+                birthDateLabel: "पिल्लू जन्माची तारीख",
+                survivedCountLabel: "जिवंत पिल्लांची संख्या",
+                newTagIdsLabel: "पिल्लांचे नवीन टॅग आयडी (स्वल्पविराम देऊन)",
+                saveBreedingBtn: "प्रजनन सेव्ह करा आणि पिल्लांचे टॅग जोडा",
                 saveBtn: "सेव्ह",
                 soldBtn: "विकले",
                 deadBtn: "मृत",
@@ -551,27 +599,24 @@
             if(lang === 'hi') {
                 document.getElementById('tagId').placeholder = "टैग आईडी (जैसे VFH-042)";
                 document.getElementById('weight').placeholder = "वजन (किलो)";
-                document.getElementById('femaleTag').placeholder = "मादा टैग आईडी";
-                document.getElementById('maleTag').placeholder = "नर टैग आईडी";
-                document.getElementById('survivedCount').placeholder = "जीवित बच्चों की संख्या";
+                document.getElementById('survivedCount').placeholder = "जैसे 8";
+                document.getElementById('offspringTagIds').placeholder = "जैसे VFH-P1, VFH-P2";
                 document.getElementById('feedType').placeholder = "चारे का विवरण";
                 document.getElementById('feedQty').placeholder = "मात्रा (किलो)";
                 document.getElementById('feedCost').placeholder = "लागत (₹)";
             } else if(lang === 'mr') {
                 document.getElementById('tagId').placeholder = "टॅग आयडी (उदा. VFH-042)";
                 document.getElementById('weight').placeholder = "वजन (किलो)";
-                document.getElementById('femaleTag').placeholder = "मादी टॅग आयडी";
-                document.getElementById('maleTag').placeholder = "नर टॅग आयडी";
-                document.getElementById('survivedCount').placeholder = "जिवंत पिल्लांची संख्या";
+                document.getElementById('survivedCount').placeholder = "उदा. 8";
+                document.getElementById('offspringTagIds').placeholder = "उदा. VFH-P1, VFH-P2";
                 document.getElementById('feedType').placeholder = "चाऱ्याचे विवरण";
                 document.getElementById('feedQty').placeholder = "प्रमाण (किलो)";
                 document.getElementById('feedCost').placeholder = "खर्च (₹)";
             } else {
                 document.getElementById('tagId').placeholder = "Unique Tag ID (e.g. VFH-042)";
                 document.getElementById('weight').placeholder = "Weight (kg)";
-                document.getElementById('femaleTag').placeholder = "Female Tag ID";
-                document.getElementById('maleTag').placeholder = "Male Tag ID";
-                document.getElementById('survivedCount').placeholder = "Survived Count";
+                document.getElementById('survivedCount').placeholder = "e.g. 8";
+                document.getElementById('offspringTagIds').placeholder = "e.g. VFH-P1, VFH-P2";
                 document.getElementById('feedType').placeholder = "Feed Description";
                 document.getElementById('feedQty').placeholder = "Qty (kg)";
                 document.getElementById('feedCost').placeholder = "Cost (₹)";
@@ -907,7 +952,6 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
 
-            // Fetch all active for counts regardless of gender dropdown filter
             let countQuery = dbClient.from('animals').select('*').eq('status', 'active');
             if(currentUser.role === 'operator') {
                 countQuery = countQuery.eq('owner', currentUser.username);
@@ -917,7 +961,6 @@
             }
             const { data: allActiveData } = await countQuery;
 
-            // Compute active counts
             let actTotal = allActiveData ? allActiveData.length : 0;
             let actMale = allActiveData ? allActiveData.filter(i => i.gender === 'Male').length : 0;
             let actFemale = allActiveData ? allActiveData.filter(i => i.gender === 'Female').length : 0;
@@ -928,7 +971,9 @@
             document.getElementById('count-active-female').innerText = actFemale;
             document.getElementById('count-active-piglet').innerText = actPiglet;
 
-            // Apply Gender Filter for display grid
+            // Populate Breeding dropdowns
+            populateBreedingDropdowns(allActiveData || []);
+
             const selectedGender = document.getElementById('genderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
                 query = query.eq('gender', selectedGender);
@@ -965,6 +1010,27 @@
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        function populateBreedingDropdowns(animals) {
+            const femaleSelect = document.getElementById('breedingFemaleSelect');
+            const maleSelect = document.getElementById('breedingMaleSelect');
+            if(!femaleSelect || !maleSelect) return;
+
+            const females = animals.filter(i => i.gender === 'Female');
+            const males = animals.filter(i => i.gender === 'Male');
+
+            let femaleOpts = `<option value="">-- Choose Female (Sow) --</option>`;
+            females.forEach(f => {
+                femaleOpts += `<option value="${f.tagId}">Tag: ${f.tagId} (${f.owner || 'Master'})</option>`;
+            });
+            femaleSelect.innerHTML = femaleOpts;
+
+            let maleOpts = `<option value="">-- Choose Male (Boar) --</option>`;
+            males.forEach(m => {
+                maleOpts += `<option value="${m.tagId}">Tag: ${m.tagId} (${m.owner || 'Master'})</option>`;
+            });
+            maleSelect.innerHTML = maleOpts;
         }
 
         function editAnimal(id, tagId, gender, weight, imageUrl) {
@@ -1058,7 +1124,6 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
 
-            // Fetch all archives for summary counts
             let countQuery = dbClient.from('animals').select('*').in('status', ['sold', 'dead', 'transferred']);
             if(currentUser.role === 'operator') {
                 countQuery = countQuery.eq('owner', currentUser.username);
@@ -1122,7 +1187,7 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
 
-        // Breeding & Feed CRUD
+        // --- BREEDING WINDOW LOGIC ---
         async function fetchBreeding() {
             if(!dbClient) return;
             let query = dbClient.from('breeding_logs').select('*');
@@ -1132,14 +1197,75 @@
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
             const { data } = await query;
-            document.getElementById('breeding-list').innerHTML = data && data.length ? data.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>Female: ${i.femaleTag} | Male: ${i.maleTag} | Survived: ${i.survivedCount} <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No breeding logs.</div>';
+            const container = document.getElementById('breeding-list');
+            if(!data || data.length === 0) {
+                container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No breeding records found.</div>`;
+                return;
+            }
+            container.innerHTML = data.map(i => `
+                <div class="bg-slate-900 p-4 rounded-2xl text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-800 gap-3 shadow">
+                    <div class="space-y-1">
+                        <p class="font-bold text-teal-400 text-sm">Sow (Female): ${i.femaleTag} &nbsp;|&nbsp; Boar (Male): ${i.maleTag}</p>
+                        <p class="text-slate-300">Breeding Date: <strong class="text-white">${i.breedingDate || 'N/A'}</strong> | Birth Date: <strong class="text-white">${i.birthDate || 'N/A'}</strong></p>
+                        <p class="text-slate-400">Survived Count: <strong class="text-emerald-400">${i.survivedCount}</strong> | Offspring Tags: <strong class="text-cyan-400">${i.offspringTagIds || 'None'}</strong></p>
+                        <p class="text-[10px] text-slate-500">Farm Owner: ${i.owner || 'Master'}</p>
+                    </div>
+                    <button onclick="deleteBreedingLog('${i.id}')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold transition">Delete Log</button>
+                </div>
+            `).join('');
         }
 
         async function handleBreedingSubmit(e) {
             e.preventDefault();
-            const record = { id: 'BRD-' + Date.now(), femaleTag: document.getElementById('femaleTag').value, maleTag: document.getElementById('maleTag').value, survivedCount: parseInt(document.getElementById('survivedCount').value), owner: getTargetRecordOwner() };
-            await dbClient.from('breeding_logs').insert([record]);
-            document.getElementById('breedingForm').reset(); fetchBreeding();
+            const targetOwner = getTargetRecordOwner();
+            const femaleTag = document.getElementById('breedingFemaleSelect').value;
+            const maleTag = document.getElementById('breedingMaleSelect').value;
+            const breedingDate = document.getElementById('breedingDate').value;
+            const birthDate = document.getElementById('birthDate').value;
+            const survivedCount = parseInt(document.getElementById('survivedCount').value) || 0;
+            const offspringTagIds = document.getElementById('offspringTagIds').value.trim();
+
+            const breedingRecord = {
+                id: 'BRD-' + Date.now(),
+                femaleTag,
+                maleTag,
+                breedingDate,
+                birthDate,
+                survivedCount,
+                offspringTagIds,
+                owner: targetOwner
+            };
+
+            // Save breeding log
+            const { error } = await dbClient.from('breeding_logs').insert([breedingRecord]);
+            if(error) { alert("Error saving breeding record."); return; }
+
+            // If offspring tag IDs are provided, automatically register them as active piglets in the herd
+            if(offspringTagIds) {
+                const tagList = offspringTagIds.split(',').map(t => t.trim()).filter(t => t.length > 0);
+                for(let tag of tagList) {
+                    const pigletRecord = {
+                        id: 'ANI-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+                        tagId: tag,
+                        gender: 'Piglet',
+                        weight: 1.5, // Default initial weight for newborn piglet
+                        owner: targetOwner,
+                        status: 'active'
+                    };
+                    await dbClient.from('animals').insert([pigletRecord]);
+                }
+            }
+
+            alert("Breeding record saved and offspring piglets successfully registered in active herd!");
+            document.getElementById('breedingForm').reset();
+            fetchAllData();
+        }
+
+        async function deleteBreedingLog(id) {
+            if(confirm("Delete this breeding log?")) {
+                await dbClient.from('breeding_logs').delete().eq('id', id);
+                fetchBreeding();
+            }
         }
 
         async function fetchFeed() {
