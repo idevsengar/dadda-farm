@@ -147,7 +147,8 @@
                                 <option value="Piglet" data-i18n="genderPiglet">Piglet</option>
                             </select>
                             <input type="number" step="0.1" id="weight" placeholder="Weight (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
-                            <input type="text" id="shedNumber" placeholder="Shed No. (e.g. Shed 1)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Non-mandatory shed input field -->
+                            <input type="text" id="shedNumber" placeholder="Shed No. (e.g. Shed 1)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <!-- Image Upload & Camera Capture Options -->
                         <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -1397,7 +1398,7 @@
             const { data } = await query;
             let filteredData = data || [];
             if(currentUser.role === 'operator') {
-                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.username.trim().toLowerCase());
+                filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
             document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
