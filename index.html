@@ -38,7 +38,7 @@
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 text-xs hidden">
             <div class="space-y-1">
                 <label class="text-slate-400 font-medium" data-i18n="fullNameLabel">Full Name / Username ID</label>
-                <input type="text" id="regUsername" placeholder="e.g. Ramesh Patil" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
+                <input type="text" id="regUsername" placeholder="e.g. Basant or SAM" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-emerald-500">
             </div>
             <div class="space-y-1">
                 <label class="text-slate-400 font-medium" data-i18n="createPasswordLabel">Create Password</label>
@@ -146,9 +146,7 @@
                                 <option value="Female" data-i18n="genderFemale">Female (Sow)</option>
                                 <option value="Piglet" data-i18n="genderPiglet">Piglet</option>
                             </select>
-                            <!-- Weight is now non-mandatory -->
                             <input type="number" step="0.1" id="weight" placeholder="Weight (kg) - Optional" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
-                            <!-- Shed is non-mandatory -->
                             <input type="text" id="shedNumber" placeholder="Shed No. (e.g. Shed 1)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <!-- Image Upload & Camera Capture Options -->
@@ -349,6 +347,26 @@
         let compressedImageBase64 = "";
         let mediaStream = null;
         let currentLang = 'en';
+
+        // --- AUTH TAB SWITCHER ---
+        function switchAuthMode(mode) {
+            const loginTab = document.getElementById('auth-tab-login');
+            const registerTab = document.getElementById('auth-tab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+
+            if (mode === 'login') {
+                loginTab.className = "py-2 rounded-lg bg-emerald-600 text-white transition";
+                registerTab.className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            } else {
+                registerTab.className = "py-2 rounded-lg bg-emerald-600 text-white transition";
+                loginTab.className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
 
         // --- TRANSLATION DICTIONARY ---
         const translations = {
@@ -663,17 +681,24 @@
 
         async function loadExistingUsersDropdown() {
             if(!dbClient) return;
-            const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
             const select = document.getElementById('loginUserSelect');
             const t = translations[currentLang];
             let optionsHTML = `<option value="master">${t.masterAdminOption}</option>`;
             let filterDropdownHTML = `<option value="ALL">${t.allFarmsOption}</option>`;
-            if(data) {
-                data.forEach(u => {
-                    optionsHTML += `<option value="${u.username}">${u.username} (Farm Owner)</option>`;
-                    filterDropdownHTML += `<option value="${u.username}">🏡 Farm Owner: ${u.username}</option>`;
-                });
+
+            // Safely fetch approved users with error catch for RLS or offline constraints
+            try {
+                const { data, error } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
+                if (!error && data) {
+                    data.forEach(u => {
+                        optionsHTML += `<option value="${u.username}">${u.username} (Farm Owner)</option>`;
+                        filterDropdownHTML += `<option value="${u.username}">🏡 Farm Owner: ${u.username}</option>`;
+                    });
+                }
+            } catch (err) {
+                console.warn("Could not load directory dynamically:", err);
             }
+
             select.innerHTML = optionsHTML;
             const filterEl = document.getElementById('masterOwnerFilter');
             if(filterEl) filterEl.innerHTML = filterDropdownHTML;
@@ -685,9 +710,10 @@
             const password = document.getElementById('regPassword').value;
             const newUser = { id: 'USR-' + Date.now(), username, password, status: 'pending', role: 'operator' };
             const { error } = await dbClient.from('users_directory').insert([newUser]);
-            if(error) { alert("Registration error or username already exists."); return; }
+            if(error) { alert("Registration error or username already exists: " + error.message); return; }
             alert(`Registration successful! Approval request sent to Master Admin.`);
             document.getElementById('form-register').reset();
+            switchAuthMode('login');
         }
 
         async function handleLogin(e) {
@@ -699,8 +725,8 @@
                 currentUser = { username: 'Master', role: 'admin' };
                 proceedToDashboard();
             } else {
-                const { data } = await dbClient.from('users_directory').select('*').eq('username', selectedVal).single();
-                if(!data || data.password !== password) { alert('Incorrect password for this user.'); return; }
+                const { data, error } = await dbClient.from('users_directory').select('*').eq('username', selectedVal).single();
+                if(error || !data || data.password !== password) { alert('Incorrect password for this user.'); return; }
                 currentUser = { username: data.username, role: 'operator', id: data.id };
                 document.getElementById('password-reminder-modal').classList.remove('hidden');
             }
@@ -712,7 +738,6 @@
         }
 
         function proceedToDashboard() {
-            // Force reset all filter dropdowns upon fresh login
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
@@ -749,7 +774,6 @@
             currentUser = null;
             compressedImageBase64 = "";
             
-            // Clear UI lists & reset forms
             document.getElementById('animal-list').innerHTML = '';
             document.getElementById('archives-list').innerHTML = '';
             document.getElementById('breeding-list').innerHTML = '';
@@ -759,7 +783,6 @@
             document.getElementById('feedForm').reset();
             resetAnimalForm();
 
-            // Reset summary count boxes to 0 instantly
             document.getElementById('count-active-total').innerText = '0';
             document.getElementById('count-active-male').innerText = '0';
             document.getElementById('count-active-female').innerText = '0';
@@ -769,7 +792,6 @@
             document.getElementById('count-archive-dead').innerText = '0';
             document.getElementById('count-archive-transferred').innerText = '0';
 
-            // Reset all filter selections
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
@@ -777,15 +799,14 @@
             const agFilter = document.getElementById('archiveGenderFilter');
             if(agFilter) agFilter.value = 'ALL';
 
-            // Hide admin sections
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             document.getElementById('master-filter-wrapper').classList.add('hidden');
 
-            // Return to auth container
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('loginPassword').value = '';
             
+            switchAuthMode('login');
             loadExistingUsersDropdown();
         }
 
@@ -1044,10 +1065,8 @@
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
 
-            // Populate Shed Filter Dropdown dynamically based on available active records
             populateShedDropdown(filteredData);
 
-            // Apply Shed Filter if selected
             const selectedShed = document.getElementById('shedFilter')?.value;
             if(selectedShed && selectedShed !== 'ALL') {
                 filteredData = filteredData.filter(i => (i.shed || '').trim().toLowerCase() === selectedShed.trim().toLowerCase());
@@ -1105,7 +1124,6 @@
             if(!shedSelect) return;
             const currentSelected = shedSelect.value;
             
-            // Extract unique sheds
             const sheds = [...new Set(animals.map(i => (i.shed || '').trim()).filter(s => s.length > 0))].sort();
             
             let optionsHTML = `<option value="ALL">${translations[currentLang].allShedsOption}</option>`;
