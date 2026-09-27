@@ -195,7 +195,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Active Herd Filters & Bulk Delete Bar -->
                 <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-4 py-3 rounded-2xl flex-wrap gap-3 text-xs">
                     <span class="font-bold text-emerald-400 uppercase tracking-wider" data-i18n="activeHerdMgmt">Active Herd Management</span>
@@ -218,7 +217,6 @@
                         <button onclick="bulkDeleteCategory('active')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold transition" data-i18n="deleteAllActiveBtn">🗑️ Delete All Active</button>
                     </div>
                 </div>
-
                 <div id="animal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
             </section>
             <!-- Sold / Dead / Transferred Archive Section -->
@@ -245,7 +243,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <div class="flex justify-between items-center flex-wrap gap-2">
                         <h2 class="font-bold text-amber-400 text-sm uppercase tracking-wider" data-i18n="archivesHeader">ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)</h2>
@@ -347,14 +344,12 @@
         let compressedImageBase64 = "";
         let mediaStream = null;
         let currentLang = 'en';
-
         // --- AUTH TAB SWITCHER ---
         function switchAuthMode(mode) {
             const loginTab = document.getElementById('auth-tab-login');
             const registerTab = document.getElementById('auth-tab-register');
             const formLogin = document.getElementById('form-login');
             const formRegister = document.getElementById('form-register');
-
             if (mode === 'login') {
                 loginTab.className = "py-2 rounded-lg bg-emerald-600 text-white transition";
                 registerTab.className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
@@ -367,7 +362,6 @@
                 formLogin.classList.add('hidden');
             }
         }
-
         // --- TRANSLATION DICTIONARY ---
         const translations = {
             en: {
@@ -626,7 +620,6 @@
                 genderText: "लिंग"
             }
         };
-
         function changeLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -665,7 +658,6 @@
             }
             fetchAllData();
         }
-
         const colorPalette = [
             { bg: 'bg-cyan-950', border: 'border-cyan-500', text: 'text-cyan-400' },
             { bg: 'bg-amber-950', border: 'border-amber-500', text: 'text-amber-400' },
@@ -678,15 +670,12 @@
             for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
             return colorPalette[Math.abs(hash) % colorPalette.length];
         }
-
         async function loadExistingUsersDropdown() {
             if(!dbClient) return;
             const select = document.getElementById('loginUserSelect');
             const t = translations[currentLang];
             let optionsHTML = `<option value="master">${t.masterAdminOption}</option>`;
             let filterDropdownHTML = `<option value="ALL">${t.allFarmsOption}</option>`;
-
-            // Safely fetch approved users with error catch for RLS or offline constraints
             try {
                 const { data, error } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
                 if (!error && data) {
@@ -698,12 +687,10 @@
             } catch (err) {
                 console.warn("Could not load directory dynamically:", err);
             }
-
             select.innerHTML = optionsHTML;
             const filterEl = document.getElementById('masterOwnerFilter');
             if(filterEl) filterEl.innerHTML = filterDropdownHTML;
         }
-
         async function handleRegister(e) {
             e.preventDefault();
             const username = document.getElementById('regUsername').value.trim();
@@ -715,7 +702,6 @@
             document.getElementById('form-register').reset();
             switchAuthMode('login');
         }
-
         async function handleLogin(e) {
             e.preventDefault();
             const selectedVal = document.getElementById('loginUserSelect').value;
@@ -731,12 +717,10 @@
                 document.getElementById('password-reminder-modal').classList.remove('hidden');
             }
         }
-
         function dismissPasswordReminder() {
             document.getElementById('password-reminder-modal').classList.add('hidden');
             proceedToDashboard();
         }
-
         function proceedToDashboard() {
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
@@ -746,7 +730,6 @@
             if(agFilter) agFilter.value = 'ALL';
             const mFilter = document.getElementById('masterOwnerFilter');
             if(mFilter) mFilter.value = 'ALL';
-
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('main-dashboard').classList.remove('hidden');
             document.getElementById('active-user-badge').innerText = `Logged in as: ${currentUser.username} (${currentUser.role.toUpperCase()})`;
@@ -764,13 +747,11 @@
             initRealtimeSubscriptions();
             fetchAllData();
         }
-
         function handleLogout() {
             if (dbClient) {
                 dbClient.removeAllChannels();
             }
             dbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-
             currentUser = null;
             compressedImageBase64 = "";
             
@@ -782,7 +763,6 @@
             document.getElementById('breedingForm').reset();
             document.getElementById('feedForm').reset();
             resetAnimalForm();
-
             document.getElementById('count-active-total').innerText = '0';
             document.getElementById('count-active-male').innerText = '0';
             document.getElementById('count-active-female').innerText = '0';
@@ -791,17 +771,14 @@
             document.getElementById('count-archive-sold').innerText = '0';
             document.getElementById('count-archive-dead').innerText = '0';
             document.getElementById('count-archive-transferred').innerText = '0';
-
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
             if(sFilter) sFilter.value = 'ALL';
             const agFilter = document.getElementById('archiveGenderFilter');
             if(agFilter) agFilter.value = 'ALL';
-
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
             document.getElementById('master-filter-wrapper').classList.add('hidden');
-
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('loginPassword').value = '';
@@ -809,7 +786,6 @@
             switchAuthMode('login');
             loadExistingUsersDropdown();
         }
-
         function onMasterFilterChange() {
             const filterEl = document.getElementById('masterOwnerFilter');
             const val = filterEl.value;
@@ -818,7 +794,6 @@
             updateTargetOwnerBanner(val === 'ALL' ? 'Master' : val);
             fetchAllData();
         }
-
         function resetAllFilters() {
             const masterFilter = document.getElementById('masterOwnerFilter');
             if (masterFilter) {
@@ -839,14 +814,12 @@
             }
             fetchAllData();
         }
-
         function updateTargetOwnerBanner(ownerName) {
             const banner = document.getElementById('target-owner-banner');
             const styling = getOwnerColor(ownerName);
             banner.className = `text-[10px] ${styling.bg} ${styling.text} px-2.5 py-1 rounded-lg border ${styling.border} font-bold`;
             banner.innerText = `Target Farm: ${ownerName}`;
         }
-
         async function loadPendingUsers() {
             if(!dbClient) return;
             const { data } = await dbClient.from('users_directory').select('*').eq('status', 'pending');
@@ -859,7 +832,6 @@
                 </div>
             `).join('');
         }
-
         async function approveUser(id) {
             await dbClient.from('users_directory').update({ status: 'approved' }).eq('id', id);
             alert("User approved successfully!");
@@ -867,7 +839,6 @@
             loadApprovedUsersForDeletion();
             loadExistingUsersDropdown();
         }
-
         async function loadApprovedUsersForDeletion() {
             if(!dbClient) return;
             const { data } = await dbClient.from('users_directory').select('*').eq('status', 'approved');
@@ -883,14 +854,12 @@
                 </div>
             `).join('');
         }
-
         async function deleteUserAndAllData(username, userId) {
             if(confirm(`⚠️ WARNING: Permanently delete user "${username}" AND wipe all their animal records, breeding logs, and feed logs?`)) {
                 await dbClient.from('users_directory').delete().eq('id', userId);
                 await dbClient.from('animals').delete().eq('owner', username);
                 await dbClient.from('breeding_logs').delete().eq('owner', username);
                 await dbClient.from('feed_logs').delete().eq('owner', username);
-
                 alert(`User "${username}" and all associated records deleted.`);
                 loadApprovedUsersForDeletion();
                 loadExistingUsersDropdown();
@@ -898,7 +867,6 @@
                 fetchAllData();
             }
         }
-
         async function bulkDeleteCategory(statusType) {
             let targetOwner = currentUser.role === 'operator' ? currentUser.username : (document.getElementById('masterOwnerFilter')?.value || 'ALL');
             let confirmMsg = `⚠️ Delete all "${statusType.toUpperCase()}" records`;
@@ -907,7 +875,6 @@
             } else {
                 confirmMsg += ` across ALL farms?`;
             }
-
             if(confirm(confirmMsg)) {
                 let query = dbClient.from('animals').delete().eq('status', statusType);
                 if (currentUser.role === 'operator') {
@@ -921,7 +888,6 @@
                 fetchAllData();
             }
         }
-
         // --- IMAGE COMPRESSOR UTILITY ---
         function compressImageFile(fileOrBlob) {
             return new Promise((resolve) => {
@@ -936,13 +902,11 @@
                         const MAX_HEIGHT = 400;
                         let width = img.width;
                         let height = img.height;
-
                         if (width > height) {
                             if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                         } else {
                             if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                         }
-
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
@@ -954,7 +918,6 @@
                 };
             });
         }
-
         async function handleImageSelection(inputElement) {
             if (inputElement.files && inputElement.files[0]) {
                 const file = inputElement.files[0];
@@ -967,7 +930,6 @@
                 document.getElementById('image-status').className = "text-[10px] text-emerald-400 font-bold";
             }
         }
-
         async function openCameraModal() {
             document.getElementById('camera-modal').classList.remove('hidden');
             try {
@@ -978,7 +940,6 @@
                 closeCameraModal();
             }
         }
-
         function closeCameraModal() {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
@@ -986,7 +947,6 @@
             }
             document.getElementById('camera-modal').classList.add('hidden');
         }
-
         async function takeSnapshot() {
             const video = document.getElementById('camera-stream');
             const canvas = document.getElementById('camera-canvas');
@@ -1005,12 +965,10 @@
                 closeCameraModal();
             }, 'image/jpeg', 0.7);
         }
-
         function initRealtimeSubscriptions() {
             if(!dbClient) return;
             dbClient.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public' }, () => { fetchAllData(); }).subscribe();
         }
-
         function updateISTClock() {
             const now = new Date();
             const timeStr = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }).format(now);
@@ -1019,14 +977,12 @@
         }
         setInterval(updateISTClock, 1000);
         updateISTClock();
-
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => el.className = "nav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 font-medium text-xs border border-slate-800");
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             document.getElementById('nav-' + tabId).className = "nav-btn px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md";
         }
-
         function fetchAllData() {
             if (!currentUser) return;
             fetchAnimals();
@@ -1034,13 +990,11 @@
             fetchBreeding();
             fetchFeed();
         }
-
         function getTargetRecordOwner() {
             if(currentUser.role === 'operator') return currentUser.username;
             const filterVal = document.getElementById('masterOwnerFilter')?.value;
             return (filterVal && filterVal !== 'ALL') ? filterVal : 'Master';
         }
-
         // --- ACTIVE ANIMALS WITH SHED & OPTIONAL WEIGHT SUPPORT ---
         async function fetchAnimals() {
             if(!dbClient || !currentUser) return;
@@ -1052,38 +1006,30 @@
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
-
             const selectedGender = document.getElementById('genderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
                 query = query.eq('gender', selectedGender);
             }
-
             const { data } = await query;
             let filteredData = data || [];
             
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-
             populateShedDropdown(filteredData);
-
             const selectedShed = document.getElementById('shedFilter')?.value;
             if(selectedShed && selectedShed !== 'ALL') {
                 filteredData = filteredData.filter(i => (i.shed || '').trim().toLowerCase() === selectedShed.trim().toLowerCase());
             }
-
             let actTotal = filteredData.length;
             let actMale = filteredData.filter(i => i.gender === 'Male').length;
             let actFemale = filteredData.filter(i => i.gender === 'Female').length;
             let actPiglet = filteredData.filter(i => i.gender === 'Piglet').length;
-
             document.getElementById('count-active-total').innerText = actTotal;
             document.getElementById('count-active-male').innerText = actMale;
             document.getElementById('count-active-female').innerText = actFemale;
             document.getElementById('count-active-piglet').innerText = actPiglet;
-
             populateBreedingDropdowns(filteredData);
-
             const grid = document.getElementById('animal-list');
             const t = translations[currentLang];
             if(filteredData.length === 0) {
@@ -1118,7 +1064,6 @@
                 </div>`;
             }).join('');
         }
-
         function populateShedDropdown(animals) {
             const shedSelect = document.getElementById('shedFilter');
             if(!shedSelect) return;
@@ -1134,28 +1079,23 @@
             shedSelect.innerHTML = optionsHTML;
             shedSelect.value = sheds.includes(currentSelected) || currentSelected === 'ALL' ? currentSelected : 'ALL';
         }
-
         function populateBreedingDropdowns(animals) {
             const femaleSelect = document.getElementById('breedingFemaleSelect');
             const maleSelect = document.getElementById('breedingMaleSelect');
             if(!femaleSelect || !maleSelect) return;
-
             const females = animals.filter(i => i.gender === 'Female');
             const males = animals.filter(i => i.gender === 'Male');
-
             let femaleOpts = `<option value="">-- Choose Female (Sow) --</option>`;
             females.forEach(f => {
                 femaleOpts += `<option value="${f.tagId}">Tag: ${f.tagId} (Shed: ${f.shed || 'N/A'})</option>`;
             });
             femaleSelect.innerHTML = femaleOpts;
-
             let maleOpts = `<option value="">-- Choose Male (Boar) --</option>`;
             males.forEach(m => {
                 maleOpts += `<option value="${m.tagId}">Tag: ${m.tagId} (Shed: ${m.shed || 'N/A'})</option>`;
             });
             maleSelect.innerHTML = maleOpts;
         }
-
         function editAnimal(id, tagId, gender, weight, shed, imageUrl) {
             document.getElementById('editAnimalId').value = id;
             document.getElementById('tagId').value = tagId;
@@ -1174,13 +1114,11 @@
                 document.getElementById('image-preview').classList.add('hidden');
                 document.getElementById('image-status').innerText = translations[currentLang].noImageText;
             }
-
             document.getElementById('form-mode-badge').innerText = translations[currentLang].modeEditing;
             document.getElementById('saveAnimalBtn').innerText = translations[currentLang].updateAnimalBtn;
             document.getElementById('cancelEditBtn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
         async function handleAnimalSubmit(e) {
             e.preventDefault();
             const id = document.getElementById('editAnimalId').value;
@@ -1188,7 +1126,6 @@
             const weightInput = document.getElementById('weight').value;
             const shedInput = document.getElementById('shedNumber').value.trim();
             const targetOwner = getTargetRecordOwner();
-
             if(!id) {
                 const { data: existing } = await dbClient.from('animals')
                     .select('*')
@@ -1200,13 +1137,11 @@
                 if(currentUser.role === 'operator') {
                     existingFiltered = existingFiltered.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
                 }
-
                 if(existingFiltered.length > 0) {
                     alert(`Error: Active Tag ID "${tagIdInput}" already exists in farm account "${targetOwner}"!`);
                     return;
                 }
             }
-
             const record = { 
                 tagId: tagIdInput, 
                 gender: document.getElementById('gender').value, 
@@ -1215,11 +1150,9 @@
                 owner: targetOwner,
                 status: 'active'
             };
-
             if (compressedImageBase64) {
                 record.image = compressedImageBase64;
             }
-
             if(id) { 
                 await dbClient.from('animals').update(record).eq('id', id); 
             } else { 
@@ -1229,21 +1162,18 @@
             resetAnimalForm(); 
             fetchAllData();
         }
-
         async function updateAnimalStatus(id, newStatus) {
             if(confirm(`Mark this animal as "${newStatus.toUpperCase()}"? It will be safely transferred to your archives.`)) {
                 await dbClient.from('animals').update({ status: newStatus }).eq('id', id);
                 fetchAllData();
             }
         }
-
         async function permanentDeleteAnimal(id, tagId) {
             if(confirm(`⚠️ Permanently delete animal record "${tagId}"?`)) {
                 await dbClient.from('animals').delete().eq('id', id);
                 fetchAllData();
             }
         }
-
         // --- ARCHIVES VIEW ---
         async function fetchArchives() {
             if(!dbClient || !currentUser) return;
@@ -1255,29 +1185,23 @@
                 const selectedOwner = document.getElementById('masterOwnerFilter')?.value;
                 if(selectedOwner && selectedOwner !== 'ALL') query = query.eq('owner', selectedOwner);
             }
-
             const selectedGender = document.getElementById('archiveGenderFilter')?.value;
             if(selectedGender && selectedGender !== 'ALL') {
                 query = query.eq('gender', selectedGender);
             }
-
             const { data } = await query;
             let filteredData = data || [];
-
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-
             let arcTotal = filteredData.length;
             let arcSold = filteredData.filter(i => i.status === 'sold').length;
             let arcDead = filteredData.filter(i => i.status === 'dead').length;
             let arcTransferred = filteredData.filter(i => i.status === 'transferred').length;
-
             document.getElementById('count-archive-total').innerText = arcTotal;
             document.getElementById('count-archive-sold').innerText = arcSold;
             document.getElementById('count-archive-dead').innerText = arcDead;
             document.getElementById('count-archive-transferred').innerText = arcTransferred;
-
             const container = document.getElementById('archives-list');
             const t = translations[currentLang];
             if(filteredData.length === 0) {
@@ -1302,7 +1226,6 @@
                 </div>`;
             }).join('');
         }
-
         function resetAnimalForm() {
             document.getElementById('animalForm').reset();
             document.getElementById('editAnimalId').value = '';
@@ -1315,7 +1238,6 @@
             document.getElementById('saveAnimalBtn').innerText = translations[currentLang].saveAnimalBtn;
             document.getElementById('cancelEditBtn').classList.add('hidden');
         }
-
         // --- BREEDING WINDOW LOGIC ---
         async function fetchBreeding() {
             if(!dbClient || !currentUser) return;
@@ -1331,7 +1253,6 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-
             const container = document.getElementById('breeding-list');
             if(filteredData.length === 0) {
                 container.innerHTML = `<div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No breeding records found for your account.</div>`;
@@ -1349,7 +1270,6 @@
                 </div>
             `).join('');
         }
-
         async function handleBreedingSubmit(e) {
             e.preventDefault();
             const targetOwner = getTargetRecordOwner();
@@ -1359,7 +1279,6 @@
             const birthDate = document.getElementById('birthDate').value;
             const survivedCount = parseInt(document.getElementById('survivedCount').value) || 0;
             const offspringTagIds = document.getElementById('offspringTagIds').value.trim();
-
             const breedingRecord = {
                 id: 'BRD-' + Date.now(),
                 femaletag: femaleTag,
@@ -1370,13 +1289,11 @@
                 offspringtagids: offspringTagIds,
                 owner: targetOwner
             };
-
             const { error } = await dbClient.from('breeding_logs').insert([breedingRecord]);
             if(error) { 
                 alert("Error saving breeding record: " + error.message); 
                 return; 
             }
-
             if(offspringTagIds) {
                 const tagList = offspringTagIds.split(',').map(t => t.trim()).filter(t => t.length > 0);
                 for(let tag of tagList) {
@@ -1392,19 +1309,16 @@
                     await dbClient.from('animals').insert([pigletRecord]);
                 }
             }
-
             alert("Breeding record saved and offspring piglets successfully registered in active herd!");
             document.getElementById('breedingForm').reset();
             fetchAllData();
         }
-
         async function deleteBreedingLog(id) {
             if(confirm("Delete this breeding log?")) {
                 await dbClient.from('breeding_logs').delete().eq('id', id);
                 fetchBreeding();
             }
         }
-
         // --- FEED LOGS ---
         async function fetchFeed() {
             if(!dbClient || !currentUser) return;
@@ -1420,17 +1334,14 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-
             document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
         }
-
         async function handleFeedSubmit(e) {
             e.preventDefault();
             const record = { id: 'FED-' + Date.now(), feedType: document.getElementById('feedType').value, qty: parseFloat(document.getElementById('feedQty').value), feedCost: parseFloat(document.getElementById('feedCost').value), owner: getTargetRecordOwner() };
             await dbClient.from('feed_logs').insert([record]);
             document.getElementById('feedForm').reset(); fetchFeed();
         }
-
         window.addEventListener('DOMContentLoaded', () => { loadExistingUsersDropdown(); });
     </script>
 </body>
