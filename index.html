@@ -256,7 +256,7 @@
                             </select>
                             <button onclick="bulkDeleteCategory('sold')" class="bg-amber-950 text-amber-300 hover:bg-amber-900 px-2.5 py-1.5 rounded-xl border border-amber-800 font-bold transition" data-i18n="deleteSoldBtn">🗑️ Del Sold</button>
                             <button onclick="bulkDeleteCategory('dead')" class="bg-red-950 text-red-300 hover:bg-red-900 px-2.5 py-1.5 rounded-xl border border-red-800 font-bold transition" data-i18n="deleteDeadBtn">🗑️ Del Dead</button>
-                            <button onclick="bulkDeleteCategory('transferred')" class="bg-teal-950 text-teal-300 hover:bg-teal-900 px-2.5 py-1.5 rounded-xl border border-teal-800 font-bold transition" data-i18n="deleteTransferredBtn">🗑️ Del Transferred</button>
+                            <button onclick="bulkDeleteCategory('transferred')" class="bg-teal-950 text-teal-300 hover:bg-teal-900 px-2.5 py-1.5 rounded-xl border border-teal-800 font-bold transition" data-i18n="deleteTransferredBtn">🗑️️ Del Transferred</button>
                         </div>
                     </div>
                     <div id="archives-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2"></div>
@@ -341,7 +341,9 @@
                             </div>
                             <div class="space-y-1">
                                 <label class="text-slate-400 font-medium">Shed / Batch Reference</label>
-                                <input type="text" id="feedShed" placeholder="e.g. Shed 1 / Nursery" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                                <select id="feedShedSelect" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                    <option value="General">General / General Farm</option>
+                                </select>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -359,9 +361,17 @@
                 </div>
                 <!-- Feed Logs List Container -->
                 <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-                    <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div class="flex justify-between items-center flex-wrap gap-3">
                         <h3 class="font-bold text-cyan-400 text-xs uppercase tracking-wider">📋 Feed Consumption History & Logs</h3>
-                        <button onclick="bulkDeleteFeedLogs()" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold text-xs transition">🗑️ Clear All Feed Logs</button>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 text-xs">
+                                <label class="text-slate-400 font-medium">Filter Shed:</label>
+                                <select id="feedShedFilter" onchange="fetchFeed()" class="bg-slate-900 text-cyan-400 font-bold px-2 py-1 rounded-lg border border-cyan-500/40 focus:outline-none cursor-pointer">
+                                    <option value="ALL">All Sheds</option>
+                                </select>
+                            </div>
+                            <button onclick="bulkDeleteFeedLogs()" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold text-xs transition">🗑️ Clear All Feed Logs</button>
+                        </div>
                     </div>
                     <div id="feed-list" class="space-y-3 pt-2"></div>
                 </div>
@@ -627,9 +637,9 @@
                 filterShedLabel: "शेड (Shed):",
                 allGendersOption: "सर्व लिंग",
                 allShedsOption: "सर्व शेड",
-                deleteAllActiveBtn: "🗑️ सर्व सक्रिय काढा",
+                deleteAllActiveBtn: "🗑️️ सर्व सक्रिय काढा",
                 deleteSoldBtn: "🗑️ विकलेले काढा",
-                deleteDeadBtn: "🗑️ मृत काढा",
+                deleteDeadBtn: "🗑️️ मृत काढा",
                 deleteTransferredBtn: "🗑️ ट्रान्सफर काढा",
                 archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
                 breedingHeader: "प्रजनन आणि पिल्लू नोंद",
@@ -773,6 +783,8 @@
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
             if(sFilter) sFilter.value = 'ALL';
+            const fsFilter = document.getElementById('feedShedFilter');
+            if(fsFilter) fsFilter.value = 'ALL';
             const agFilter = document.getElementById('archiveGenderFilter');
             if(agFilter) agFilter.value = 'ALL';
             const mFilter = document.getElementById('masterOwnerFilter');
@@ -824,6 +836,8 @@
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
             if(sFilter) sFilter.value = 'ALL';
+            const fsFilter = document.getElementById('feedShedFilter');
+            if(fsFilter) fsFilter.value = 'ALL';
             const agFilter = document.getElementById('archiveGenderFilter');
             if(agFilter) agFilter.value = 'ALL';
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
@@ -856,6 +870,10 @@
             const shedFilter = document.getElementById('shedFilter');
             if (shedFilter) {
                 shedFilter.value = 'ALL';
+            }
+            const feedShedFilter = document.getElementById('feedShedFilter');
+            if (feedShedFilter) {
+                feedShedFilter.value = 'ALL';
             }
             const archiveGenderFilter = document.getElementById('archiveGenderFilter');
             if (archiveGenderFilter) {
@@ -1065,7 +1083,7 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-            populateShedDropdown(filteredData);
+            populateShedDropdowns(filteredData);
             const selectedShed = document.getElementById('shedFilter')?.value;
             if(selectedShed && selectedShed !== 'ALL') {
                 filteredData = filteredData.filter(i => (i.shed || '').trim().toLowerCase() === selectedShed.trim().toLowerCase());
@@ -1113,20 +1131,46 @@
                 </div>`;
             }).join('');
         }
-        function populateShedDropdown(animals) {
+        function populateShedDropdowns(animals) {
+            // 1. Populate Active Herd Filter Shed Dropdown
             const shedSelect = document.getElementById('shedFilter');
-            if(!shedSelect) return;
-            const currentSelected = shedSelect.value;
-            
-            const sheds = [...new Set(animals.map(i => (i.shed || '').trim()).filter(s => s.length > 0))].sort();
-            
-            let optionsHTML = `<option value="ALL">${translations[currentLang].allShedsOption}</option>`;
-            sheds.forEach(shed => {
-                const count = animals.filter(i => (i.shed || '').trim().toLowerCase() === shed.toLowerCase()).length;
-                optionsHTML += `<option value="${shed}">🏠 ${shed} (${count} animals)</option>`;
-            });
-            shedSelect.innerHTML = optionsHTML;
-            shedSelect.value = sheds.includes(currentSelected) || currentSelected === 'ALL' ? currentSelected : 'ALL';
+            if(shedSelect) {
+                const currentSelected = shedSelect.value;
+                const sheds = [...new Set(animals.map(i => (i.shed || '').trim()).filter(s => s.length > 0))].sort();
+                let optionsHTML = `<option value="ALL">${translations[currentLang].allShedsOption}</option>`;
+                sheds.forEach(shed => {
+                    const count = animals.filter(i => (i.shed || '').trim().toLowerCase() === shed.toLowerCase()).length;
+                    optionsHTML += `<option value="${shed}">🏠 ${shed} (${count} animals)</option>`;
+                });
+                shedSelect.innerHTML = optionsHTML;
+                shedSelect.value = sheds.includes(currentSelected) || currentSelected === 'ALL' ? currentSelected : 'ALL';
+            }
+
+            // 2. Populate Feed Form Shed Select Dropdown
+            const feedShedSelect = document.getElementById('feedShedSelect');
+            if(feedShedSelect) {
+                const currentFeedShed = feedShedSelect.value;
+                const sheds = [...new Set(animals.map(i => (i.shed || '').trim()).filter(s => s.length > 0))].sort();
+                let feedShedOptions = `<option value="General">General / General Farm</option>`;
+                sheds.forEach(shed => {
+                    feedShedOptions += `<option value="${shed}">🏠 ${shed}</option>`;
+                });
+                feedShedSelect.innerHTML = feedShedOptions;
+                feedShedSelect.value = feedShedSelect.querySelector(`option[value="${currentFeedShed}"]`) ? currentFeedShed : 'General';
+            }
+
+            // 3. Populate Feed Tab Filter Shed Dropdown
+            const feedShedFilter = document.getElementById('feedShedFilter');
+            if(feedShedFilter) {
+                const currentFeedFilter = feedShedFilter.value;
+                const sheds = [...new Set(animals.map(i => (i.shed || '').trim()).filter(s => s.length > 0))].sort();
+                let feedFilterOptions = `<option value="ALL">All Sheds</option><option value="General">General</option>`;
+                sheds.forEach(shed => {
+                    feedFilterOptions += `<option value="${shed}">🏠 ${shed}</option>`;
+                });
+                feedShedFilter.innerHTML = feedFilterOptions;
+                feedShedFilter.value = feedShedFilter.querySelector(`option[value="${currentFeedFilter}"]`) ? currentFeedFilter : 'ALL';
+            }
         }
         function populateBreedingDropdowns(animals) {
             const femaleSelect = document.getElementById('breedingFemaleSelect');
@@ -1383,6 +1427,13 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
+            
+            // Filter by Shed if selected in Feed Tab Filter
+            const selectedFeedShed = document.getElementById('feedShedFilter')?.value;
+            if(selectedFeedShed && selectedFeedShed !== 'ALL') {
+                filteredData = filteredData.filter(i => (i.feedShed || 'General').trim().toLowerCase() === selectedFeedShed.trim().toLowerCase());
+            }
+
             // Calculate metric totals
             let totalQty = filteredData.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
             let totalCost = filteredData.reduce((sum, item) => sum + (parseFloat(item.feedCost) || 0), 0);
@@ -1390,7 +1441,7 @@
             document.getElementById('feed-total-cost').innerText = `₹${totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             const container = document.getElementById('feed-list');
             if(filteredData.length === 0) {
-                container.innerHTML = `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No feed intake or expenditure logs recorded for your account.</div>`;
+                container.innerHTML = `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No feed intake or expenditure logs recorded for your account matching this filter.</div>`;
                 return;
             }
             container.innerHTML = filteredData.map(i => `
@@ -1414,7 +1465,7 @@
                 id: 'FED-' + Date.now(), 
                 feedDate: document.getElementById('feedDate').value,
                 feedType: document.getElementById('feedType').value.trim(), 
-                feedShed: document.getElementById('feedShed').value.trim() || 'General',
+                feedShed: document.getElementById('feedShedSelect').value.trim() || 'General',
                 qty: parseFloat(document.getElementById('feedQty').value), 
                 feedCost: parseFloat(document.getElementById('feedCost').value), 
                 owner: getTargetRecordOwner() 
