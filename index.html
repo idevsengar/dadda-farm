@@ -1,1 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dadda Enviro Varah Farms - Master & User Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden-section { display: none; }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <!-- TOP NAVBAR -->
+    <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2 rounded-lg">
+                    <i class="fa-solid fa-piggy-bank text-emerald-300 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl tracking-wide" data-i18n="app_title">Dadda Enviro Varah Farms</h1>
+                    <p class="text-xs text-emerald-200" data-i18n="app_subtitle">Master & Operator Management Portal</p>
+                </div>
+            </div>
+
+            <!-- Header Controls: Language & User Profile/Logout -->
+            <div class="flex items-center space-x-3">
+                <!-- Language Selector -->
+                <select id="langSelect" class="bg-emerald-900 text-emerald-100 text-xs sm:text-sm rounded px-2 py-1 border border-emerald-700 focus:outline-none focus:ring-1 focus:ring-white">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                </select>
+
+                <!-- Logged In User Info & Logout (Hidden when logged out) -->
+                <div id="userProfileHeader" class="hidden items-center space-x-2 bg-emerald-900/60 px-3 py-1.5 rounded-lg border border-emerald-700/50">
+                    <span id="headerUserRoleBadge" class="text-xs px-2 py-0.5 rounded font-medium bg-amber-500 text-amber-950">Master</span>
+                    <span id="headerUserName" class="text-xs sm:text-sm font-semibold text-white">Devendra Singh</span>
+                    <button onclick="logout()" class="text-emerald-300 hover:text-white ml-2 text-sm" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- ================= AUTHENTICATION / LOGIN SECTION ================= -->
+        <section id="authSection" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 my-8">
+            <div class="bg-gradient-to-r from-emerald-700 to-emerald-900 p-6 text-white text-center">
+                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+                    <i class="fa-solid fa-shield-halved text-3xl text-emerald-200"></i>
+                </div>
+                <h2 class="text-2xl font-bold" data-i18n="login_heading">Portal Login</h2>
+                <p class="text-xs text-emerald-200 mt-1" data-i18n="login_subheading">Access Master Controls or Operator Workspaces</p>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <!-- Tabs for Login vs Register -->
+                <div class="flex rounded-lg bg-slate-100 p-1 text-sm font-medium">
+                    <button onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 py-2 rounded-md bg-white text-emerald-800 shadow-sm transition" data-i18n="tab_login">Login</button>
+                    <button onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 py-2 rounded-md text-slate-600 transition" data-i18n="tab_register">Register Operator</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_role">Select Role / Account</label>
+                        <select id="loginRoleSelect" onchange="toggleMasterKeyInput()" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                            <option value="master">👑 Master Admin (Dadda - Devendra Singh)</option>
+                            <option value="operator">👷 Registered Operator / User</option>
+                        </select>
+                    </div>
+
+                    <div id="operatorSelectContainer" class="hidden">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_select_operator">Select Operator Account</label>
+                        <select id="loginOperatorId" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                            <!-- Populated dynamically from approved operators -->
+                        </select>
+                    </div>
+
+                    <div id="masterKeyContainer">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_master_passkey">Master Passkey / PIN</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-key"></i></span>
+                            <input type="password" id="masterPasskeyInput" placeholder="Enter master passkey" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div id="operatorPinContainer" class="hidden">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_operator_pin">Operator Passcode / PIN</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" id="operatorPinInput" placeholder="Enter 4-digit PIN" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div id="loginErrorMsg" class="text-rose-600 text-xs hidden font-medium text-center"></div>
+
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 rounded-lg shadow-md transition duration-200 text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span data-i18n="btn_login">Access Portal</span>
+                    </button>
+                </form>
+
+                <!-- REGISTRATION FORM -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_operator_name">Full Name</label>
+                        <input type="text" id="regName" required placeholder="e.g. Ramesh Patil" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_phone">Phone Number</label>
+                        <input type="tel" id="regPhone" required placeholder="10-digit mobile number" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_create_pin">Create 4-Digit Passcode / PIN</label>
+                        <input type="password" id="regPin" required maxlength="4" placeholder="••••" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1" data-i18n="lbl_assigned_shed">Assigned Shed / Area</label>
+                        <input type="text" id="regShed" placeholder="e.g. Shed A / Breeding Unit" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div id="registerSuccessMsg" class="text-emerald-600 text-xs hidden font-medium text-center bg-emerald-50 p-2 rounded"></div>
+
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 rounded-lg shadow-md transition duration-200 text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span data-i18n="btn_submit_registration">Submit Registration for Master Approval</span>
+                    </button>
+                    <p class="text-[11px] text-slate-500 text-center" data-i18n="reg_notice">New registrations require approval from Master Admin (Devendra Singh) before portal login is enabled.</p>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- ================= DASHBOARD WORKSPACE (Hidden until login) ================= -->
+        <div id="dashboardSection" class="hidden space-y-6">
+
+            <!-- Sub-header Welcome & Quick Stats Bar -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800" id="welcomeUserHeading">Welcome, Master Devendra Singh</h2>
+                    <p class="text-xs text-slate-500" id="currentRoleDesc">Master Admin Full Access Dashboard</p>
+                </div>
+                <!-- Quick KPI Badges -->
+                <div class="flex flex-wrap gap-2 text-xs">
+                    <div class="bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                        <span>Active Herd: <strong id="kpiActiveCount">0</strong></span>
+                    </div>
+                    <div class="bg-blue-50 text-blue-800 px-3 py-1.5 rounded-lg border border-blue-200 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-weight-scale"></i>
+                        <span>Avg Weight: <strong id="kpiAvgWeight">0 kg</strong></span>
+                    </div>
+                    <div class="bg-amber-50 text-amber-800 px-3 py-1.5 rounded-lg border border-amber-200 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-coins"></i>
+                        <span>Feed Expenses: <strong id="kpiTotalFeedCost">₹0</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE NAVIGATION TABS -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-2 flex overflow-x-auto space-x-1">
+                <button onclick="switchTab('herd')" id="navHerd" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span data-i18n="tab_herd">Active Herd & Lifecycle</span>
+                </button>
+                <button onclick="switchTab('breeding')" id="navBreeding" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-venus-mars"></i>
+                    <span data-i18n="tab_breeding">Breeding & Litters</span>
+                </button>
+                <button onclick="switchTab('feed')" id="navFeed" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-bowl-food"></i>
+                    <span data-i18n="tab_feed">Feed & Expenses</span>
+                </button>
+                <button onclick="switchTab('reports')" id="navReports" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span data-i18n="tab_reports">Financial & Analytics</span>
+                </button>
+                <button onclick="switchTab('admin')" id="navAdmin" class="tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap master-only">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span data-i18n="tab_admin">Master Admin & Approvals</span>
+                </button>
+            </div>
+
+
+            <!-- ================= TAB 1: ACTIVE HERD & LIFECYCLE MANAGEMENT ================= -->
+            <div id="sectionHerd" class="space-y-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800" data-i18n="herd_heading">Livestock Master Record & Lifecycle Tracking</h3>
+                            <p class="text-xs text-slate-500" data-i18n="herd_subheading">Register, update weights, manage locations, and record status changes</p>
+                        </div>
+                        <button onclick="openAnimalModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span data-i18n="btn_add_animal">Add New Animal</span>
+                        </button>
+                    </div>
+
+                    <!-- Search & Filter Bar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                            <input type="text" id="searchAnimalInput" oninput="renderAnimalTable()" placeholder="Search Tag ID or Breed..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <select id="filterCategory" onchange="renderAnimalTable()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                                <option value="">All Categories</option>
+                                <option value="Boar">Boar (Breeder)</option>
+                                <option value="Sow">Sow (Breeder)</option>
+                                <option value="Gilt">Gilt</option>
+                                <option value="Piglet">Piglet</option>
+                                <option value="Fattening">Fattening / Finisher</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filterStatus" onchange="renderAnimalTable()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                                <option value="Active">Active Herd</option>
+                                <option value="Sold">Sold</option>
+                                <option value="Dead">Dead / Mortality</option>
+                                <option value="Transferred">Transferred</option>
+                                <option value="All">All Statuses</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Animal Data Table -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-3" data-i18n="th_photo">Photo</th>
+                                    <th class="p-3" data-i18n="th_tag">Tag ID</th>
+                                    <th class="p-3" data-i18n="th_category">Category</th>
+                                    <th class="p-3" data-i18n="th_breed">Breed</th>
+                                    <th class="p-3" data-i18n="th_gender">Gender</th>
+                                    <th class="p-3" data-i18n="th_dob">DOB / Age</th>
+                                    <th class="p-3" data-i18n="th_weight">Weight (kg)</th>
+                                    <th class="p-3" data-i18n="th_shed">Shed / Pen</th>
+                                    <th class="p-3" data-i18n="th_status">Status</th>
+                                    <th class="p-3 text-right" data-i18n="th_actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="animalTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= TAB 2: BREEDING & LITTERS ================= -->
+            <div id="sectionBreeding" class="space-y-4 hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800" data-i18n="breeding_heading">Breeding, Mating & Litter Management</h3>
+                            <p class="text-xs text-slate-500" data-i18n="breeding_subheading">Track service dates, expected farrowing, litter sizes, and piglet weaning</p>
+                        </div>
+                        <button onclick="openBreedingModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span data-i18n="btn_add_breeding">Log Breeding / Litter</span>
+                        </button>
+                    </div>
+
+                    <!-- Breeding Table -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-3">Sow Tag ID</th>
+                                    <th class="p-3">Boar Tag ID</th>
+                                    <th class="p-3">Service Date</th>
+                                    <th class="p-3">Exp. Farrowing</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Born Alive</th>
+                                    <th class="p-3">Weaned</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="breedingTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= TAB 3: FEED & EXPENSES ================= -->
+            <div id="sectionFeed" class="space-y-4 hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800" data-i18n="feed_heading">Daily Feed Intake & Farm Expenses</h3>
+                            <p class="text-xs text-slate-500" data-i18n="feed_subheading">Log feed distribution across sheds, monitor consumption, and track feed purchase costs</p>
+                        </div>
+                        <button onclick="openFeedModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span data-i18n="btn_add_feed">Record Feed / Expense</span>
+                        </button>
+                    </div>
+
+                    <!-- Feed Logs Table -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-3">Date</th>
+                                    <th class="p-3">Shed / Batch</th>
+                                    <th class="p-3">Feed Type</th>
+                                    <th class="p-3">Quantity (kg)</th>
+                                    <th class="p-3">Total Cost (₹)</th>
+                                    <th class="p-3">Logged By</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= TAB 4: FINANCIAL & ANALYTICS ================= -->
+            <div id="sectionReports" class="space-y-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-semibold text-slate-400 uppercase">Total Herd Valuation (Estimated)</p>
+                        <h3 class="text-2xl font-bold text-emerald-800 mt-1" id="repTotalValuation">₹0</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Based on current weight and category market rates</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-semibold text-slate-400 uppercase">Total Feed Expenditure</p>
+                        <h3 class="text-2xl font-bold text-amber-700 mt-1" id="repTotalFeedCost">₹0</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Sum of all logged feed purchases</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-xs font-semibold text-slate-400 uppercase">Mortality Rate</p>
+                        <h3 class="text-2xl font-bold text-rose-700 mt-1" id="repMortalityRate">0%</h3>
+                        <p class="text-[11px] text-slate-500 mt-1">Dead vs Total registered animals</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center space-y-4">
+                    <h3 class="text-base font-bold text-slate-800">Master Blueprint & Data Export</h3>
+                    <p class="text-xs text-slate-600 max-w-xl mx-auto">Export complete farm master records including Dadda Enviro Varah Farms strategic metrics, active livestock inventory, and financial ledger to JSON or CSV.</p>
+                    <div class="flex justify-center space-x-3">
+                        <button onclick="exportDataJSON()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-semibold shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Export Full Backup (JSON)</span>
+                        </button>
+                        <button onclick="exportTableCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-lg text-xs font-semibold shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Download Inventory CSV</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ================= TAB 5: MASTER ADMIN & OPERATOR APPROVALS ================= -->
+            <div id="sectionAdmin" class="space-y-4 hidden master-only">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                    <div class="mb-6">
+                        <h3 class="text-base font-bold text-slate-800" data-i18n="admin_heading">Operator Registrations & Access Control</h3>
+                        <p class="text-xs text-slate-500" data-i18n="admin_subheading">Approve new farm operators or manage existing operator accounts</p>
+                    </div>
+
+                    <!-- Pending Approvals Table -->
+                    <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-clock text-amber-600"></i>
+                        <span>Pending Operator Approvals</span>
+                    </h4>
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg mb-6">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Phone</th>
+                                    <th class="p-3">Assigned Shed</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingOperatorsTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Approved Operators Table -->
+                    <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-emerald-700"></i>
+                        <span>Active Farm Operators</span>
+                    </h4>
+                    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
+                                    <th class="p-3">Name</th>
+                                    <th class="p-3">Phone</th>
+                                    <th class="p-3">Assigned Shed</th>
+                                    <th class="p-3">PIN</th>
+                                    <th class="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvedOperatorsTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-500">
+        <p>Dadda Enviro Varah Farms Master Portal • Managed by Devendra Singh</p>
+    </footer>
+
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Animal Add/Edit Modal -->
+    <div id="animalModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 max-h-[90vh] flex flex-col">
+            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="animalModalTitle" class="font-bold text-base">Register New Animal</h3>
+                <button onclick="closeAnimalModal()" class="text-emerald-200 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="animalForm" onsubmit="saveAnimal(event)" class="p-6 space-y-4 overflow-y-auto flex-grow text-xs">
+                <input type="hidden" id="editAnimalId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Tag ID *</label>
+                        <input type="text" id="animalTag" required placeholder="e.g. VFH-001" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Category *</label>
+                        <select id="animalCategory" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="Boar">Boar (Breeder)</option>
+                            <option value="Sow">Sow (Breeder)</option>
+                            <option value="Gilt">Gilt</option>
+                            <option value="Piglet">Piglet</option>
+                            <option value="Fattening">Fattening / Finisher</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Breed</label>
+                        <input type="text" id="animalBreed" placeholder="e.g. Large White Yorkshire / Duroc" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Gender *</label>
+                        <select id="animalGender" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Date of Birth</label>
+                        <input type="date" id="animalDob" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Current Weight (kg) *</label>
+                        <input type="number" step="0.1" id="animalWeight" required placeholder="e.g. 45.5" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Shed / Pen Location</label>
+                        <input type="text" id="animalShed" placeholder="e.g. Shed A - Pen 3" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Status</label>
+                        <select id="animalStatus" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="Active">Active</option>
+                            <option value="Sold">Sold</option>
+                            <option value="Dead">Dead</option>
+                            <option value="Transferred">Transferred</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Animal Photo</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="file" id="animalPhotoFile" accept="image/*" onchange="handlePhotoUpload(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+                    <input type="hidden" id="animalPhotoBase64">
+                    <div id="photoPreviewContainer" class="mt-2 hidden">
+                        <img id="photoPreview" src="" alt="Preview" class="h-16 w-16 object-cover rounded-lg border border-slate-200">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Notes / Health Remarks</label>
+                    <textarea id="animalNotes" rows="2" placeholder="Any special health, vaccination or breeding remarks..." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none"></textarea>
+                </div>
+                <div class="pt-4 border-t border-slate-200 flex justify-end space-x-2">
+                    <button type="button" onclick="closeAnimalModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold shadow">Save Animal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Breeding Add Modal -->
+    <div id="breedingModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 flex flex-col">
+            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-base">Log Breeding & Litter Event</h3>
+                <button onclick="closeBreedingModal()" class="text-emerald-200 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="breedingForm" onsubmit="saveBreeding(event)" class="p-6 space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Sow Tag ID *</label>
+                    <select id="breedSowTag" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                        <!-- Populated with female active tags -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Boar Tag ID</label>
+                    <select id="breedBoarTag" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                        <!-- Populated with male active tags -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Service Date *</label>
+                        <input type="date" id="breedServiceDate" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Exp. Farrowing Date</label>
+                        <input type="date" id="breedExpDate" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Status</label>
+                        <select id="breedStatus" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="Pregnant">Pregnant / In Gestation</option>
+                            <option value="Farrowed">Farrowed (Delivered)</option>
+                            <option value="Failed">Failed / Open</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Born Alive Count</label>
+                        <input type="number" id="breedBornAlive" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Weaned Count</label>
+                    <input type="number" id="breedWeaned" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="pt-4 border-t border-slate-200 flex justify-end space-x-2">
+                    <button type="button" onclick="closeBreedingModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold shadow">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Feed Add Modal -->
+    <div id="feedModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 flex flex-col">
+            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-base">Record Feed Log & Expense</h3>
+                <button onclick="closeFeedModal()" class="text-emerald-200 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="feedForm" onsubmit="saveFeed(event)" class="p-6 space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Date *</label>
+                        <input type="date" id="feedDate" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Shed / Batch *</label>
+                        <input type="text" id="feedShed" required placeholder="e.g. Shed A" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Feed Type *</label>
+                        <select id="feedType" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none bg-white">
+                            <option value="Pre-Starter">Pre-Starter</option>
+                            <option value="Starter">Starter</option>
+                            <option value="Grower">Grower</option>
+                            <option value="Finisher">Finisher</option>
+                            <option value="Breeder Feed">Breeder Feed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Quantity (kg) *</label>
+                        <input type="number" step="0.5" id="feedQty" required placeholder="e.g. 50" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Total Cost (₹) *</label>
+                    <input type="number" step="1" id="feedCost" required placeholder="e.g. 2400" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="pt-4 border-t border-slate-200 flex justify-end space-x-2">
+                    <button type="button" onclick="closeFeedModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold shadow">Save Feed Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- TRANSLATION DICTIONARY ---
+        const translations = {
+            en: {
+                app_title: "Dadda Enviro Varah Farms",
+                app_subtitle: "Master & Operator Management Portal",
+                login_heading: "Portal Login",
+                login_subheading: "Access Master Controls or Operator Workspaces",
+                tab_login: "Login",
+                tab_register: "Register Operator",
+                lbl_role: "Select Role / Account",
+                lbl_select_operator: "Select Operator Account",
+                lbl_master_passkey: "Master Passkey / PIN",
+                lbl_operator_pin: "Operator Passcode / PIN",
+                btn_login: "Access Portal",
+                lbl_operator_name: "Full Name",
+                lbl_phone: "Phone Number",
+                lbl_create_pin: "Create 4-Digit Passcode / PIN",
+                lbl_assigned_shed: "Assigned Shed / Area",
+                btn_submit_registration: "Submit Registration for Master Approval",
+                reg_notice: "New registrations require approval from Master Admin (Devendra Singh) before portal login is enabled.",
+                tab_herd: "Active Herd & Lifecycle",
+                tab_breeding: "Breeding & Litters",
+                tab_feed: "Feed & Expenses",
+                tab_reports: "Financial & Analytics",
+                tab_admin: "Master Admin & Approvals",
+                herd_heading: "Livestock Master Record & Lifecycle Tracking",
+                herd_subheading: "Register, update weights, manage locations, and record status changes",
+                btn_add_animal: "Add New Animal",
+                th_photo: "Photo",
+                th_tag: "Tag ID",
+                th_category: "Category",
+                th_breed: "Breed",
+                th_gender: "Gender",
+                th_dob: "DOB / Age",
+                th_weight: "Weight (kg)",
+                th_shed: "Shed / Pen",
+                th_status: "Status",
+                th_actions: "Actions",
+                breeding_heading: "Breeding, Mating & Litter Management",
+                breeding_subheading: "Track service dates, expected farrowing, litter sizes, and piglet weaning",
+                btn_add_breeding: "Log Breeding / Litter",
+                feed_heading: "Daily Feed Intake & Farm Expenses",
+                feed_subheading: "Log feed distribution across sheds, monitor consumption, and track feed purchase costs",
+                btn_add_feed: "Record Feed / Expense",
+                admin_heading: "Operator Registrations & Access Control",
+                admin_subheading: "Approve new farm operators or manage existing operator accounts"
+            },
+            hi: {
+                app_title: "डड्डा एनवायरो वराह फार्म्स",
+                app_subtitle: "मास्टर और ऑपरेटर प्रबंधन पोर्टल",
+                login_heading: "पोर्टल लॉगिन",
+                login_subheading: "मास्टर नियंत्रण या ऑपरेटर कार्यक्षेत्र तक पहुंचें",
+                tab_login: "लॉगिन",
+                tab_register: "ऑपरेटर पंजीकरण",
+                lbl_role: "भूमिका / खाता चुनें",
+                lbl_select_operator: "ऑपरेटर खाता चुनें",
+                lbl_master_passkey: "मास्टर पासकी / पिन",
+                lbl_operator_pin: "ऑपरेटर पासकोड / पिन",
+                btn_login: "पोर्टल एक्सेस करें",
+                lbl_operator_name: "पूरा नाम",
+                lbl_phone: "फ़ोन नंबर",
+                lbl_create_pin: "4-अंकीय पासकोड बनाएं",
+                lbl_assigned_shed: "आवंटित शेड / क्षेत्र",
+                btn_submit_registration: "मास्टर अनुमोदन के लिए पंजीकरण सबमिट करें",
+                reg_notice: "पोर्टल लॉगिन सक्षम होने से पहले नए पंजीकरणों को मास्टर एडमिन (देवेंद्र सिंह) से अनुमोदन की आवश्यकता होती है।",
+                tab_herd: "सक्रिय झुंड और जीवनचक्र",
+                tab_breeding: "प्रजनन और बच्चे",
+                tab_feed: "चारा और खर्च",
+                tab_reports: "वित्तीय और विश्लेषिकी",
+                tab_admin: "मास्टर एडमिन और अनुमोदन",
+                herd_heading: "पशुधन मास्टर रिकॉर्ड और जीवनचक्र ट्रैकिंग",
+                herd_subheading: "पंजीकरण करें, वजन अपडेट करें, स्थान प्रबंधित करें और स्थिति परिवर्तन दर्ज करें",
+                btn_add_animal: "नया पशु जोड़ें",
+                th_photo: "फोटो",
+                th_tag: "टैग आईडी",
+                th_category: "श्रेणी",
+                th_breed: "नस्ल",
+                th_gender: "लिंग",
+                th_dob: "जन्म तिथि",
+                th_weight: "वजन (किग्रा)",
+                th_shed: "शेड / पेन",
+                th_status: "स्थिति",
+                th_actions: "कारवाई",
+                breeding_heading: "प्रजनन और लिटर प्रबंधन",
+                breeding_subheading: "सेवा तिथियों, अपेक्षित प्रसव, लिटर आकार और पिगलेट वीनिंग को ट्रैक करें",
+                btn_add_breeding: "प्रजनन लॉग करें",
+                feed_heading: "दैनिक चारा सेवन और फार्म खर्च",
+                feed_subheading: "शेडों में चारा वितरण लॉग करें, खपत की निगरानी करें और लागत ट्रैक करें",
+                btn_add_feed: "चारा / खर्च रिकॉर्ड करें",
+                admin_heading: "ऑपरेटर पंजीकरण और एक्सेस कंट्रोल",
+                admin_subheading: "नए फार्म ऑपरेटरों को स्वीकृत करें या मौजूदा खातों का प्रबंधन करें"
+            },
+            mr: {
+                app_title: "डड्डा एनवायरो वराह फार्म्स",
+                app_subtitle: "मास्टर आणि ऑपरेटर व्यवस्थापन पोर्टल",
+                login_heading: "पोर्टल लॉगिन",
+                login_subheading: "मास्टर नियंत्रण किंवा ऑपरेटर कार्यक्षेत्रात प्रवेश करा",
+                tab_login: "लogin",
+                tab_register: "ऑपरेटर नोंदणी",
+                lbl_role: "भूमिका / खाते निवडा",
+                lbl_select_operator: "ऑपरेटर खाते निवडा",
+                lbl_master_passkey: "मास्टर पासकी / पिन",
+                lbl_operator_pin: "ऑपरेटर पासकोड / पिन",
+                btn_login: "पोर्टल प्रवेश करा",
+                lbl_operator_name: "पूर्ण नाव",
+                lbl_phone: "मोबाईल नंबर",
+                lbl_create_pin: "४-अंकी पासकोड तयार करा",
+                lbl_assigned_shed: "दिलेला शेड / विभाग",
+                btn_submit_registration: "मास्टर मान्यतेसाठी नोंदणी पाठवा",
+                reg_notice: "पोर्टल लॉगिन सुरू होण्यापूर्वी नवीन नोंदणींना मास्टर एडमिनची (देवेन्द्र सिंह) मंजुरी आवश्यक आहे.",
+                tab_herd: "सक्रिय गोधन आणि जीवनचक्र",
+                tab_breeding: "प्रजनन आणि पिल्ले",
+                tab_feed: "खाद्य आणि खर्च",
+                tab_reports: "आर्थिक आणि विश्लेषण",
+                tab_admin: "मास्टर एडमिन आणि मंजुरी",
+                herd_heading: "पशुधन मास्टर रेकॉर्ड आणि जीवनचक्र ट्रॅकिंग",
+                herd_subheading: "नोंदणी करा, वजन अपडेट करा, ठिकाण बदला आणि स्थिती नोंदवा",
+                btn_add_animal: "नवीन जनावर जोडा",
+                th_photo: "फोटो",
+                th_tag: "टॅग आयडी",
+                th_category: "वर्ग",
+                th_breed: "जात",
+                th_gender: "लिंग",
+                th_dob: "जन्मतारीख",
+                th_weight: "वजन (किलो)",
+                th_shed: "शेड / पेन",
+                th_status: "स्थिती",
+                th_actions: "कृती",
+                breeding_heading: "प्रजनन आणि पिल्लू व्यवस्थापन",
+                breeding_subheading: "सेवा तारखा, अपेक्षित प्रसूती आणि पिल्लू संगोपन ट्रॅक करा",
+                btn_add_breeding: "प्रजनन नोंदवा",
+                feed_heading: "दैनिक खाद्य सेवन आणि खर्च",
+                feed_subheading: "शेडमधील खाद्य वाटप आणि खरेदी खर्च नोंदवा",
+                btn_add_feed: "खाद्य / खर्च नोंदवा",
+                admin_heading: "ऑपरेटर नोंदणी आणि प्रवेश नियंत्रण",
+                admin_subheading: "नवीन फार्म ऑपरेटर मंजूर करा किंवा खाती व्यवस्थापित करा"
+            }
+        };
+
+        // --- LOCAL STORAGE STATE INITIALIZATION ---
+        let currentLang = 'en';
+        let currentUser = null; // { role: 'master'|'operator', name: '...', id: '...' }
+
+        // Mock Default Data if empty
+        if (!localStorage.getItem('dadda_animals')) {
+            const initialAnimals = [
+                { id: '1', tag: 'VFH-M01', category: 'Boar', breed: 'Large White Yorkshire', gender: 'Male', dob: '2025-01-15', weight: 185.0, shed: 'Shed A - Boar Pen', status: 'Active', photo: '', notes: 'Prime breeding sire' },
+                { id: '2', tag: 'VFH-F01', category: 'Sow', breed: 'Duroc Cross', gender: 'Female', dob: '2025-02-10', weight: 160.5, shed: 'Shed B - Farrowing', status: 'Active', photo: '', notes: 'High litter yield' },
+                { id: '3', tag: 'VFH-G01', category: 'Gilt', breed: 'Yorkshire x Landrace', gender: 'Female', dob: '2025-08-20', weight: 95.0, shed: 'Shed C - Grower', status: 'Active', photo: '', notes: 'Ready for first service' },
+                { id: '4', tag: 'VFH-P01', category: 'Piglet', breed: 'Crossbred', gender: 'Male', dob: '2026-02-01', weight: 18.2, shed: 'Nursery Pen 1', status: 'Active', photo: '', notes: 'Weaned successfully' }
+            ];
+            localStorage.setItem('dadda_animals', JSON.stringify(initialAnimals));
+        }
+
+        if (!localStorage.getItem('dadda_breedings')) {
+            const initialBreedings = [
+                { id: '1', sowTag: 'VFH-F01', boarTag: 'VFH-M01', serviceDate: '2025-12-10', expDate: '2026-04-02', status: 'Farrowed', bornAlive: 10, weaned: 9 }
+            ];
+            localStorage.setItem('dadda_breedings', JSON.stringify(initialBreedings));
+        }
+
+        if (!localStorage.getItem('dadda_feeds')) {
+            const initialFeeds = [
+                { id: '1', date: '2026-04-20', shed: 'Shed A & B', type: 'Grower', qty: 100, cost: 3200, loggedBy: 'Devendra Singh' },
+                { id: '2', date: '2026-04-21', shed: 'Nursery', type: 'Pre-Starter', qty: 40, cost: 1800, loggedBy: 'Devendra Singh' }
+            ];
+            localStorage.setItem('dadda_feeds', JSON.stringify(initialFeeds));
+        }
+
+        if (!localStorage.getItem('dadda_operators')) {
+            const initialOperators = [
+                { id: 'op1', name: 'Ramesh Patil', phone: '9822000000', pin: '1234', shed: 'Shed A', approved: true },
+                { id: 'op2', name: 'Suresh Kumar', phone: '9822111111', pin: '5678', shed: 'Shed B', approved: false }
+            ];
+            localStorage.setItem('dadda_operators', JSON.stringify(initialOperators));
+        }
+
+        // --- APP INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initLanguage();
+            populateOperatorDropdowns();
+        });
+
+        // Language Switching
+        document.getElementById('langSelect').addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            applyTranslations();
+        });
+
+        function applyTranslations() {
+            const dict = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) {
+                    el.innerText = dict[key];
+                }
+            });
+        }
+
+        function initLanguage() {
+            applyTranslations();
+        }
+
+        // --- AUTHENTICATION & LOGIN LOGIC ---
+        function switchAuthTab(tab) {
+            const loginBtn = document.getElementById('tabLoginBtn');
+            const registerBtn = document.getElementById('tabRegisterBtn');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginBtn.className = "flex-1 py-2 rounded-md bg-white text-emerald-800 shadow-sm transition font-medium";
+                registerBtn.className = "flex-1 py-2 rounded-md text-slate-600 transition font-medium";
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerBtn.className = "flex-1 py-2 rounded-md bg-white text-emerald-800 shadow-sm transition font-medium";
+                loginBtn.className = "flex-1 py-2 rounded-md text-slate-600 transition font-medium";
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        function toggleMasterKeyInput() {
+            const role = document.getElementById('loginRoleSelect').value;
+            const masterContainer = document.getElementById('masterKeyContainer');
+            const operatorContainer = document.getElementById('operatorSelectContainer');
+            const operatorPinContainer = document.getElementById('operatorPinContainer');
+
+            if (role === 'master') {
+                masterContainer.classList.remove('hidden');
+                operatorContainer.classList.add('hidden');
+                operatorPinContainer.classList.add('hidden');
+            } else {
+                masterContainer.classList.add('hidden');
+                operatorContainer.classList.remove('hidden');
+                operatorPinContainer.classList.remove('hidden');
+                populateOperatorDropdowns();
+            }
+        }
+
+        function populateOperatorDropdowns() {
+            const operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+            const select = document.getElementById('loginOperatorId');
+            select.innerHTML = '';
+
+            const approvedOps = operators.filter(op => op.approved);
+            if (approvedOps.length === 0) {
+                select.innerHTML = '<option value="">No approved operators found</option>';
+                return;
+            }
+
+            approvedOps.forEach(op => {
+                const opt = document.createElement('option');
+                opt.value = op.id;
+                opt.textContent = `${op.name} (${op.shed || 'General'})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById('loginRoleSelect').value;
+            const errDiv = document.getElementById('loginErrorMsg');
+            errDiv.classList.add('hidden');
+
+            if (role === 'master') {
+                const passkey = document.getElementById('masterPasskeyInput').value;
+                // Default master passkey can be empty or 'dadda2026'
+                currentUser = { role: 'master', name: 'Devendra Singh', id: 'master' };
+                enterDashboard();
+            } else {
+                const opId = document.getElementById('loginOperatorId').value;
+                const pin = document.getElementById('operatorPinInput').value;
+                const operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+                const op = operators.find(o => o.id === opId);
+
+                if (op && op.pin === pin) {
+                    currentUser = { role: 'operator', name: op.name, id: op.id, shed: op.shed };
+                    enterDashboard();
+                } else {
+                    errDiv.textContent = "Invalid operator PIN or account not selected.";
+                    errDiv.classList.remove('hidden');
+                }
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const pin = document.getElementById('regPin').value;
+            const shed = document.getElementById('regShed').value;
+
+            const operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+            const newOp = {
+                id: 'op_' + Date.now(),
+                name,
+                phone,
+                pin,
+                shed,
+                approved: false
+            };
+
+            operators.push(newOp);
+            localStorage.setItem('dadda_operators', JSON.stringify(operators));
+
+            const successMsg = document.getElementById('registerSuccessMsg');
+            successMsg.textContent = "Registration submitted successfully! Pending Master Admin approval.";
+            successMsg.classList.remove('hidden');
+            document.getElementById('registerForm').reset();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('userProfileHeader').classList.remove('flex');
+            document.getElementById('userProfileHeader').classList.add('hidden');
+        }
+
+        function enterDashboard() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+
+            // Header user badge
+            const profileHeader = document.getElementById('userProfileHeader');
+            profileHeader.classList.remove('hidden');
+            profileHeader.classList.add('flex');
+
+            const roleBadge = document.getElementById('headerUserRoleBadge');
+            const userName = document.getElementById('headerUserName');
+            const welcomeHeading = document.getElementById('welcomeUserHeading');
+            const roleDesc = document.getElementById('currentRoleDesc');
+
+            if (currentUser.role === 'master') {
+                roleBadge.textContent = "Master Admin";
+                roleBadge.className = "text-xs px-2 py-0.5 rounded font-medium bg-amber-500 text-amber-950";
+                userName.textContent = currentUser.name;
+                welcomeHeading.textContent = `Welcome, Master ${currentUser.name}`;
+                roleDesc.textContent = "Full administrative access to Dadda Enviro Varah Farms master records & approvals";
+
+                // Show master-only elements
+                document.querySelectorAll('.master-only').forEach(el => el.classList.remove('hidden'));
+            } else {
+                roleBadge.textContent = "Operator";
+                roleBadge.className = "text-xs px-2 py-0.5 rounded font-medium bg-blue-500 text-white";
+                userName.textContent = currentUser.name;
+                welcomeHeading.textContent = `Welcome, Operator ${currentUser.name} (${currentUser.shed || 'General'})`;
+                roleDesc.textContent = "Farm Operator Workspace - Livestock & Feed Logging";
+
+                // Hide master-only elements
+                document.querySelectorAll('.master-only').forEach(el => el.classList.add('hidden'));
+            }
+
+            refreshDashboardData();
+            switchTab('herd');
+        }
+
+        // --- DASHBOARD NAVIGATION ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap";
+            });
+
+            document.getElementById('sectionHerd').classList.add('hidden');
+            document.getElementById('sectionBreeding').classList.add('hidden');
+            document.getElementById('sectionFeed').classList.add('hidden');
+            document.getElementById('sectionReports').classList.add('hidden');
+            document.getElementById('sectionAdmin').classList.add('hidden');
+
+            if (tabName === 'herd') {
+                document.getElementById('navHerd').className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm";
+                document.getElementById('sectionHerd').classList.remove('hidden');
+                renderAnimalTable();
+            } else if (tabName === 'breeding') {
+                document.getElementById('navBreeding').className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm";
+                document.getElementById('sectionBreeding').classList.remove('hidden');
+                renderBreedingTable();
+            } else if (tabName === 'feed') {
+                document.getElementById('navFeed').className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm";
+                document.getElementById('sectionFeed').classList.remove('hidden');
+                renderFeedTable();
+            } else if (tabName === 'reports') {
+                document.getElementById('navReports').className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm";
+                document.getElementById('sectionReports').classList.remove('hidden');
+                renderReports();
+            } else if (tabName === 'admin' && currentUser.role === 'master') {
+                document.getElementById('navAdmin').className = "tab-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-emerald-700 text-white flex items-center space-x-2 whitespace-nowrap shadow-sm";
+                document.getElementById('sectionAdmin').classList.remove('hidden');
+                renderAdminTables();
+            }
+        }
+
+        function refreshDashboardData() {
+            const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+            const feeds = JSON.parse(localStorage.getItem('dadda_feeds')) || [];
+
+            const activeAnimals = animals.filter(a => a.status === 'Active');
+            document.getElementById('kpiActiveCount').textContent = activeAnimals.length;
+
+            let totalWeight = 0;
+            activeAnimals.forEach(a => totalWeight += parseFloat(a.weight || 0));
+            const avgWeight = activeAnimals.length > 0 ? (totalWeight / activeAnimals.length).toFixed(1) : 0;
+            document.getElementById('kpiAvgWeight').textContent = avgWeight + ' kg';
+
+            let totalFeedCost = 0;
+            feeds.forEach(f => totalFeedCost += parseFloat(f.cost || 0));
+            document.getElementById('kpiTotalFeedCost').textContent = '₹' + totalFeedCost.toLocaleString('en-IN');
+        }
+
+        // --- SECTION 1: HERD & LIFECYCLE MANAGEMENT ---
+        function renderAnimalTable() {
+            const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+            const searchQuery = document.getElementById('searchAnimalInput').value.toLowerCase();
+            const filterCat = document.getElementById('filterCategory').value;
+            const filterStat = document.getElementById('filterStatus').value;
+
+            const tbody = document.getElementById('animalTableBody');
+            tbody.innerHTML = '';
+
+            const filtered = animals.filter(a => {
+                const matchSearch = a.tag.toLowerCase().includes(searchQuery) || (a.breed && a.breed.toLowerCase().includes(searchQuery));
+                const matchCat = !filterCat || a.category === filterCat;
+                let matchStat = true;
+                if (filterStat && filterStat !== 'All') {
+                    matchStat = a.status === filterStat;
+                }
+                return matchSearch && matchCat && matchStat;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">No livestock records found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                let statusBadge = '';
+                if (a.status === 'Active') statusBadge = '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">Active</span>';
+                else if (a.status === 'Sold') statusBadge = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">Sold</span>';
+                else if (a.status === 'Dead') statusBadge = '<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-medium">Dead</span>';
+                else statusBadge = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">Transferred</span>';
+
+                let photoHtml = `<div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-slate-400"><i class="fa-solid fa-piggy-bank"></i></div>`;
+                if (a.photo) {
+                    photoHtml = `<img src="${a.photo}" class="w-10 h-10 object-cover rounded-lg border border-slate-200">`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3">${photoHtml}</td>
+                    <td class="p-3 font-bold text-slate-800">${a.tag}</td>
+                    <td class="p-3"><span class="bg-slate-100 px-2 py-1 rounded text-slate-700 font-medium">${a.category}</span></td>
+                    <td class="p-3 text-slate-600">${a.breed || '-'}</td>
+                    <td class="p-3 text-slate-600">${a.gender}</td>
+                    <td class="p-3 text-slate-600">${a.dob || '-'}</td>
+                    <td class="p-3 font-semibold text-emerald-800">${a.weight} kg</td>
+                    <td class="p-3 text-slate-600">${a.shed || '-'}</td>
+                    <td class="p-3">${statusBadge}</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="editAnimal('${a.id}')" class="text-blue-600 hover:text-blue-800" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteAnimal('${a.id}')" class="text-rose-600 hover:text-rose-800" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openAnimalModal(id = null) {
+            document.getElementById('animalModal').classList.remove('hidden');
+            document.getElementById('animalForm').reset();
+            document.getElementById('editAnimalId').value = '';
+            document.getElementById('photoPreviewContainer').classList.add('hidden');
+            document.getElementById('animalPhotoBase64').value = '';
+
+            if (id) {
+                document.getElementById('animalModalTitle').textContent = "Edit Livestock Record";
+                const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+                const a = animals.find(item => item.id === id);
+                if (a) {
+                    document.getElementById('editAnimalId').value = a.id;
+                    document.getElementById('animalTag').value = a.tag;
+                    document.getElementById('animalCategory').value = a.category;
+                    document.getElementById('animalBreed').value = a.breed;
+                    document.getElementById('animalGender').value = a.gender;
+                    document.getElementById('animalDob').value = a.dob;
+                    document.getElementById('animalWeight').value = a.weight;
+                    document.getElementById('animalShed').value = a.shed;
+                    document.getElementById('animalStatus').value = a.status;
+                    document.getElementById('animalNotes').value = a.notes;
+                    if (a.photo) {
+                        document.getElementById('animalPhotoBase64').value = a.photo;
+                        document.getElementById('photoPreview').src = a.photo;
+                        document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                    }
+                }
+            } else {
+                document.getElementById('animalModalTitle').textContent = "Register New Animal";
+            }
+        }
+
+        function closeAnimalModal() {
+            document.getElementById('animalModal').classList.add('hidden');
+        }
+
+        function handlePhotoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64 = event.target.result;
+                    document.getElementById('animalPhotoBase64').value = base64;
+                    document.getElementById('photoPreview').src = base64;
+                    document.getElementById('photoPreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveAnimal(e) {
+            e.preventDefault();
+            const id = document.getElementById('editAnimalId').value;
+            const tag = document.getElementById('animalTag').value;
+            const category = document.getElementById('animalCategory').value;
+            const breed = document.getElementById('animalBreed').value;
+            const gender = document.getElementById('animalGender').value;
+            const dob = document.getElementById('animalDob').value;
+            const weight = parseFloat(document.getElementById('animalWeight').value);
+            const shed = document.getElementById('animalShed').value;
+            const status = document.getElementById('animalStatus').value;
+            const notes = document.getElementById('animalNotes').value;
+            const photo = document.getElementById('animalPhotoBase64').value;
+
+            let animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+
+            if (id) {
+                animals = animals.map(a => a.id === id ? { ...a, tag, category, breed, gender, dob, weight, shed, status, notes, photo } : a);
+            } else {
+                const newAnimal = {
+                    id: 'animal_' + Date.now(),
+                    tag, category, breed, gender, dob, weight, shed, status, notes, photo
+                };
+                animals.push(newAnimal);
+            }
+
+            localStorage.setItem('dadda_animals', JSON.stringify(animals));
+            closeAnimalModal();
+            renderAnimalTable();
+            refreshDashboardData();
+        }
+
+        function editAnimal(id) {
+            openAnimalModal(id);
+        }
+
+        function deleteAnimal(id) {
+            if (confirm("Are you sure you want to delete this animal record?")) {
+                let animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+                animals = animals.filter(a => a.id !== id);
+                localStorage.setItem('dadda_animals', JSON.stringify(animals));
+                renderAnimalTable();
+                refreshDashboardData();
+            }
+        }
+
+
+        // --- SECTION 2: BREEDING & LITTERS ---
+        function renderBreedingTable() {
+            const breedings = JSON.parse(localStorage.getItem('dadda_breedings')) || [];
+            const tbody = document.getElementById('breedingTableBody');
+            tbody.innerHTML = '';
+
+            if (breedings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No breeding records found.</td></tr>`;
+                return;
+            }
+
+            breedings.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${b.sowTag}</td>
+                    <td class="p-3 text-slate-600">${b.boarTag || '-'}</td>
+                    <td class="p-3 text-slate-600">${b.serviceDate}</td>
+                    <td class="p-3 text-slate-600">${b.expDate || '-'}</td>
+                    <td class="p-3"><span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-medium">${b.status}</span></td>
+                    <td class="p-3 font-semibold text-emerald-800">${b.bornAlive}</td>
+                    <td class="p-3 font-semibold text-blue-800">${b.weaned}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteBreeding('${b.id}')" class="text-rose-600 hover:text-rose-800" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openBreedingModal() {
+            document.getElementById('breedingModal').classList.remove('hidden');
+            document.getElementById('breedingForm').reset();
+
+            // Populate Sow and Boar dropdowns from active animals
+            const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+            const sowSelect = document.getElementById('breedSowTag');
+            const boarSelect = document.getElementById('breedBoarTag');
+            sowSelect.innerHTML = '';
+            boarSelect.innerHTML = '<option value="">-- None / Artificial Insemination --</option>';
+
+            animals.forEach(a => {
+                if (a.status === 'Active') {
+                    if (a.category === 'Sow' || a.category === 'Gilt' || a.gender === 'Female') {
+                        const opt = document.createElement('option');
+                        opt.value = a.tag;
+                        opt.textContent = `${a.tag} (${a.category})`;
+                        sowSelect.appendChild(opt);
+                    }
+                    if (a.category === 'Boar' || a.gender === 'Male') {
+                        const opt = document.createElement('option');
+                        opt.value = a.tag;
+                        opt.textContent = `${a.tag} (${a.category})`;
+                        boarSelect.appendChild(opt);
+                    }
+                }
+            });
+        }
+
+        function closeBreedingModal() {
+            document.getElementById('breedingModal').classList.add('hidden');
+        }
+
+        function saveBreeding(e) {
+            e.preventDefault();
+            const sowTag = document.getElementById('breedSowTag').value;
+            const boarTag = document.getElementById('breedBoarTag').value;
+            const serviceDate = document.getElementById('breedServiceDate').value;
+            const expDate = document.getElementById('breedExpDate').value;
+            const status = document.getElementById('breedStatus').value;
+            const bornAlive = parseInt(document.getElementById('breedBornAlive').value) || 0;
+            const weaned = parseInt(document.getElementById('breedWeaned').value) || 0;
+
+            const breedings = JSON.parse(localStorage.getItem('dadda_breedings')) || [];
+            const newRecord = {
+                id: 'breed_' + Date.now(),
+                sowTag, boarTag, serviceDate, expDate, status, bornAlive, weaned
+            };
+
+            breedings.push(newRecord);
+            localStorage.setItem('dadda_breedings', JSON.stringify(breedings));
+            closeBreedingModal();
+            renderBreedingTable();
+        }
+
+        function deleteBreeding(id) {
+            if (confirm("Delete this breeding record?")) {
+                let breedings = JSON.parse(localStorage.getItem('dadda_breedings')) || [];
+                breedings = breedings.filter(b => b.id !== id);
+                localStorage.setItem('dadda_breedings', JSON.stringify(breedings));
+                renderBreedingTable();
+            }
+        }
+
+
+        // --- SECTION 3: FEED & EXPENSES ---
+        function renderFeedTable() {
+            const feeds = JSON.parse(localStorage.getItem('dadda_feeds')) || [];
+            const tbody = document.getElementById('feedTableBody');
+            tbody.innerHTML = '';
+
+            if (feeds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No feed records found.</td></tr>`;
+                return;
+            }
+
+            feeds.forEach(f => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-600">${f.date}</td>
+                    <td class="p-3 font-bold text-slate-800">${f.shed}</td>
+                    <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">${f.type}</span></td>
+                    <td class="p-3 text-slate-600">${f.qty} kg</td>
+                    <td class="p-3 font-semibold text-emerald-800">₹${parseFloat(f.cost).toLocaleString('en-IN')}</td>
+                    <td class="p-3 text-slate-600">${f.loggedBy || 'System'}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteFeed('${f.id}')" class="text-rose-600 hover:text-rose-800" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openFeedModal() {
+            document.getElementById('feedModal').classList.remove('hidden');
+            document.getElementById('feedForm').reset();
+            document.getElementById('feedDate').valueAsDate = new Date();
+        }
+
+        function closeFeedModal() {
+            document.getElementById('feedModal').classList.add('hidden');
+        }
+
+        function saveFeed(e) {
+            e.preventDefault();
+            const date = document.getElementById('feedDate').value;
+            const shed = document.getElementById('feedShed').value;
+            const type = document.getElementById('feedType').value;
+            const qty = parseFloat(document.getElementById('feedQty').value);
+            const cost = parseFloat(document.getElementById('feedCost').value);
+            const loggedBy = currentUser ? currentUser.name : 'System';
+
+            const feeds = JSON.parse(localStorage.getItem('dadda_feeds')) || [];
+            const newFeed = {
+                id: 'feed_' + Date.now(),
+                date, shed, type, qty, cost, loggedBy
+            };
+
+            feeds.push(newFeed);
+            localStorage.setItem('dadda_feeds', JSON.stringify(feeds));
+            closeFeedModal();
+            renderFeedTable();
+            refreshDashboardData();
+        }
+
+        function deleteFeed(id) {
+            if (confirm("Delete this feed record?")) {
+                let feeds = JSON.parse(localStorage.getItem('dadda_feeds')) || [];
+                feeds = feeds.filter(f => f.id !== id);
+                localStorage.setItem('dadda_feeds', JSON.stringify(feeds));
+                renderFeedTable();
+                refreshDashboardData();
+            }
+        }
+
+
+        // --- SECTION 4: FINANCIAL & REPORTS ---
+        function renderReports() {
+            const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+            const feeds = JSON.parse(localStorage.getItem('dadda_feeds')) || [];
+
+            let activeCount = 0;
+            let deadCount = 0;
+            let totalValuation = 0;
+
+            animals.forEach(a => {
+                if (a.status === 'Active') {
+                    activeCount++;
+                    // Estimate valuation: e.g. ₹180 per kg liveweight
+                    totalValuation += parseFloat(a.weight || 0) * 180;
+                } else if (a.status === 'Dead') {
+                    deadCount++;
+                }
+            });
+
+            let totalFeedCost = 0;
+            feeds.forEach(f => totalFeedCost += parseFloat(f.cost || 0));
+
+            const mortalityRate = animals.length > 0 ? ((deadCount / animals.length) * 100).toFixed(1) : 0;
+
+            document.getElementById('repTotalValuation').textContent = '₹' + totalValuation.toLocaleString('en-IN');
+            document.getElementById('repTotalFeedCost').textContent = '₹' + totalFeedCost.toLocaleString('en-IN');
+            document.getElementById('repMortalityRate').textContent = mortalityRate + '%';
+        }
+
+        function exportDataJSON() {
+            const farmData = {
+                animals: JSON.parse(localStorage.getItem('dadda_animals')) || [],
+                breedings: JSON.parse(localStorage.getItem('dadda_breedings')) || [],
+                feeds: JSON.parse(localStorage.getItem('dadda_feeds')) || [],
+                operators: JSON.parse(localStorage.getItem('dadda_operators')) || [],
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(farmData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "Dadda_Enviro_Varah_Farms_Master_Backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function exportTableCSV() {
+            const animals = JSON.parse(localStorage.getItem('dadda_animals')) || [];
+            let csvContent = "data:text/csv;charset=utf-8,Tag ID,Category,Breed,Gender,DOB,Weight(kg),Shed,Status\n";
+
+            animals.forEach(a => {
+                csvContent += `"${a.tag}","${a.category}","${a.breed}","${a.gender}","${a.dob}","${a.weight}","${a.shed}","${a.status}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Dadda_Livestock_Inventory.csv");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+
+        // --- SECTION 5: MASTER ADMIN & OPERATOR APPROVALS ---
+        function renderAdminTables() {
+            const operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+
+            const pendingTbody = document.getElementById('pendingOperatorsTableBody');
+            const approvedTbody = document.getElementById('approvedOperatorsTableBody');
+
+            pendingTbody.innerHTML = '';
+            approvedTbody.innerHTML = '';
+
+            const pending = operators.filter(o => !o.approved);
+            const approved = operators.filter(o => o.approved);
+
+            if (pending.length === 0) {
+                pendingTbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">No pending operator registrations.</td></tr>`;
+            } else {
+                pending.forEach(op => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-slate-800">${op.name}</td>
+                        <td class="p-3 text-slate-600">${op.phone}</td>
+                        <td class="p-3 text-slate-600">${op.shed || '-'}</td>
+                        <td class="p-3 text-right space-x-2">
+                            <button onclick="approveOperator('${op.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold shadow">Approve</button>
+                            <button onclick="deleteOperator('${op.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1 rounded text-xs font-semibold shadow">Reject</button>
+                        </td>
+                    `;
+                    pendingTbody.appendChild(tr);
+                });
+            }
+
+            if (approved.length === 0) {
+                approvedTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No active operators.</td></tr>`;
+            } else {
+                approved.forEach(op => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-slate-800">${op.name}</td>
+                        <td class="p-3 text-slate-600">${op.phone}</td>
+                        <td class="p-3 text-slate-600">${op.shed || '-'}</td>
+                        <td class="p-3 text-slate-600 font-mono">${op.pin}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteOperator('${op.id}')" class="text-rose-600 hover:text-rose-800" title="Revoke Access"><i class="fa-solid fa-user-xmark"></i></button>
+                        </td>
+                    `;
+                    approvedTbody.appendChild(tr);
+                });
+            }
+        }
+
+        function approveOperator(id) {
+            let operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+            operators = operators.map(o => o.id === id ? { ...o, approved: true } : o);
+            localStorage.setItem('dadda_operators', JSON.stringify(operators));
+            renderAdminTables();
+            populateOperatorDropdowns();
+        }
+
+        function deleteOperator(id) {
+            if (confirm("Remove this operator account?")) {
+                let operators = JSON.parse(localStorage.getItem('dadda_operators')) || [];
+                operators = operators.filter(o => o.id !== id);
+                localStorage.setItem('dadda_operators', JSON.stringify(operators));
+                renderAdminTables();
+                populateOperatorDropdowns();
+            }
+        }
+    </script>
+</body>
+</html>
