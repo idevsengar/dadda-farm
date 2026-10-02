@@ -308,8 +308,12 @@
             <section id="tab-feed" class="tab-content hidden space-y-6">
                 <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
                     <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider" data-i18n="feedHeader">DAILY INTAKE & EXPENSES</h2>
-                    <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                         <input type="text" id="feedType" placeholder="Feed Description" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
+                        <select id="feedOption" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-cyan-400 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer">
+                            <option value="Dry Feed" data-i18n="dryFeedOption">🌾 Dry Feed</option>
+                            <option value="Wet Feed" data-i18n="wetFeedOption">💧 Wet Feed</option>
+                        </select>
                         <input type="number" step="0.1" id="feedQty" placeholder="Qty (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
                         <div class="flex gap-2">
                             <input type="number" step="0.01" id="feedCost" placeholder="Cost (₹)" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
@@ -417,6 +421,8 @@
                 archivesHeader: "ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)",
                 breedingHeader: "LITTER & BREEDING LOG",
                 feedHeader: "DAILY INTAKE & EXPENSES",
+                dryFeedOption: "🌾 Dry Feed",
+                wetFeedOption: "💧 Wet Feed",
                 approvalsHeader: "MASTER PENDING USER APPROVALS",
                 manageUsersHeader: "MANAGE & DELETE USERS (WIPES ALL USER DATA)",
                 activeCountTableTitle: "📊 Active Herd Summary Counts",
@@ -496,12 +502,14 @@
                 allGendersOption: "सभी लिंग",
                 allShedsOption: "सभी शेड",
                 deleteAllActiveBtn: "🗑️ सभी सक्रिय हटाएं",
-                deleteSoldBtn: "🗑️ बिका हटाएं",
+                deleteSoldBtn: "🗑️️ बिका हटाएं",
                 deleteDeadBtn: "🗑️ मृत हटाएं",
                 deleteTransferredBtn: "🗑️ ट्रांसफर हटाएं",
                 archivesHeader: "पशु इतिहास (बिका हुआ / मरा हुआ / ट्रांसफर)",
                 breedingHeader: "ब्रीडिंग और बच्चा रिकॉर्ड",
                 feedHeader: "दैनिक चारा और खर्च",
+                dryFeedOption: "🌾 सूखा चारा (Dry)",
+                wetFeedOption: "💧 गीला चारा (Wet)",
                 approvalsHeader: "लंबित यूजर अनुरोध",
                 manageUsersHeader: "यूजर हटाएं (सभी डेटा हमेशा के लिए डिलीट होगा)",
                 activeCountTableTitle: "📊 सक्रिय पशु संख्या तालिका",
@@ -582,11 +590,13 @@
                 allShedsOption: "सर्व शेड",
                 deleteAllActiveBtn: "🗑️ सर्व सक्रिय काढा",
                 deleteSoldBtn: "🗑️ विकलेले काढा",
-                deleteDeadBtn: "🗑️ मृत काढा",
+                deleteDeadBtn: "🗑️️ मृत काढा",
                 deleteTransferredBtn: "🗑️ ट्रान्सफर काढा",
                 archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
                 breedingHeader: "प्रजनन आणि पिल्लू नोंद",
                 feedHeader: "दैनिक चारा आणि खर्च",
+                dryFeedOption: "🌾 कोरडा चारा (Dry)",
+                wetFeedOption: "💧 ओला चारा (Wet)",
                 approvalsHeader: "प्रलंबित युजर विनंत्या",
                 manageUsersHeader: "युजर डिलीट करा (सर्व डेटा कायमचा नष्ट होईल)",
                 activeCountTableTitle: "📊 सक्रिय जनावरे संख्या तक्ता",
@@ -1334,13 +1344,39 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-            document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => `<div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800"><span>${i.feedType} - ${i.qty}kg (₹${i.feedCost}) <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span></span></div>`).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
+            document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => {
+                const optionBadge = i.feedOption === 'Wet Feed' ? 'bg-cyan-950 text-cyan-300 border-cyan-800' : 'bg-amber-950 text-amber-300 border-amber-800';
+                return `
+                <div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800">
+                    <div>
+                        <strong>${i.feedType}</strong> 
+                        <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${optionBadge}">${i.feedOption || 'Dry Feed'}</span> 
+                        - ${i.qty}kg (₹${i.feedCost}) 
+                        <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span>
+                    </div>
+                    <button onclick="deleteFeedLog('${i.id}')" class="text-red-400 bg-red-950 hover:bg-red-900 px-2 py-1 rounded border border-red-900 font-bold text-[10px]">Delete</button>
+                </div>`;
+            }).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
         }
         async function handleFeedSubmit(e) {
             e.preventDefault();
-            const record = { id: 'FED-' + Date.now(), feedType: document.getElementById('feedType').value, qty: parseFloat(document.getElementById('feedQty').value), feedCost: parseFloat(document.getElementById('feedCost').value), owner: getTargetRecordOwner() };
+            const record = { 
+                id: 'FED-' + Date.now(), 
+                feedType: document.getElementById('feedType').value, 
+                feedOption: document.getElementById('feedOption').value,
+                qty: parseFloat(document.getElementById('feedQty').value), 
+                feedCost: parseFloat(document.getElementById('feedCost').value), 
+                owner: getTargetRecordOwner() 
+            };
             await dbClient.from('feed_logs').insert([record]);
-            document.getElementById('feedForm').reset(); fetchFeed();
+            document.getElementById('feedForm').reset(); 
+            fetchFeed();
+        }
+        async function deleteFeedLog(id) {
+            if(confirm("Delete this feed log?")) {
+                await dbClient.from('feed_logs').delete().eq('id', id);
+                fetchFeed();
+            }
         }
         window.addEventListener('DOMContentLoaded', () => { loadExistingUsersDropdown(); });
     </script>
