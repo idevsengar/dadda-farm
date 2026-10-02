@@ -1,11 +1,11 @@
 {
-  "background_color": "#047857",
+  "background_color": "#ffffff",
   "dir": "ltr",
   "display": "standalone",
-  "name": "Dadda Farm",
+  "name": "Dadda Enviro Varah Farms",
   "orientation": "any",
   "scope": "/",
-  "short_name": "Dadda Farm",
-  "start_url": "/dadda-farm/",
-  "theme_color": "#047857"
+  "short_name": "DEV Farms",
+  "start_url": "https://idevsengar.github.io/dadda-farm/",
+  "theme_color": "#ffffff"
 }
