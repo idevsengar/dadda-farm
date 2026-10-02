@@ -306,22 +306,67 @@
             </section>
             <!-- Feed Section -->
             <section id="tab-feed" class="tab-content hidden space-y-6">
-                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
-                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider" data-i18n="feedHeader">DAILY INTAKE & EXPENSES</h2>
-                    <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                        <input type="text" id="feedType" placeholder="Feed Description" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                        <select id="feedOption" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-cyan-400 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer">
-                            <option value="Dry Feed" data-i18n="dryFeedOption">🌾 Dry Feed</option>
-                            <option value="Wet Feed" data-i18n="wetFeedOption">💧 Wet Feed</option>
-                        </select>
-                        <input type="number" step="0.1" id="feedQty" placeholder="Qty (kg)" required class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                        <div class="flex gap-2">
-                            <input type="number" step="0.01" id="feedCost" placeholder="Cost (₹)" required class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white">
-                            <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl px-4 py-2.5 shadow" data-i18n="saveBtn">Save</button>
+                <!-- Feed Summary Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Feed Consumed</p>
+                            <p id="feed-total-qty" class="text-xl font-black text-cyan-400 mt-1">0.0 kg</p>
                         </div>
+                        <div class="bg-cyan-950/80 p-3 rounded-xl border border-cyan-800 text-cyan-300 font-black text-lg">🌾</div>
+                    </div>
+                    <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Feed Expenditure</p>
+                            <p id="feed-total-cost" class="text-xl font-black text-emerald-400 mt-1">₹0.00</p>
+                        </div>
+                        <div class="bg-emerald-950/80 p-3 rounded-xl border border-emerald-800 text-emerald-300 font-black text-lg">💰</div>
+                    </div>
+                </div>
+
+                <!-- Feed Entry Form Card -->
+                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex justify-between items-center">
+                        <span data-i18n="feedHeader">DAILY INTAKE & EXPENSES</span>
+                        <span class="text-[10px] bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-800 font-medium">Feed Management Engine</span>
+                    </h2>
+                    <form id="feedForm" onsubmit="handleFeedSubmit(event)" class="space-y-4 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium">Feed Date</label>
+                                <input type="date" id="feedDate" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium">Feed Description / Type</label>
+                                <input type="text" id="feedType" placeholder="e.g. Starter Feed / Maize / Concentrate" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium">Shed / Batch Reference</label>
+                                <input type="text" id="feedShed" placeholder="e.g. Shed 1 / Nursery" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium">Quantity (kg)</label>
+                                <input type="number" step="0.1" id="feedQty" placeholder="e.g. 50" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 font-medium">Total Cost (₹)</label>
+                                <input type="number" step="0.01" id="feedCost" placeholder="e.g. 2400" required class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg transition" data-i18n="saveBtn">Save Feed Intake Record</button>
                     </form>
                 </div>
-                <div id="feed-list" class="space-y-3"></div>
+
+                <!-- Feed Logs List Container -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h3 class="font-bold text-cyan-400 text-xs uppercase tracking-wider">📋 Feed Consumption History & Logs</h3>
+                        <button onclick="bulkDeleteFeedLogs()" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold text-xs transition">🗑️ Clear All Feed Logs</button>
+                    </div>
+                    <div id="feed-list" class="space-y-3 pt-2"></div>
+                </div>
             </section>
             <!-- Master Control Section (Approvals & User Data Deletion) -->
             <section id="tab-adminPanel" class="tab-content hidden space-y-6">
@@ -421,8 +466,6 @@
                 archivesHeader: "ANIMAL LIFECYCLE ARCHIVES (SOLD / DEAD / TRANSFERRED)",
                 breedingHeader: "LITTER & BREEDING LOG",
                 feedHeader: "DAILY INTAKE & EXPENSES",
-                dryFeedOption: "🌾 Dry Feed",
-                wetFeedOption: "💧 Wet Feed",
                 approvalsHeader: "MASTER PENDING USER APPROVALS",
                 manageUsersHeader: "MANAGE & DELETE USERS (WIPES ALL USER DATA)",
                 activeCountTableTitle: "📊 Active Herd Summary Counts",
@@ -502,14 +545,12 @@
                 allGendersOption: "सभी लिंग",
                 allShedsOption: "सभी शेड",
                 deleteAllActiveBtn: "🗑️ सभी सक्रिय हटाएं",
-                deleteSoldBtn: "🗑️️ बिका हटाएं",
+                deleteSoldBtn: "🗑️ बिका हटाएं",
                 deleteDeadBtn: "🗑️ मृत हटाएं",
                 deleteTransferredBtn: "🗑️ ट्रांसफर हटाएं",
                 archivesHeader: "पशु इतिहास (बिका हुआ / मरा हुआ / ट्रांसफर)",
                 breedingHeader: "ब्रीडिंग और बच्चा रिकॉर्ड",
                 feedHeader: "दैनिक चारा और खर्च",
-                dryFeedOption: "🌾 सूखा चारा (Dry)",
-                wetFeedOption: "💧 गीला चारा (Wet)",
                 approvalsHeader: "लंबित यूजर अनुरोध",
                 manageUsersHeader: "यूजर हटाएं (सभी डेटा हमेशा के लिए डिलीट होगा)",
                 activeCountTableTitle: "📊 सक्रिय पशु संख्या तालिका",
@@ -590,13 +631,11 @@
                 allShedsOption: "सर्व शेड",
                 deleteAllActiveBtn: "🗑️ सर्व सक्रिय काढा",
                 deleteSoldBtn: "🗑️ विकलेले काढा",
-                deleteDeadBtn: "🗑️️ मृत काढा",
+                deleteDeadBtn: "🗑️ मृत काढा",
                 deleteTransferredBtn: "🗑️ ट्रान्सफर काढा",
                 archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
                 breedingHeader: "प्रजनन आणि पिल्लू नोंद",
                 feedHeader: "दैनिक चारा आणि खर्च",
-                dryFeedOption: "🌾 कोरडा चारा (Dry)",
-                wetFeedOption: "💧 ओला चारा (Wet)",
                 approvalsHeader: "प्रलंबित युजर विनंत्या",
                 manageUsersHeader: "युजर डिलीट करा (सर्व डेटा कायमचा नष्ट होईल)",
                 activeCountTableTitle: "📊 सक्रिय जनावरे संख्या तक्ता",
@@ -644,27 +683,27 @@
                 document.getElementById('shedNumber').placeholder = "शेड नं (जैसे Shed 1)";
                 document.getElementById('survivedCount').placeholder = "जैसे 8";
                 document.getElementById('offspringTagIds').placeholder = "जैसे VFH-P1, VFH-P2";
-                document.getElementById('feedType').placeholder = "चारे का विवरण";
-                document.getElementById('feedQty').placeholder = "मात्रा (किलो)";
-                document.getElementById('feedCost').placeholder = "लागत (₹)";
+                document.getElementById('feedType').placeholder = "जैसे स्टार्टर फीड / मक्का";
+                document.getElementById('feedQty').placeholder = "जैसे 50";
+                document.getElementById('feedCost').placeholder = "जैसे 2400";
             } else if(lang === 'mr') {
                 document.getElementById('tagId').placeholder = "टॅग आयडी (उदा. VFH-042)";
                 document.getElementById('weight').placeholder = "वजन (किलो) - पर्यायी";
                 document.getElementById('shedNumber').placeholder = "शेड क्र. (उदा. Shed 1)";
                 document.getElementById('survivedCount').placeholder = "उदा. 8";
                 document.getElementById('offspringTagIds').placeholder = "उदा. VFH-P1, VFH-P2";
-                document.getElementById('feedType').placeholder = "चाऱ्याचे विवरण";
-                document.getElementById('feedQty').placeholder = "प्रमाण (किलो)";
-                document.getElementById('feedCost').placeholder = "खर्च (₹)";
+                document.getElementById('feedType').placeholder = "उदा. स्टार्टर फीड / मका";
+                document.getElementById('feedQty').placeholder = "उदा. 50";
+                document.getElementById('feedCost').placeholder = "उदा. 2400";
             } else {
                 document.getElementById('tagId').placeholder = "Unique Tag ID (e.g. VFH-042)";
                 document.getElementById('weight').placeholder = "Weight (kg) - Optional";
                 document.getElementById('shedNumber').placeholder = "Shed No. (e.g. Shed 1)";
                 document.getElementById('survivedCount').placeholder = "e.g. 8";
                 document.getElementById('offspringTagIds').placeholder = "e.g. VFH-P1, VFH-P2";
-                document.getElementById('feedType').placeholder = "Feed Description";
-                document.getElementById('feedQty').placeholder = "Qty (kg)";
-                document.getElementById('feedCost').placeholder = "Cost (₹)";
+                document.getElementById('feedType').placeholder = "e.g. Starter Feed / Maize / Concentrate";
+                document.getElementById('feedQty').placeholder = "e.g. 50";
+                document.getElementById('feedCost').placeholder = "e.g. 2400";
             }
             fetchAllData();
         }
@@ -781,6 +820,8 @@
             document.getElementById('count-archive-sold').innerText = '0';
             document.getElementById('count-archive-dead').innerText = '0';
             document.getElementById('count-archive-transferred').innerText = '0';
+            document.getElementById('feed-total-qty').innerText = '0.0 kg';
+            document.getElementById('feed-total-cost').innerText = '₹0.00';
             const gFilter = document.getElementById('genderFilter');
             if(gFilter) gFilter.value = 'ALL';
             const sFilter = document.getElementById('shedFilter');
@@ -1329,7 +1370,7 @@
                 fetchBreeding();
             }
         }
-        // --- FEED LOGS ---
+        // --- TAILORED FEED LOGS FEATURE ---
         async function fetchFeed() {
             if(!dbClient || !currentUser) return;
             let query = dbClient.from('feed_logs').select('*');
@@ -1344,41 +1385,86 @@
             if(currentUser.role === 'operator') {
                 filteredData = filteredData.filter(i => (i.owner || '').trim().toLowerCase() === currentUser.username.trim().toLowerCase());
             }
-            document.getElementById('feed-list').innerHTML = filteredData.length ? filteredData.map(i => {
-                const optionBadge = i.feedOption === 'Wet Feed' ? 'bg-cyan-950 text-cyan-300 border-cyan-800' : 'bg-amber-950 text-amber-300 border-amber-800';
-                return `
-                <div class="bg-slate-900 p-3 rounded-xl text-xs flex justify-between items-center border border-slate-800">
-                    <div>
-                        <strong>${i.feedType}</strong> 
-                        <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${optionBadge}">${i.feedOption || 'Dry Feed'}</span> 
-                        - ${i.qty}kg (₹${i.feedCost}) 
-                        <span class="text-[10px] text-slate-500">(Farm: ${i.owner || 'Master'})</span>
+
+            // Calculate metric totals
+            let totalQty = filteredData.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
+            let totalCost = filteredData.reduce((sum, item) => sum + (parseFloat(item.feedCost) || 0), 0);
+            document.getElementById('feed-total-qty').innerText = `${totalQty.toFixed(1)} kg`;
+            document.getElementById('feed-total-cost').innerText = `₹${totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            const container = document.getElementById('feed-list');
+            if(filteredData.length === 0) {
+                container.innerHTML = `<div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 text-center">No feed intake or expenditure logs recorded for your account.</div>`;
+                return;
+            }
+            container.innerHTML = filteredData.map(i => `
+                <div class="bg-slate-950 p-3.5 rounded-2xl text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-800 gap-3 shadow">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-cyan-400 text-sm">🌾 ${i.feedType}</span>
+                            <span class="bg-slate-900 text-slate-300 px-2 py-0.5 rounded text-[10px] border border-slate-800">📅 Date: ${i.feedDate || 'N/A'}</span>
+                            <span class="bg-teal-950 text-teal-300 px-2 py-0.5 rounded text-[10px] border border-teal-800">🏠 Shed: ${i.feedShed || 'General'}</span>
+                        </div>
+                        <p class="text-slate-300">Quantity Consumed: <strong class="text-white">${i.qty} kg</strong> &nbsp;|&nbsp; Total Cost: <strong class="text-emerald-400">₹${parseFloat(i.feedCost || 0).toLocaleString('en-IN')}</strong></p>
+                        <p class="text-[10px] text-slate-500">Farm Owner: ${i.owner || 'Master'}</p>
                     </div>
-                    <button onclick="deleteFeedLog('${i.id}')" class="text-red-400 bg-red-950 hover:bg-red-900 px-2 py-1 rounded border border-red-900 font-bold text-[10px]">Delete</button>
-                </div>`;
-            }).join('') : '<div class="text-slate-500 text-xs">No feed logs for your account.</div>';
+                    <button onclick="deleteFeedLog('${i.id}')" class="bg-red-950 text-red-300 hover:bg-red-900 px-3 py-1.5 rounded-xl border border-red-800 font-bold transition">Delete Log</button>
+                </div>
+            `).join('');
         }
         async function handleFeedSubmit(e) {
             e.preventDefault();
             const record = { 
                 id: 'FED-' + Date.now(), 
-                feedType: document.getElementById('feedType').value, 
-                feedOption: document.getElementById('feedOption').value,
+                feedDate: document.getElementById('feedDate').value,
+                feedType: document.getElementById('feedType').value.trim(), 
+                feedShed: document.getElementById('feedShed').value.trim() || 'General',
                 qty: parseFloat(document.getElementById('feedQty').value), 
                 feedCost: parseFloat(document.getElementById('feedCost').value), 
                 owner: getTargetRecordOwner() 
             };
-            await dbClient.from('feed_logs').insert([record]);
+            const { error } = await dbClient.from('feed_logs').insert([record]);
+            if(error) {
+                alert("Error saving feed log: " + error.message);
+                return;
+            }
             document.getElementById('feedForm').reset(); 
+            // Set default date to today for convenience
+            document.getElementById('feedDate').valueAsDate = new Date();
             fetchFeed();
         }
         async function deleteFeedLog(id) {
-            if(confirm("Delete this feed log?")) {
+            if(confirm("Delete this individual feed record?")) {
                 await dbClient.from('feed_logs').delete().eq('id', id);
                 fetchFeed();
             }
         }
-        window.addEventListener('DOMContentLoaded', () => { loadExistingUsersDropdown(); });
+        async function bulkDeleteFeedLogs() {
+            let targetOwner = currentUser.role === 'operator' ? currentUser.username : (document.getElementById('masterOwnerFilter')?.value || 'ALL');
+            let confirmMsg = `⚠️ Delete all feed logs`;
+            if (targetOwner !== 'ALL') {
+                confirmMsg += ` for farm "${targetOwner}"?`;
+            } else {
+                confirmMsg += ` across ALL farms?`;
+            }
+            if(confirm(confirmMsg)) {
+                let query = dbClient.from('feed_logs').delete();
+                if (currentUser.role === 'operator') {
+                    query = query.eq('owner', currentUser.username);
+                } else if (targetOwner !== 'ALL') {
+                    query = query.eq('owner', targetOwner);
+                }
+                const { error } = await query;
+                if(error) { alert("Error clearing feed logs."); return; }
+                alert("Feed logs cleared successfully.");
+                fetchFeed();
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => { 
+            loadExistingUsersDropdown(); 
+            const feedDateEl = document.getElementById('feedDate');
+            if(feedDateEl) feedDateEl.valueAsDate = new Date();
+        });
     </script>
 </body>
 </html>
