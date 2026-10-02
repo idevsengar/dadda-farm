@@ -1,230 +1,392 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dadda Enviro Varah Farms - Management Portal</title>
+    <title>Dadda Enviro Varah Farms - Master Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        emerald: { 500: '#10b981', 600: '#059669' }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Supabase JS Client -->
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: ui-sans-serif, system-ui, sans-serif; }
-    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <span class="text-2xl">🐖</span>
-            <div>
-                <h1 class="font-bold text-sm text-white tracking-wide">Dadda Enviro Varah Farms</h1>
-                <p class="text-[10px] text-emerald-400">Master Livestock Operations Portal</p>
+    <!-- Top Navigation / Header -->
+    <header class="bg-emerald-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🌱</span>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide" id="appTitle">Dadda Enviro Varah Farms</h1>
+                    <p class="text-xs text-emerald-300 font-mono" id="appSubtitle">Master Herd & Operations Portal</p>
+                </div>
             </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <span id="connection-badge" class="px-2 py-1 bg-amber-950 text-amber-300 border border-amber-800 rounded text-[10px] font-bold">Connecting...</span>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Language Selector -->
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-emerald-800 text-white text-xs px-2 py-1.5 rounded border border-emerald-700 focus:outline-none">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                </select>
+
+                <!-- User Profile & Logout -->
+                <div id="userProfileBadge" class="hidden items-center space-x-2 bg-emerald-800 px-3 py-1.5 rounded-lg text-xs">
+                    <span id="loggedUserName" class="font-semibold">Operator</span>
+                    <button onclick="handleLogout()" class="text-red-300 hover:text-white font-bold ml-2">⏏️</button>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Main App Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-6">
-        
-        <!-- Section Header -->
-        <div class="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
-            <div>
-                <h2 class="text-sm font-bold text-white">Active Herd Management</h2>
-                <p class="text-[11px] text-slate-400">Click any animal card to view detailed lineage, parents, siblings, and milestones.</p>
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+
+        <!-- LOGIN SCREEN (Hidden if logged in) -->
+        <section id="loginSection" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200 mt-12">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-emerald-900">Farm Portal Login</h2>
+                <p class="text-sm text-gray-500">Access your role-based farm dashboard</p>
             </div>
-            <button onclick="loadActiveAnimals()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Refresh Herd</button>
-        </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Email / Operator ID</label>
+                    <input type="text" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="Enter operator email">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg shadow transition text-sm">Sign In to Farm</button>
+            </form>
+        </section>
 
-        <!-- Active Animals Grid Container -->
-        <div id="active-animals-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Dynamic Cards Populated Here -->
-            <div class="col-span-full text-center py-10 text-slate-500 text-xs">Loading active herd records...</div>
-        </div>
+        <!-- DASHBOARD CONTAINER (Hidden until logged in) -->
+        <div id="dashboardContainer" class="hidden space-y-6">
 
+            <!-- Navigation Tabs -->
+            <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-3">
+                <button onclick="switchTab('activeHerd')" id="tabBtn-activeHerd" class="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-700 text-white shadow-sm transition">Active Herd</button>
+                <button onclick="switchTab('breeding')" id="tabBtn-breeding" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-600 hover:bg-gray-100 transition">Breeding & Offspring</button>
+                <button onclick="switchTab('feed')" id="tabBtn-feed" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-600 hover:bg-gray-100 transition">Feed & Nutrition</button>
+                <button onclick="switchTab('archives')" id="tabBtn-archives" class="px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-600 hover:bg-gray-100 transition">Sales / Mortality Archives</button>
+            </div>
+
+            <!-- TAB 1: ACTIVE HERD -->
+            <div id="tabContent-activeHerd" class="space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Active Herd Directory</h2>
+                        <p class="text-sm text-gray-500">Click any animal row to inspect pedigree, lineage, parents, and sibling history.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <input type="text" id="searchInput" onkeyup="filterActiveHerd()" placeholder="Search Tag ID..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <button onclick="openNewAnimalModal()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow transition whitespace-nowrap">+ Add Animal</button>
+                    </div>
+                </div>
+
+                <!-- Active Herd Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-200">
+                                    <th class="px-6 py-3 font-semibold">Tag ID</th>
+                                    <th class="px-6 py-3 font-semibold">Gender</th>
+                                    <th class="px-6 py-3 font-semibold">Breed / Type</th>
+                                    <th class="px-6 py-3 font-semibold">DOB</th>
+                                    <th class="px-6 py-3 font-semibold">Shed</th>
+                                    <th class="px-6 py-3 font-semibold">Weight</th>
+                                    <th class="px-6 py-3 font-semibold">Parents (Sire / Dam)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeHerdTableBody" class="divide-y divide-gray-200 text-sm">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: BREEDING & OFFSPRING -->
+            <div id="tabContent-breeding" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Breeding Record & Offspring Registration</h2>
+                    <form onsubmit="handleBreedingSubmit(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Father Tag ID (Sire)</label>
+                            <input type="text" id="breedFather" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g. TAG-001">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Mother Tag ID (Dam)</label>
+                            <input type="text" id="breedMother" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g. TAG-002">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Mating / Birth Date</label>
+                            <input type="date" id="breedDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Offspring Tag IDs (comma-separated)</label>
+                            <input type="text" id="breedOffspring" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm" placeholder="TAG-201, TAG-202, TAG-203">
+                        </div>
+                        <div class="sm:col-span-2 flex justify-end">
+                            <button type="submit" class="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg shadow text-sm">Register Breeding Batch</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 3: FEED & NUTRITION -->
+            <div id="tabContent-feed" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">Daily Feed Intake & Nutrition Calculator</h2>
+                    <p class="text-sm text-gray-500 mb-4">Monitor daily feed requirements based on growth stages and head counts.</p>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-lg text-sm text-emerald-900">
+                        📋 Feed intake metrics are synced with master livestock growth targets.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ARCHIVES -->
+            <div id="tabContent-archives" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">Sales & Mortality Archives</h2>
+                    <p class="text-sm text-gray-500">Historical records of departed or sold livestock.</p>
+                </div>
+            </div>
+
+        </div>
     </main>
 
-    <!-- ================= INDIVIDUAL ANIMAL PROFILE & LINEAGE MODAL ================= -->
-    <div id="animal-profile-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex justify-center items-center p-4">
-        <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 text-xs max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-3">
-                    <div id="profile-modal-avatar" class="w-12 h-12 rounded-xl bg-emerald-950 border border-emerald-500 flex items-center justify-center font-bold text-emerald-400 text-sm">TAG</div>
-                    <div>
-                        <h3 id="profile-modal-title" class="text-sm font-bold text-white">Animal Profile: VFH-000</h3>
-                        <p class="text-[10px] text-emerald-400" id="profile-modal-farm">Farm: Master</p>
+    <!-- ANIMAL DETAIL MODAL (With Pedigree & Siblings) -->
+    <div id="animalDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden max-h-[90vh] flex flex-col">
+            <!-- Header -->
+            <div class="bg-emerald-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    🐷 Animal Profile: <span id="modalAnimalTag" class="font-mono bg-emerald-900 px-2 py-1 rounded text-sm">--</span>
+                </h3>
+                <button onclick="closeAnimalModal()" class="text-white hover:text-gray-200 text-2xl font-bold">&times;</button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- General Info -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">General Information</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100 text-sm">
+                        <div><span class="block text-xs text-gray-500">Gender</span><span id="modalGender" class="font-medium">-</span></div>
+                        <div><span class="block text-xs text-gray-500">Breed</span><span id="modalBreed" class="font-medium">-</span></div>
+                        <div><span class="block text-xs text-gray-500">Birth Date (DOB)</span><span id="modalDob" class="font-medium">-</span></div>
+                        <div><span class="block text-xs text-gray-500">Shed</span><span id="modalShed" class="font-medium">-</span></div>
+                        <div><span class="block text-xs text-gray-500">Weight</span><span id="modalWeight" class="font-medium">-</span></div>
+                        <div><span class="block text-xs text-gray-500">Status</span><span class="font-medium text-emerald-600">Active</span></div>
                     </div>
                 </div>
-                <button onclick="closeAnimalProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl font-bold">✕ Close</button>
-            </div>
 
-            <!-- Quick Stats Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                    <p class="text-slate-400">Gender</p>
-                    <p id="profile-stat-gender" class="text-white font-bold mt-1">-</p>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                    <p class="text-slate-400">Current Weight</p>
-                    <p id="profile-stat-weight" class="text-emerald-400 font-bold mt-1">-</p>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                    <p class="text-slate-400">Shed Location</p>
-                    <p id="profile-stat-shed" class="text-teal-400 font-bold mt-1">-</p>
-                </div>
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                    <p class="text-slate-400">Status</p>
-                    <p id="profile-stat-status" class="text-cyan-400 font-bold mt-1 uppercase">-</p>
-                </div>
-            </div>
-
-            <!-- Pedigree / Lineage Section -->
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <h4 class="text-xs font-bold text-teal-400 uppercase tracking-wider">🧬 Lineage & Family Tree</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">Mother (Dam)</span>
-                            <span id="profile-mother" class="font-bold text-white text-xs">Unknown / Unlinked</span>
+                <!-- Pedigree & Lineage -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pedigree & Lineage</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
+                            <div><span class="block text-xs text-blue-600 font-semibold">Father (Sire)</span><span id="modalFather" class="font-mono text-gray-800 font-bold">-</span></div>
+                            <span class="text-blue-400 text-xl">🧬</span>
                         </div>
-                        <span class="text-xs bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-800">Sow</span>
-                    </div>
-                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">Father (Sire)</span>
-                            <span id="profile-father" class="font-bold text-white text-xs">Unknown / Unlinked</span>
+                        <div class="p-3 bg-pink-50 border border-pink-100 rounded-lg flex items-center justify-between">
+                            <div><span class="block text-xs text-pink-600 font-semibold">Mother (Dam)</span><span id="modalMother" class="font-mono text-gray-800 font-bold">-</span></div>
+                            <span class="text-pink-400 text-xl">🧬</span>
                         </div>
-                        <span class="text-xs bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">Boar</span>
                     </div>
                 </div>
-                <div class="space-y-1 pt-1">
-                    <span class="text-[10px] text-slate-400 block">Litter / Registered Siblings from Same Breeding Record</span>
-                    <div id="profile-siblings-container" class="flex flex-wrap gap-1.5 pt-1">
-                        <span class="text-slate-500 text-[10px]">No sibling records found.</span>
+
+                <!-- Siblings -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Registered Siblings</h4>
+                    <div id="modalSiblingsContainer" class="bg-gray-50 border border-gray-100 rounded-lg p-3 max-h-32 overflow-y-auto text-sm text-gray-600">
+                        No sibling records found.
                     </div>
                 </div>
             </div>
 
-            <!-- Birth & Event Details -->
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">📅 Birth & Registration Details</h4>
-                <p class="text-slate-300">Estimated/Registered Birth Date: <strong id="profile-birth-date" class="text-white">Not Recorded</strong></p>
-                <p class="text-slate-300">Origin / Record Type: <strong id="profile-origin-type" class="text-cyan-400">Direct Entry / Offspring</strong></p>
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-3 flex justify-end border-t border-gray-200">
+                <button onclick="closeAnimalModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg text-sm transition">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Application Engine Script -->
-    <script>
-        // Supabase configuration fallback or active keys from user session
-        let dbClient = null;
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-500">
+        Dadda Enviro Varah Farms &copy; 2026 | Master Portal Operations
+    </footer>
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // Initialize Supabase if keys exist in local storage or use defaults
-            const sbUrl = localStorage.getItem('supabase_url') || 'https://placeholder.supabase.co';
-            const sbKey = localStorage.getItem('supabase_key') || 'placeholder-key';
-            
-            try {
-                dbClient = window.supabase.createClient(sbUrl, sbKey);
-                document.getElementById('connection-badge').innerText = "System Ready";
-                document.getElementById('connection-badge').className = "px-2 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded text-[10px] font-bold";
-            } catch(e) {
-                document.getElementById('connection-badge').innerText = "Offline Mode";
+    <!-- Application JavaScript -->
+    <script>
+        // Localization Dictionary
+        const translations = {
+            en: { title: "Dadda Enviro Varah Farms", subtitle: "Master Herd & Operations Portal" },
+            hi: { title: "दद्दा एन्विआरओ वराह फार्म्स", subtitle: "मास्टर झुंड और संचालन पोर्टल" },
+            mr: { title: "दद्दा एन्विआरओ वराह फार्म्स", subtitle: "मास्टर पशूधन आणि कामकाज पोर्टल" }
+        };
+
+        function changeLanguage(lang) {
+            document.getElementById('appTitle').textContent = translations[lang].title;
+            document.getElementById('appSubtitle').textContent = translations[lang].subtitle;
+        }
+
+        // Active Herd State Data
+        let activeAnimalsArray = [
+            { tag_id: "TAG-101", gender: "Male", breed: "Large White Yorkshire", dob: "2025-11-10", shed: "Shed A", weight: "85 kg", father_id: "TAG-001", mother_id: "TAG-002" },
+            { tag_id: "TAG-102", gender: "Female", breed: "Large White Yorkshire", dob: "2025-11-10", shed: "Shed A", weight: "82 kg", father_id: "TAG-001", mother_id: "TAG-002" },
+            { tag_id: "TAG-103", gender: "Female", breed: "Landrace Cross", dob: "2025-12-05", shed: "Shed B", weight: "60 kg", father_id: "TAG-003", mother_id: "TAG-004" }
+        ];
+
+        // Authentication Handler
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            document.getElementById('loggedUserName').textContent = email;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardContainer').classList.remove('hidden');
+            document.getElementById('userProfileBadge').classList.remove('hidden');
+            renderActiveHerd();
+        }
+
+        function handleLogout() {
+            document.getElementById('dashboardContainer').classList.add('hidden');
+            document.getElementById('userProfileBadge').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('loginForm').reset();
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            ['activeHerd', 'breeding', 'feed', 'archives'].forEach(t => {
+                document.getElementById(`tabContent-${t}`).classList.add('hidden');
+                document.getElementById(`tabBtn-${t}`).className = "px-4 py-2 text-sm font-semibold rounded-lg bg-white text-gray-600 hover:bg-gray-100 transition";
+            });
+            document.getElementById(`tabContent-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tabBtn-${tabId}`).className = "px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-700 text-white shadow-sm transition";
+        }
+
+        // Render Active Herd Table
+        function renderActiveHerd(data = activeAnimalsArray) {
+            const tbody = document.getElementById('activeHerdTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-400 italic">No animal records found.</td></tr>`;
+                return;
             }
 
-            loadActiveAnimals();
+            tbody.innerHTML = data.map(animal => `
+                <tr onclick="openAnimalDetail('${animal.tag_id}')" class="hover:bg-emerald-50 cursor-pointer transition border-b border-gray-100">
+                    <td class="px-6 py-4 font-mono font-bold text-emerald-700">${animal.tag_id}</td>
+                    <td class="px-6 py-4 text-gray-700">${animal.gender}</td>
+                    <td class="px-6 py-4 text-gray-700">${animal.breed}</td>
+                    <td class="px-6 py-4 text-gray-700">${animal.dob || 'N/A'}</td>
+                    <td class="px-6 py-4 text-gray-700">${animal.shed || 'N/A'}</td>
+                    <td class="px-6 py-4 text-gray-700">${animal.weight || 'N/A'}</td>
+                    <td class="px-6 py-4 font-mono text-xs text-gray-600">Sire: ${animal.father_id || '-'} | Dam: ${animal.mother_id || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Animal Detail Modal & Pedigree Inspection
+        function openAnimalDetail(tagId) {
+            const animal = activeAnimalsArray.find(a => a.tag_id === tagId);
+            if (!animal) return;
+
+            document.getElementById('modalAnimalTag').textContent = animal.tag_id;
+            document.getElementById('modalGender').textContent = animal.gender;
+            document.getElementById('modalBreed').textContent = animal.breed;
+            document.getElementById('modalDob').textContent = animal.dob || 'N/A';
+            document.getElementById('modalShed').textContent = animal.shed || 'N/A';
+            document.getElementById('modalWeight').textContent = animal.weight || 'N/A';
+
+            const fatherId = animal.father_id || 'Unknown';
+            const motherId = animal.mother_id || 'Unknown';
+            document.getElementById('modalFather').textContent = fatherId;
+            document.getElementById('modalMother').textContent = motherId;
+
+            // Find Siblings
+            const siblings = activeAnimalsArray.filter(a => {
+                return a.tag_id !== tagId && (
+                    (motherId !== 'Unknown' && a.mother_id === motherId) || 
+                    (fatherId !== 'Unknown' && a.father_id === fatherId)
+                );
+            });
+
+            const siblingsContainer = document.getElementById('modalSiblingsContainer');
+            if (siblings.length > 0) {
+                siblingsContainer.innerHTML = siblings.map(sib => 
+                    `<span class="inline-block bg-white border border-gray-200 rounded px-2.5 py-1 m-1 font-mono text-xs font-semibold text-gray-700 shadow-sm">
+                        🏷️ ${sib.tag_id} (${sib.gender})
+                    </span>`
+                ).join('');
+            } else {
+                siblingsContainer.innerHTML = `<span class="text-gray-400 italic">No other registered siblings in active herd.</span>`;
+            }
+
+            document.getElementById('animalDetailModal').classList.remove('hidden');
+        }
+
+        function closeAnimalModal() {
+            document.getElementById('animalDetailModal').classList.add('hidden');
+        }
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('animalDetailModal');
+            if (event.target === modal) closeAnimalModal();
         });
 
-        async function loadActiveAnimals() {
-            const grid = document.getElementById('active-animals-grid');
-            if (!dbClient) return;
+        // Breeding Form Handler (Adds offspring linked with parents)
+        function handleBreedingSubmit(event) {
+            event.preventDefault();
+            const father = document.getElementById('breedFather').value.trim();
+            const mother = document.getElementById('breedMother').value.trim();
+            const dob = document.getElementById('breedDate').value;
+            const offspringTags = document.getElementById('breedOffspring').value.split(',').map(t => t.trim()).filter(t => t);
 
-            try {
-                const { data: animals, error } = await dbClient.from('animals').select('*').eq('status', 'active');
-                
-                if (error || !animals || animals.length === 0) {
-                    // Fallback sample data mockup if database table is empty for testing UI
-                    renderSampleCards();
-                    return;
-                }
+            offspringTags.forEach(tag => {
+                activeAnimalsArray.push({
+                    tag_id: tag,
+                    gender: "Unknown",
+                    breed: "Crossbreed",
+                    dob: dob,
+                    shed: "Shed Nursery",
+                    weight: "12 kg",
+                    father_id: father,
+                    mother_id: mother
+                });
+            });
 
-                grid.innerHTML = animals.map(item => createAnimalCardHTML(item)).join('');
-            } catch (err) {
-                renderSampleCards();
+            alert(`Successfully registered ${offspringTags.length} offspring linked to Dam: ${mother} and Sire: ${father}!`);
+            document.querySelector('form').reset();
+            renderActiveHerd();
+            switchTab('activeHerd');
+        }
+
+        // Search Filter
+        function filterActiveHerd() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = activeAnimalsArray.filter(a => a.tag_id.toLowerCase().includes(query) || a.breed.toLowerCase().includes(query));
+            renderActiveHerd(filtered);
+        }
+
+        function openNewAnimalModal() {
+            const newTag = prompt("Enter new animal Tag ID (e.g. TAG-105):");
+            if (newTag) {
+                activeAnimalsArray.push({
+                    tag_id: newTag.trim(),
+                    gender: "Female",
+                    breed: "Large White Yorkshire",
+                    dob: new Date().toISOString().split('T')[0],
+                    shed: "Shed A",
+                    weight: "35 kg",
+                    father_id: "Unknown",
+                    mother_id: "Unknown"
+                });
+                renderActiveHerd();
             }
-        }
-
-        function renderSampleCards() {
-            const grid = document.getElementById('active-animals-grid');
-            const sampleData = [
-                { id: '1', tagId: 'VFH-101', gender: 'Female', weight: 45, shed: 'Shed A', owner: 'Master' },
-                { id: '2', tagId: 'VFH-102', gender: 'Male', weight: 52, shed: 'Shed B', owner: 'Master' },
-                { id: '3', tagId: 'VFH-103', gender: 'Female', weight: 38, shed: 'Shed A', owner: 'Master' }
-            ];
-            grid.innerHTML = sampleData.map(item => createAnimalCardHTML(item)).join('');
-        }
-
-        function createAnimalCardHTML(item) {
-            return `
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-lg hover:border-emerald-500/80 transition cursor-pointer" onclick="openAnimalProfile('${item.tagId}')">
-                <div>
-                    <div class="flex justify-between items-center"><span class="font-bold text-emerald-400 text-xs">Tag: ${item.tagId}</span><span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${item.gender}</span></div>
-                    <div class="flex justify-between items-center mt-3 text-xs text-slate-300">
-                        <span>Weight: <strong class="text-white">${item.weight || 0} kg</strong></span>
-                        <span class="bg-teal-950 text-teal-300 border border-teal-800 px-2 py-0.5 rounded text-[10px] font-bold">🏠 ${item.shed || 'Unassigned'}</span>
-                    </div>
-                </div>
-                <div class="pt-2 border-t border-slate-800 text-[10px] text-emerald-400 font-bold flex justify-between items-center">
-                    <span>Click for Lineage & Profile</span>
-                    <span>→</span>
-                </div>
-            </div>`;
-        }
-
-        async function openAnimalProfile(tagId) {
-            // Populate Modal Basic Info with sample or real data lookup
-            document.getElementById('profile-modal-title').innerText = `Animal Profile: ${tagId}`;
-            document.getElementById('profile-modal-farm').innerText = `Farm: Master`;
-            document.getElementById('profile-stat-gender').innerText = tagId === 'VFH-102' ? 'Male' : 'Female';
-            document.getElementById('profile-stat-weight').innerText = tagId === 'VFH-102' ? '52 kg' : '45 kg';
-            document.getElementById('profile-stat-shed').innerText = tagId === 'VFH-102' ? 'Shed B' : 'Shed A';
-            document.getElementById('profile-stat-status').innerText = 'Active';
-
-            document.getElementById('profile-modal-avatar').innerText = tagId.substring(0, 4);
-
-            // Mockup Lineage Lookup for testing
-            document.getElementById('profile-mother').innerText = tagId === 'VFH-101' ? 'SOW-001' : 'SOW-002';
-            document.getElementById('profile-father').innerText = 'BOAR-005';
-            document.getElementById('profile-birth-date').innerText = '2026-02-15';
-
-            const siblingContainer = document.getElementById('profile-siblings-container');
-            siblingContainer.innerHTML = `
-                <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded-lg text-xs font-bold">🏷️ ${tagId === 'VFH-101' ? 'VFH-104' : 'VFH-101'}</span>
-                <span class="bg-slate-900 border border-slate-700 text-emerald-400 px-2 py-1 rounded-lg text-xs font-bold">🏷️ ${tagId === 'VFH-101' ? 'VFH-105' : 'VFH-103'}</span>
-            `;
-
-            // Show Modal
-            document.getElementById('animal-profile-modal').classList.remove('hidden');
-        }
-
-        function closeAnimalProfileModal() {
-            document.getElementById('animal-profile-modal').classList.add('hidden');
         }
     </script>
 </body>
