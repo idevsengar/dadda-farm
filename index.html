@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dadda Enviro Varah Farms - Master & User Portal</title>
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -256,7 +258,7 @@
                             </select>
                             <button onclick="bulkDeleteCategory('sold')" class="bg-amber-950 text-amber-300 hover:bg-amber-900 px-2.5 py-1.5 rounded-xl border border-amber-800 font-bold transition" data-i18n="deleteSoldBtn">🗑️ Del Sold</button>
                             <button onclick="bulkDeleteCategory('dead')" class="bg-red-950 text-red-300 hover:bg-red-900 px-2.5 py-1.5 rounded-xl border border-red-800 font-bold transition" data-i18n="deleteDeadBtn">🗑️ Del Dead</button>
-                            <button onclick="bulkDeleteCategory('transferred')" class="bg-teal-950 text-teal-300 hover:bg-teal-900 px-2.5 py-1.5 rounded-xl border border-teal-800 font-bold transition" data-i18n="deleteTransferredBtn">🗑️️ Del Transferred</button>
+                            <button onclick="bulkDeleteCategory('transferred')" class="bg-teal-950 text-teal-300 hover:bg-teal-900 px-2.5 py-1.5 rounded-xl border border-teal-800 font-bold transition" data-i18n="deleteTransferredBtn">🗑 Del Transferred</button>
                         </div>
                     </div>
                     <div id="archives-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2"></div>
@@ -637,9 +639,9 @@
                 filterShedLabel: "शेड (Shed):",
                 allGendersOption: "सर्व लिंग",
                 allShedsOption: "सर्व शेड",
-                deleteAllActiveBtn: "🗑️️ सर्व सक्रिय काढा",
-                deleteSoldBtn: "🗑️ विकलेले काढा",
-                deleteDeadBtn: "🗑️️ मृत काढा",
+                deleteAllActiveBtn: "🗑 सर्व सक्रिय काढा",
+                deleteSoldBtn: "🗑️️ विकलेले काढा",
+                deleteDeadBtn: "🗑 मृत काढा",
                 deleteTransferredBtn: "🗑️ ट्रान्सफर काढा",
                 archivesHeader: "जनावर इतिहास (विकलेले / मृत / हस्तांतरित)",
                 breedingHeader: "प्रजनन आणि पिल्लू नोंद",
@@ -1145,7 +1147,6 @@
                 shedSelect.innerHTML = optionsHTML;
                 shedSelect.value = sheds.includes(currentSelected) || currentSelected === 'ALL' ? currentSelected : 'ALL';
             }
-
             // 2. Populate Feed Form Shed Select Dropdown
             const feedShedSelect = document.getElementById('feedShedSelect');
             if(feedShedSelect) {
@@ -1158,7 +1159,6 @@
                 feedShedSelect.innerHTML = feedShedOptions;
                 feedShedSelect.value = feedShedSelect.querySelector(`option[value="${currentFeedShed}"]`) ? currentFeedShed : 'General';
             }
-
             // 3. Populate Feed Tab Filter Shed Dropdown
             const feedShedFilter = document.getElementById('feedShedFilter');
             if(feedShedFilter) {
@@ -1433,7 +1433,6 @@
             if(selectedFeedShed && selectedFeedShed !== 'ALL') {
                 filteredData = filteredData.filter(i => (i.feedShed || 'General').trim().toLowerCase() === selectedFeedShed.trim().toLowerCase());
             }
-
             // Calculate metric totals
             let totalQty = filteredData.reduce((sum, item) => sum + (parseFloat(item.qty) || 0), 0);
             let totalCost = filteredData.reduce((sum, item) => sum + (parseFloat(item.feedCost) || 0), 0);
